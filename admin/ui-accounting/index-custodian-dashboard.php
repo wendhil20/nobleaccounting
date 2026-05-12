@@ -25,8 +25,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
 <body class="bg-slate-100">
     <main class="ml-56 min-h-screen p-8">
-
-
+            <?php include ROOT_PATH . '/admin/announcementcentral/template.php'; ?>
 
     </main>
 </body>

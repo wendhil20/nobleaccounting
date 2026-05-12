@@ -38,7 +38,7 @@ $today = date('Y-m-d');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budget Request Form — NobleHome</title>
+    <title>Budget Request Form NobleHome</title>
     <?php include ROOT_PATH . '/link/top.php'; ?>
     <?php include ROOT_PATH . '/user/navigation/top.php'; ?>
 </head>
@@ -119,7 +119,7 @@ $today = date('Y-m-d');
             </div>
 
             <!-- ── Table ── -->
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto max-h-[220px] overflow-y-auto">
                 <table class="w-full text-sm border-collapse">
                     <thead>
                         <tr class="bg-orange-500 text-white text-[11px] font-bold uppercase tracking-wider">

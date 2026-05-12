@@ -12,3 +12,4 @@ const POSITION_HEAD     = 'head';
 const POSITION_STAFF    = 'staff';
 const POSITION_CUSTODIAN    = 'custodian';
 const POSITION_CUSTOASSISTANT = 'custoassistant';
+

@@ -150,10 +150,7 @@ $position = $_SESSION['position'] ?? '';
 
                 <!-- Particulars Table -->
                 <div class="relative">
-                    <div id="v-stamp" class="hidden absolute top-2 right-16 z-10 opacity-75">
-                        <img src="<?= BASE_URL ?>/icon/stamp.png" alt="stamp"
-                            class="w-28 h-28 object-contain rotate-[-12deg]">
-                    </div>
+
                     <table class="w-full text-sm border-collapse">
                         <thead>
                             <tr class="bg-orange-500 text-white">
@@ -326,7 +323,7 @@ $position = $_SESSION['position'] ?? '';
                 <td class="px-5 py-3 text-gray-600">${row.purpose}</td>
                 <td class="px-5 py-3 text-xs text-gray-400 font-mono">${row.date_requested}</td>
                 <td class="px-5 py-3 font-mono text-xs font-semibold text-gray-700">
-                    PhP ${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                    PHP ${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                 </td>
                 <td class="px-5 py-3">${row.voucher_status ? statusBadge(row.voucher_status) : '<span class="text-[10px] text-gray-400">Not submitted</span>'}</td>
                 <td class="px-5 py-3">
@@ -370,8 +367,6 @@ $position = $_SESSION['position'] ?? '';
             document.getElementById('v-received-at').textContent = row.receiver_name && row.received_at
                 ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
 
-            document.getElementById('v-stamp').classList.toggle('hidden', !row.voucher_status);
-
             // Items
             let rows = '';
             let filled = 0;
@@ -394,6 +389,7 @@ $position = $_SESSION['position'] ?? '';
                 <td class="px-4 py-2"></td>
             </tr>`;
             }
+
             document.getElementById('v-items-tbody').innerHTML = rows;
 
             // Footer buttons — based on position
@@ -412,11 +408,18 @@ $position = $_SESSION['position'] ?? '';
                 }
             } else if (POSITION === '<?= POSITION_HEAD ?>') {
                 if (row.voucher_status === 'voucher_approval' && !row.approved_by) {
-                    actionBtn = `
+                    if (!row.prepared_by) {
+                        actionBtn = `
+                <span class="flex items-center gap-2 text-xs text-red-500 font-semibold px-4 py-2 bg-red-50 rounded-lg border border-red-200">
+                    <i class="fa-solid fa-lock"></i>Waiting for to be prepared
+                </span>`;
+                    } else {
+                        actionBtn = `
                 <button onclick="markApproved(${row.voucher_id})"
                     class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
                     <i class="fa-solid fa-check mr-1"></i>Approve Voucher
                 </button>`;
+                    }
                 }
             }
 
@@ -445,9 +448,34 @@ $position = $_SESSION['position'] ?? '';
             })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.success) { closeVoucherModal(); previousCount = 0; fetchVouchers(); }
-                    else alert(data.error ?? 'Failed.');
+                    if (data.success) {
+                        closeVoucherModal();
+                        showToast('Voucher marked as prepared!');
+                        previousCount = 0;
+                        fetchVouchers();
+                    } else {
+                        showToast(data.error ?? 'Failed to mark as prepared.', 'error');
+                    }
                 });
+        }
+
+        function showToast(message, type = 'success') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+            };
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-6 right-6 z-[999] flex items-center gap-3 ${colors[type]} text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-lg transition-all duration-300 opacity-0 translate-y-2`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> ${message}`;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('opacity-0', 'translate-y-2');
+            });
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         function markApproved(voucherId) {
@@ -458,10 +486,17 @@ $position = $_SESSION['position'] ?? '';
             })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.success) { closeVoucherModal(); previousCount = 0; fetchVouchers(); }
-                    else alert(data.error ?? 'Failed.');
+                    if (data.success) {
+                        closeVoucherModal();
+                        showToast('Voucher approved successfully!');
+                        previousCount = 0;
+                        fetchVouchers();
+                    } else {
+                        showToast(data.error ?? 'Failed.', 'error');
+                    }
                 });
         }
+
 
         let previousCount = 0;
 

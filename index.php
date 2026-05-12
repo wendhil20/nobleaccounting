@@ -5,6 +5,8 @@ error_reporting(E_ALL);
 
 define('ROOT_PATH', __DIR__);
 
+require_once ROOT_PATH . '/vendor/autoload.php';  
+
 // ─── Load .env ────────────────────────────────────────────────────────────────
 $envFile = ROOT_PATH . '/.env';
 
@@ -50,56 +52,111 @@ if ($request === '' || $request === 'home') {
 }
 
 $routes = [
-    'home' => 'user/authentication/index-login.php',
-    'logout' => 'admin/authentication/index-logout.php',
-    'loginadmin' => 'admin/authentication/index-login.php',
-    'loginuser' => 'user/authentication/index-login.php',
-    'callback' => 'user/authentication/index-callback.php',
-    'userhome' => 'user/ui/index-main-page-1.php',
-    'register' => 'user/authentication/index-register.php',
-    'verify' => 'user/authentication/index-verify.php',
-    'logoutuser' => 'user/authentication/index-logout.php',
-    // it
-    'it' => 'admin/ui-informationtech/index-it-main.php',
-    // accounting
-    'accounting' => 'admin/ui-accounting/index-accounting-main.php',
-    'accountingstaff' => 'admin/ui-accounting/index-staff-main.php',
-    'accountingstaffdashboard' => 'admin/ui-accounting/index-staff-dashboard.php',
-    'fetchapproved' => 'admin/ui-accounting/index-staff-fetch-approved.php',
-    'markreceived' => 'admin/ui-accounting/index-staff-mark-received.php',
-    'fetchacknowledged' => 'admin/ui-accounting/index-staff-acknowledge.php',
-    'accountingcustodian' => 'admin/ui-accounting/index-custodian-main.php',
-    'accountingcustodiandashboard' => 'admin/ui-accounting/index-custodian-dashboard.php',
-    'download-pdfbudgetrequest' => 'admin/ui-accounting/download-pdfbudgetrequest.php',
-    'fetchreceived' => 'admin/ui-accounting/index-custodian-fetch-received.php',
-    'submitrequestvoucher' => 'admin/ui-accounting/index-custodian-submit-voucher.php',
-    'cashvoucherdashboard' => 'admin/ui-accounting/index-cashvoucherdashboard.php',
-    'cashvoucherapproved' => 'admin/ui-accounting/index-cashvoucherapproved.php',
-    'cashvoucherprepared' => 'admin/ui-accounting/index-cashvoucherprepared.php',
-    'cashvoucherfetchall' => 'admin/ui-accounting/index-cashvoucherfetchall.php',
-    // hr
-    'humanresource' => 'admin/ui-humanresource/humanresource-main.php',
-    'superad' => 'admin/ui-humanresource/humanresource-registration-account.php',
-    'department' => 'admin/ui-humanresource/humanresource-registration-department.php',
-    'hrfetch' => 'admin/ui-humanresource/humanresource-hrfetch.php',
-    'hrposition' => 'admin/ui-humanresource/humanresource-hrposition.php',
-    'humanresourcerequest' => 'admin/ui-humanresource/humanresource-request.php',
-    // operation
-    'operation' => 'admin/ui-operation/index-operation-main.php',
-    // sales & market
-    'salesmarket' => 'admin/ui-salesmarket/index-sales-main.php',
-    // graphic design
-    'graphicdesign' => 'admin/ui-graphicdesign/index-graphic-main.php',
-    // designer
-    'designer' => 'admin/ui-designer/designer-main.php',
-    // cutting list
-    'cuttinglist' => 'admin/ui-cuttinglist/cuttinglist-main.php',
+    'home'                             => 'user/authentication/index-login.php',
+    'logout'                           => 'admin/authentication/index-logout.php',
+    'loginadmin'                       => 'admin/authentication/index-login.php',
+    'loginuser'                        => 'user/authentication/index-login.php',
+    'callback'                         => 'user/authentication/index-callback.php',
+    'userhome'                         => 'user/ui/index-main-page-1.php',
+    'register'                         => 'user/authentication/index-register.php',
+    'verify'                           => 'user/authentication/index-verify.php',
+    'logoutuser'                       => 'user/authentication/index-logout.php',
+    'fetchannouncements'               => 'user/navigation/backend/backend-announcement/fetchannouncements.php',
+    'saveannouncement'                 => 'admin/announcementcentral/save-announcement.php',
+    'deleteannouncement'               => 'admin/announcementcentral/deleteannouncement.php',
+    'fetchannouncementsadmin'          => 'admin/announcementcentral/fetchannouncementsadmin.php',
+    'generalannouncement'              => 'admin/announcementcentral/announcement-view.php',
 
-    'unauthorized' => 'admin/authentication/index-unauthorized.php',
-    'fetchheads' => 'user/ui/index-fetch-heads.php',
-    'submitrequest' => 'user/ui/index-submit-request.php',
-    'fetchrequests' => 'admin/requestcentral/fetch-requests.php',
-    'actionrequest' => 'admin/requestcentral/action-request.php',
+    //user
+    'myvouchers'                       => 'user/ui/index-my-vouchers.php',
+    'fetchmyvouchers'                  => 'user/ui/backend/index-fetch-my-vouchers.php',
+    'acceptvoucher'                    => 'user/ui/backend/index-accept-voucher.php',
+    'fetchheads'                       => 'user/ui/backend/index-fetch-heads.php',
+    'submitrequest'                    => 'user/ui/backend/index-submit-request.php',
+    'fetchmyrequests'                  => 'user/ui/backend/index-fetch-my-requests.php',
+    'requesthistory'                   => 'user/ui/index-my-request-history.php',
+    'dashboard'                        => 'user/ui/index-main-dashboard.php',
+
+    // it
+    'it'                               => 'admin/ui-informationtech/index-it-main.php',
+
+    // accounting
+    'accounting'                       => 'admin/ui-accounting/index-accounting-main.php',
+    'download-pdfbudgetrequest'        => 'admin/ui-accounting/backend/backend-accounting/download-pdfbudgetrequest.php',
+    'accountingdashboard'              => 'admin/ui-accounting/index-accounting-dashboard.php',
+    'announcementdashboard'            => 'admin/ui-accounting/index-accounting-dashboard.php',
+    'announcement'                     => 'admin/ui-accounting/index-accounting-announcement.php',
+
+    //staffaccounting
+    'accountingstaff'                  => 'admin/ui-accounting/index-staff-main.php',
+    'accountingstaffdashboard'         => 'admin/ui-accounting/index-staff-dashboard.php',
+    'fetchapproved'                    => 'admin/ui-accounting/backend/backend-staff/index-staff-fetch-approved.php',
+    'markreceived'                     => 'admin/ui-accounting/backend/backend-staff/index-staff-mark-received.php',
+    'fetchacknowledged'                => 'admin/ui-accounting/backend/backend-staff/index-staff-acknowledge.php',
+    'accountingstaffannouncement'      => 'admin/ui-accounting/index-staff-announcement.php',
+
+    // custodian
+    'accountingcustodian'              => 'admin/ui-accounting/index-custodian-main.php',
+    'accountingcustodiandashboard'     => 'admin/ui-accounting/index-custodian-dashboard.php',
+    'fetchreceived'                    => 'admin/ui-accounting/backend/backend-custodian/index-custodian-fetch-received.php',
+    'submitrequestvoucher'             => 'admin/ui-accounting/backend/backend-custodian/index-custodian-submit-voucher.php',
+    'accountingcustodianassistant'     => 'admin/ui-accounting/index-custodianassist-main.php',
+    'announcementcustodian'            => 'admin/ui-accounting/index-custodian-dashboard.php',
+    // custiodiansublink
+    'projectmonitor'                   => 'admin/ui-accounting/index-projectmonitor-main.php',
+    'projectdetail'                    => 'admin/ui-accounting/index-projectmonitor-details.php',
+    'fetchprojects'                    => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-fetchprojects.php',
+    'saveproject'                      => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-saveproject.php',
+    'fetchprojectbilling'              => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-fetchprojectbilling.php',
+    'saveprojectbilling'               => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-saveprojectbilling.php',
+    'deleteprojectbilling'             => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-deleteprojectbilling.php',
+    'fetchprojectexpense'              => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-fetchprojectexpense.php',
+    'saveprojectexpense'               => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-saveprojectexpense.php',
+    'deleteprojectexpense'             => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-deleteprojectexpense.php',
+    'exportprojectexcel'               => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-exportprojectexcel.php',
+
+    //cashvoucher
+    'cashvoucherdashboard'             => 'admin/ui-accounting/index-cashvoucherdashboard.php',
+    'cashvoucherapproved'              => 'admin/ui-accounting/backend/backend-cashvoucher/index-cashvoucherapproved.php',
+    'cashvoucherprepared'              => 'admin/ui-accounting/backend/backend-cashvoucher/index-cashvoucherprepared.php',
+    'cashvoucherfetchall'              => 'admin/ui-accounting/backend/backend-cashvoucher/index-cashvoucherfetchall.php',
+    'releasevoucher'                   => 'admin/ui-accounting/backend/backend-cashvoucher/index-cashreleasevoucher.php',
+
+    // hr
+    'humanresource'                    => 'admin/ui-humanresource/humanresource-main.php',
+    'superad'                          => 'admin/ui-humanresource/humanresource-registration-account.php',
+    'department'                       => 'admin/ui-humanresource/humanresource-registration-department.php',
+    'hrfetch'                          => 'admin/ui-humanresource/humanresource-hrfetch.php',
+    'hrposition'                       => 'admin/ui-humanresource/humanresource-hrposition.php',
+    'humanresourcerequest'             => 'admin/ui-humanresource/humanresource-request.php',
+
+    // operation
+    'operation'                        => 'admin/ui-operation/index-operation-main.php',
+
+    // sales & market
+    'salesmarket'                      => 'admin/ui-salesmarket/index-sales-main.php',
+
+    // graphic design
+    'graphicdesign'                    => 'admin/ui-graphicdesign/index-graphic-main.php',
+
+    // designer
+    'designer'                         => 'admin/ui-designer/designer-main.php',
+
+    // cutting list
+    'cuttinglist'                      => 'admin/ui-cuttinglist/cuttinglist-main.php',
+
+    'unauthorized'                     => 'admin/authentication/index-unauthorized.php',
+    'fetchrequests'                    => 'admin/requestcentral/fetch-requests.php',
+    'actionrequest'                    => 'admin/requestcentral/action-request.php',
+    'fetchnotifications'               => 'admin/navigation/sidebar-fetch-notifications.php',
+    'marknotificationsread'            => 'admin/navigation/sidebar-mark-notifications-read.php',
+    'notificationstream'               => 'admin/navigation/sidebar-notification-stream.php',
+    'pingrequest'                      => 'admin/requestcentral/ping-request.php',
+    'fetchstaff'                       => 'admin/requestcentral/fetch-staff.php',
+    'heartbeat'                        => 'admin/authentication/index-heartbeat.php',
+    'fetchnotificationsuser'           => 'user/navigation/backend/backend-notification/fetchnotifications.php',
+    'readnotificationuser'             => 'user/navigation/backend/backend-notification/readnotification.php',
+    'notificationsuser'                => 'user/ui/index-notifications.php',
 ];
 
 $file = $routes[$request] ?? null;

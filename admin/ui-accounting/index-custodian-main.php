@@ -49,8 +49,9 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 <div class="max-h-[500px] overflow-y-auto scrollbar-thin">
                     <table class="w-full text-sm">
                         <thead class="sticky top-0 z-10">
-                            <tr class="bg-gray-50 text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
+                            <tr class="bg-gray-50 text-[11px] font-semibold text-black uppercase tracking-widest">
                                 <th class="px-5 py-3 text-left">Voucher No.</th>
+                                <th class="px-5 py-3 text-left">Budget Request No.</th>
                                 <th class="px-5 py-3 text-left">Payee</th>
                                 <th class="px-5 py-3 text-left">Payment For</th>
                                 <th class="px-5 py-3 text-left">Date</th>
@@ -152,10 +153,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
                 <!-- Particulars Table -->
                 <div class="relative">
-                    <div id="v-stamp" class="hidden absolute top-2 right-16 z-10 opacity-75">
-                        <img src="<?= BASE_URL ?>/icon/stamp.png" alt="stamp"
-                            class="w-28 h-28 object-contain rotate-[-12deg]">
-                    </div>
+
                     <table class="w-full text-sm border-collapse">
                         <thead>
                             <tr class="bg-orange-500 text-white">
@@ -368,15 +366,28 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 tbody.innerHTML = `<tr><td colspan="9" class="px-5 py-8 text-center text-gray-400">No completed vouchers yet.</td></tr>`;
                 return;
             }
-            tbody.innerHTML = data.map(row => {
-                const items = row.items ?? [];
-                const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
-                return `
-            <tr class="border-t border-gray-100 hover:bg-gray-50 transition-colors">
-                <td class="px-5 py-3 font-mono text-xs text-blue-500 cursor-pointer underline"
-                    onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})">
-                    ${row.control_no}
-                </td>
+        tbody.innerHTML = data.map(row => {
+    const items = row.items ?? [];
+    const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+    
+const isComplete = row.approver_name && (row.receiver_name || row.manual_receiver_name) && row.voucher_status === 'released';
+const isPending = !row.approver_name || (!row.receiver_name && !row.manual_receiver_name);
+    
+    const rowClass = isComplete
+        ? 'bg-green-50 hover:bg-green-100'
+        : isPending
+            ? 'bg-red-100 hover:bg-red-200'
+            : 'hover:bg-gray-50';
+
+    return `
+<tr class="border-t border-gray-100 transition-colors ${rowClass}">
+               <td class="px-5 py-3 font-mono text-xs text-blue-500 cursor-pointer underline"
+    onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})">
+    ${row.voucher_control_no ?? '—'}
+</td>
+<td class="px-5 py-3 font-mono text-xs text-gray-500">
+    ${row.budget_control_no}
+</td>
                 <td class="px-5 py-3 text-gray-800">${row.voucher_payee ?? '—'}</td>
                 <td class="px-5 py-3 text-gray-600">${row.purpose}</td>
                 <td class="px-5 py-3 text-xs text-gray-400 font-mono">${row.date_requested}</td>
@@ -384,7 +395,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     PhP ${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                 </td>
                 <td class="px-5 py-3 text-sm text-gray-700">${row.approver_name ?? '—'}</td>
-                <td class="px-5 py-3 text-sm text-gray-700">${row.receiver_name ?? '—'}</td>
+                <td class="px-5 py-3 text-sm text-gray-700">${row.manual_receiver_name || row.receiver_name || '—'}</td>
                 <td class="px-5 py-3">${row.voucher_status ? statusBadge(row.voucher_status) : '<span class="text-[10px] text-gray-400">Not submitted</span>'}</td>
                 <td class="px-5 py-3">
                     <button onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})"
@@ -400,6 +411,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             currentRow = row;
             const items = row.items ?? [];
             const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+
+            
 
             // Header
             document.getElementById('v-control-no').textContent = row.control_no;
@@ -435,7 +448,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             document.getElementById('v-received-at').textContent = row.receiver_name && row.received_at
                 ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
 
-            document.getElementById('v-stamp').classList.remove('hidden');
+            // Received By — manual o system
+const receiverName = row.manual_receiver_name || row.receiver_name || '';
+const receivedAt = row.manual_receiver_date 
+    ? new Date(row.manual_receiver_date).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' })
+    : row.received_at 
+        ? new Date(row.received_at.replace(' ','T')).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' })
+        : '';
+
+document.getElementById('v-receiver').textContent = receiverName;
+document.getElementById('v-received-at').textContent = receivedAt;
+
 
             // Items
             let rows = '';
@@ -461,30 +484,43 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             }
             document.getElementById('v-items-tbody').innerHTML = rows;
 
-            // Footer buttons
-            const footerBtns = document.getElementById('v-footer-btns');
-            const closeBtn = `<button onclick="closeVoucherModal()" class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all border border-gray-200">Close</button>`;
 
-            if (!row.voucher_status) {
-                footerBtns.innerHTML = closeBtn + `
-                <button onclick="confirmSubmit()"
-                    class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
-                    <i class="fa-solid fa-paper-plane mr-1"></i>Submit Voucher
-                </button>`;
-            } else if (row.voucher_status === 'ready_to_release') {
-                footerBtns.innerHTML = closeBtn + `
-                <button onclick="releaseVoucher(${row.voucher_id})"
-                    class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
-                    <i class="fa-solid fa-check mr-1"></i>Release Cash Voucher 
-                </button>`;
-            } else {
-                footerBtns.innerHTML = closeBtn + `
-                <span class="text-xs text-gray-400 px-4 py-2 font-medium">
-                    ${row.voucher_status === 'released'
-                        ? '<i class="fa-solid fa-check text-green-500 mr-1"></i>Released'
-                        : '<i class="fa-solid fa-clock text-yellow-500 mr-1"></i>Waiting for approval'}
-                </span>`;
-            }
+            // Footer buttons
+const footerBtns = document.getElementById('v-footer-btns');
+const closeBtn = `<button onclick="closeVoucherModal()" class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all border border-gray-200">Close</button>`;
+
+if (!row.budget_received_by) {
+    footerBtns.innerHTML = closeBtn + `
+        <span class="flex items-center gap-2 text-xs text-gray-400 px-4 py-2 font-medium bg-gray-50 rounded-lg border border-gray-200">
+            <i class="fa-solid fa-lock text-gray-300"></i>
+            Waiting for staff to mark as received
+        </span>`;
+} else if (!row.voucher_status) {
+    footerBtns.innerHTML = closeBtn + `
+        <button onclick="confirmSubmit()"
+            class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
+            <i class="fa-solid fa-paper-plane mr-1"></i>Submit Voucher
+        </button>`;
+} else if (row.voucher_status === 'ready_to_release') {
+    footerBtns.innerHTML = closeBtn + `
+        <div class="flex items-center gap-2">
+            <input type="text" id="manual-receiver-name" placeholder="Receiver name (optional)"
+                class="border border-gray-200 rounded px-3 py-1.5 text-xs outline-none focus:border-orange-400 w-44">
+            <input type="date" id="manual-receiver-date"
+                class="border border-gray-200 rounded px-3 py-1.5 text-xs outline-none focus:border-orange-400 w-36">
+            <button onclick="releaseVoucher(${row.voucher_id})"
+                class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all whitespace-nowrap">
+                <i class="fa-solid fa-check mr-1"></i>Release Cash Voucher
+            </button>
+        </div>`;
+} else {
+    footerBtns.innerHTML = closeBtn + `
+        <span class="text-xs text-gray-400 px-4 py-2 font-medium">
+            ${row.voucher_status === 'released'
+                ? '<i class="fa-solid fa-check text-green-500 mr-1"></i>Released'
+                : '<i class="fa-solid fa-clock text-yellow-500 mr-1"></i>Waiting for approval'}
+        </span>`;
+}
 
             document.getElementById('voucher-modal').classList.remove('hidden');
         }
@@ -541,23 +577,27 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 });
         }
 
-        function releaseVoucher(voucherId) {
-            if (!confirm('Release this voucher?')) return;
-            fetch('<?= BASE_URL ?>/releasevoucher', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ voucher_id: voucherId })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        closeVoucherModal();
-                        allData = [];
-                        fetchVouchers();
-                    }
-                });
-        }
+function releaseVoucher(voucherId) {
+    const manualName = document.getElementById('manual-receiver-name')?.value.trim() ?? '';
+    const manualDate = document.getElementById('manual-receiver-date')?.value ?? '';
 
+    fetch('<?= BASE_URL ?>/releasevoucher', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voucher_id: voucherId, manual_name: manualName, manual_date: manualDate })
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                closeVoucherModal();
+                showToast('Cash voucher released!');
+                allData = [];
+                fetchVouchers();
+            } else {
+                showToast(data.error ?? 'Failed to release.', 'error');
+            }
+        });
+}
         function fetchVouchers() {
             fetch('<?= BASE_URL ?>/fetchreceived')
                 .then(res => res.json())

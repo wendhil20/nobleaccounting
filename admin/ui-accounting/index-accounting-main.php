@@ -9,8 +9,6 @@ include ROOT_PATH . '/admin/authentication/index-roles.php';
 
 $allowedRoles = [ROLE_ACCOUNTING];
 include ROOT_PATH . '/admin/authentication/index-roleguard.php';
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
