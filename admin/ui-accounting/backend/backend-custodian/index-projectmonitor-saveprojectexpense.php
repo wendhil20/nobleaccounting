@@ -15,16 +15,15 @@ $mode_of_payment = trim($body['mode_of_payment'] ?? '');
 $payment_date = trim($body['payment_date'] ?? '') ?: null;
 $reference = trim($body['reference'] ?? '');
 $remarks = trim($body['remarks'] ?? '');
+$title = trim($body['title'] ?? '');
 
-if ($id) {
-    $stmt = $conn->prepare("UPDATE nobleprojectexpense SET particulars=?, amount=?, mode_of_payment=?, payment_date=?, reference=?, remarks=? WHERE id=?");
-    $stmt->bind_param("sdssssi", $particulars, $amount, $mode_of_payment, $payment_date, $reference, $remarks, $id);
+// UPDATE:
+$stmt = $conn->prepare("UPDATE nobleprojectexpense SET title=?, particulars=?, amount=?, mode_of_payment=?, payment_date=?, reference=?, remarks=? WHERE id=?");
+$stmt->bind_param("ssdssssi", $title, $particulars, $amount, $mode_of_payment, $payment_date, $reference, $remarks, $id);
 
-} else {
-    $stmt = $conn->prepare("INSERT INTO nobleprojectexpense (project_id, particulars, amount, mode_of_payment, payment_date, reference, remarks) VALUES (?,?,?,?,?,?,?)");
-    $stmt->bind_param("isdssss", $project_id, $particulars, $amount, $mode_of_payment, $payment_date, $reference, $remarks);
-
-}
+// INSERT:
+$stmt = $conn->prepare("INSERT INTO nobleprojectexpense (project_id, title, particulars, amount, mode_of_payment, payment_date, reference, remarks) VALUES (?,?,?,?,?,?,?,?)");
+$stmt->bind_param("issdssss", $project_id, $title, $particulars, $amount, $mode_of_payment, $payment_date, $reference, $remarks);
 
 $result = $stmt->execute();
 echo json_encode(['success' => $result, 'error' => $conn->error]);

@@ -17,5 +17,3 @@ if (!defined('ROOT_PATH')) {
     font-family: 'Plus Jakarta Sans', sans-serif;
   }
 </style>
-
-

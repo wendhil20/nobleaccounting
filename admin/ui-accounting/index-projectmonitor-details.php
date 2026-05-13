@@ -309,6 +309,8 @@ if (!$project) {
                         <tr style="background:#374151; color:white; position:sticky; top:30px; z-index:1;">
                             <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:32px;">NO.
                             </th>
+                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left; width:120px;">TITLE
+                            </th>
                             <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left;">PARTICULARS</th>
                             <th style="padding:5px 8px; border:1px solid #4b5563; text-align:right; width:100px;">AMOUNT
                             </th>
@@ -333,7 +335,7 @@ if (!$project) {
                     </tbody>
                     <tfoot>
                         <tr style="background:#fef3c7;">
-                            <td colspan="2"
+                            <td colspan="3"
                                 style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-size:9px; text-transform:uppercase; letter-spacing:1px;">
                                 Total Amount Paid :
                             </td>
@@ -428,6 +430,12 @@ if (!$project) {
                     <label
                         class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Particulars</label>
                     <input id="e-particulars" type="text"
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400">
+                </div>
+                <div>
+                    <label
+                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Title</label>
+                    <input id="e-title" type="text"
                         class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -584,7 +592,6 @@ if (!$project) {
         }
 
         function deleteBilling(id) {
-            if (!confirm('Delete this entry?')) return;
             fetch(`${BASE_URL}/deleteprojectbilling`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -618,6 +625,7 @@ if (!$project) {
     onmouseleave="this.style.background='${i % 2 === 1 ? '#f9fafb' : 'white'}'"
 >
             <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center; color:#9ca3af;">${i + 1}</td>
+            <td style="padding:5px 8px; border:1px solid #e5e7eb;">${row.title ?? ''}</td>
             <td style="padding:5px 8px; border:1px solid #e5e7eb;">${row.particulars ?? ''}</td>
             <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:right; font-family:monospace;">₱ ${amt.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
             <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center;">${row.mode_of_payment ?? ''}</td>
@@ -644,7 +652,7 @@ if (!$project) {
 
         function openExpenseModal(clear = true) {
             if (clear) {
-                ['e-edit-id', 'e-particulars', 'e-amount', 'e-mode', 'e-payment-date', 'e-reference', 'e-remarks']
+                ['e-edit-id', 'e-title', 'e-particulars', 'e-amount', 'e-mode', 'e-payment-date', 'e-reference', 'e-remarks']
                     .forEach(id => document.getElementById(id).value = '');
             }
             document.getElementById('expense-modal').classList.remove('hidden');
@@ -662,6 +670,7 @@ if (!$project) {
             document.getElementById('e-payment-date').value = row.payment_date ?? '';
             document.getElementById('e-reference').value = row.reference ?? '';
             document.getElementById('e-remarks').value = row.remarks ?? '';
+            document.getElementById('e-title').value = row.title ?? '';
             openExpenseModal(false);
         }
 
@@ -669,6 +678,7 @@ if (!$project) {
             const payload = {
                 id: document.getElementById('e-edit-id').value || null,
                 project_id: PROJECT_ID,
+                title: document.getElementById('e-title').value,
                 particulars: document.getElementById('e-particulars').value,
                 amount: document.getElementById('e-amount').value,
                 mode_of_payment: document.getElementById('e-mode').value,
@@ -687,7 +697,6 @@ if (!$project) {
         }
 
         function deleteExpense(id) {
-            if (!confirm('Delete this entry?')) return;
             fetch(`${BASE_URL}/deleteprojectexpense`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
