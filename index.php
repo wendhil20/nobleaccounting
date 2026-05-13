@@ -39,7 +39,7 @@ define(
     'BASE_URL',
     $isLocalhost
     ? 'http://localhost/nobleaccounting'
-    : 'https://www.noblehomedepot.com'
+    : 'https://www.financehomedepot.com'
 );
 // ─── Routing ──────────────────────────────────────────────────────────────────
 $request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
