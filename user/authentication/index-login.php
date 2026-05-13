@@ -7,7 +7,7 @@ include ROOT_PATH . '/network/connect.php';
 
 // Already logged in
 if (!empty($_SESSION['logged_in'])) {
-    header('Location: ' . BASE_URL . '/userhome');
+    header('Location: ' . BASE_URL . '/');
     exit;
 }
 
