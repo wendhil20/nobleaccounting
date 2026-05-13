@@ -39,8 +39,10 @@ define(
     'BASE_URL',
     $isLocalhost
     ? 'http://localhost/nobleaccounting'
-    : 'https://www.financehomedepot.com'
+    : $_ENV['APP_URL']
 );
+
+
 // ─── Routing ──────────────────────────────────────────────────────────────────
 $request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $request = trim($request, '/');
@@ -102,6 +104,7 @@ $routes = [
     'submitrequestvoucher'             => 'admin/ui-accounting/backend/backend-custodian/index-custodian-submit-voucher.php',
     'accountingcustodianassistant'     => 'admin/ui-accounting/index-custodianassist-main.php',
     'announcementcustodian'            => 'admin/ui-accounting/index-custodian-dashboard.php',
+
     // custiodiansublink
     'projectmonitor'                   => 'admin/ui-accounting/index-projectmonitor-main.php',
     'projectdetail'                    => 'admin/ui-accounting/index-projectmonitor-details.php',
@@ -114,6 +117,7 @@ $routes = [
     'saveprojectexpense'               => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-saveprojectexpense.php',
     'deleteprojectexpense'             => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-deleteprojectexpense.php',
     'exportprojectexcel'               => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-exportprojectexcel.php',
+    'saveincomeloss'                   => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-saveincomeloss.php',
 
     //cashvoucher
     'cashvoucherdashboard'             => 'admin/ui-accounting/index-cashvoucherdashboard.php',

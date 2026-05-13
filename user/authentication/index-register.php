@@ -20,7 +20,7 @@ if (!empty($_SESSION['logged_in'])) {
 
 $isLocalhost = str_contains($_SERVER['HTTP_HOST'], 'localhost') ||
     str_contains($_SERVER['HTTP_HOST'], '127.0.0.1');
-$ALLOWED_DOMAIN = 'noble.com';
+$ALLOWED_DOMAIN = 'gmail.com';
 
 $error = '';
 $success = '';

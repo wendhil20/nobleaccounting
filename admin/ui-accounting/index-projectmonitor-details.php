@@ -343,6 +343,16 @@ if (!$project) {
                                 style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-family:monospace; text-align:right;"
                                 colspan="6">₱ 0.00</td>
                         </tr>
+                        <!-- DAGDAG NA ROW -->
+                        <tr style="background:#f0fdf4;">
+                            <td colspan="3"
+                                style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-size:9px; text-transform:uppercase; letter-spacing:1px;">
+                                Possible Income / <span class="text-red-500">Loss</span> :
+                            </td>
+                            <td id="income-loss"
+                                style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-family:monospace; text-align:right;"
+                                colspan="6">₱ 0.00</td>
+                        </tr>
                     </tfoot>
                 </table>
             </div>
@@ -647,7 +657,19 @@ if (!$project) {
         </tr>`;
             }).join('');
 
+            // Palitan ng:
             document.getElementById('expense-total').textContent = '₱ ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+
+            const incomeLoss = CONTRACT_AMOUNT - total;
+            const incomeLossEl = document.getElementById('income-loss');
+            incomeLossEl.textContent = '₱ ' + Math.abs(incomeLoss).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+
+            if (incomeLoss < 0) {
+                incomeLossEl.style.color = '#dc2626'; // pula = loss
+                incomeLossEl.textContent = '-₱ ' + Math.abs(incomeLoss).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+            } else {
+                incomeLossEl.style.color = '#16a34a'; // berde = income
+            }
         }
 
         function openExpenseModal(clear = true) {
@@ -713,9 +735,23 @@ if (!$project) {
             setTimeout(() => { t.classList.add('opacity-0'); setTimeout(() => t.remove(), 300); }, 3000);
         }
 
+        async function autoSaveIncomeLoss() {
+            const expRes = await fetch(`${BASE_URL}/fetchprojectexpense?project_id=${PROJECT_ID}`);
+            const expData = await expRes.json();
+            const totalExpenses = expData.reduce((sum, r) => sum + parseFloat(r.amount || 0), 0);
+            const incomeLoss = CONTRACT_AMOUNT - totalExpenses;
+
+            await fetch(`${BASE_URL}/saveincomeloss`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ project_id: PROJECT_ID, income_loss: incomeLoss })
+            });
+        }
+
         fetchBilling();
         fetchExpenses();
-        setInterval(() => { fetchBilling(); fetchExpenses(); }, 15000);
+        autoSaveIncomeLoss();
+        setInterval(() => { fetchBilling(); fetchExpenses(); autoSaveIncomeLoss(); }, 15000);
     </script>
 </body>
 

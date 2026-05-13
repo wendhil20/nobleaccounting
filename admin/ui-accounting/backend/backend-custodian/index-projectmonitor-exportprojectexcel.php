@@ -217,8 +217,8 @@ $row++;
 // ── RENDER TABLE SECTION ──────────────────────────────────────────────────────
 function renderTableSection(
     $ws, &$row, $sectionTitle, $tableHeaders, $records, $footerLabel, $footerAmtRange,
-    $hasBalance, $balanceAmt
-) {
+    $hasBalance, $balanceAmt, $incomeLoss = null 
+){
     global $C_ORA2, $C_THEAD, $C_WHITE, $C_YELLOW, $C_BORDER;
 
     // Section title bar
@@ -306,14 +306,35 @@ function renderTableSection(
 
     $row++;
 
+// Income/Loss row — ipapakita lang kung may value
+if ($incomeLoss !== null) {
+    $ws->getRowDimension($row)->setRowHeight(18);
+    
+    $isLoss = $incomeLoss < 0;
+    $rowBg  = $isLoss ? 'FEF2F2' : 'F0FDF4'; // pula bg kung loss, berde kung income
+    $txtClr = $isLoss ? 'DC2626' : '16A34A';  // pula text kung loss, berde kung income
+    
+    xApply($ws, "A{$row}:O{$row}", [xFill($rowBg)]);
+    
+    $ws->mergeCells("B{$row}:D{$row}");
+    $ws->setCellValue("B{$row}", '  POSSIBLE INCOME / LOSS :');
+    xApply($ws, "B{$row}:D{$row}", [xFill($rowBg), xFont($C_THEAD, true, 8), xAlign('left', 'center')]);
+    
+    $ws->mergeCells("E{$row}:N{$row}");
+    $ws->setCellValue("E{$row}", '₱ ' . number_format(abs($incomeLoss), 2) . ($isLoss ? '  (LOSS)' : '  (INCOME)'));
+    xApply($ws, "E{$row}:N{$row}", [xFill($rowBg), xFont($txtClr, true, 10), xAlign('right', 'center')]);
+    
+    xApply($ws, "O{$row}", [xFill($rowBg)]);
+    $row++;
+    
     // Gap
     $ws->getRowDimension($row)->setRowHeight(10);
     xApply($ws, "A{$row}:O{$row}", [xFill($C_WHITE)]);
     $row++;
 }
+}
 
 // ── BILLING HEADERS ───────────────────────────────────────────────────────────
-// fieldKey in index [3] is used to pull value from record
 $billingHeaders = [
     ['C', 'C', 'NO.'],
     ['D', 'G', 'PARTICULARS',    'particulars'],
@@ -341,13 +362,17 @@ renderTableSection($ws, $row,
 // ── EXPENSE HEADERS ───────────────────────────────────────────────────────────
 $expenseHeaders = [
     ['C', 'C', 'NO.'],
-    ['D', 'G', 'PARTICULARS',      'particulars'],
+    ['D', 'F', 'TITLE',            'title'],
+    ['G', 'G', 'PARTICULARS',      'particulars'],
     ['H', 'I', 'AMOUNT',           'amount'],
     ['J', 'K', 'MODE OF PAYMENT',  'mode_of_payment'],
     ['L', 'L', 'PAYMENT DATE',     'payment_date'],
     ['M', 'M', 'REFERENCE',        'reference'],
     ['N', 'N', 'REMARKS',          'remarks'],
 ];
+
+$expenseTotal = array_sum(array_column($expenses, 'amount'));
+$incomeLoss   = $contractAmt - $expenseTotal;
 
 renderTableSection($ws, $row,
     '2. COSTS / EXPENSES',
@@ -356,8 +381,10 @@ renderTableSection($ws, $row,
     'TOTAL AMOUNT PAID :',
     ['E', 'N'],
     false,
-    0
+    0,
+    $incomeLoss
 );
+
 
 // ── FOOTER LINE ───────────────────────────────────────────────────────────────
 $ws->getRowDimension($row)->setRowHeight(14);
