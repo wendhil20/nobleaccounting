@@ -102,5 +102,5 @@ $_SESSION['picture']    = $payload['picture'] ?? ''; // ← dagdag ito
 $_SESSION['role']       = $account['role'];
 $_SESSION['logged_in']  = true;
 
-header('Location: ' . BASE_URL . '/loginuser');
+header('Location: ' . BASE_URL . '/userhome');
 exit;
