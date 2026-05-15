@@ -6,6 +6,19 @@ include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
 header('Content-Type: application/json');
 
-$result = $conn->query("SELECT * FROM nobleprojectmonitor ORDER BY created_at DESC");
-$data = $result->fetch_all(MYSQLI_ASSOC);
-echo json_encode($data);
+$result = $conn->query("
+    SELECT
+        p.*,
+        COALESCE(SUM(b.amount), 0) AS total_credited
+    FROM nobleprojectmonitor p
+    LEFT JOIN nobleprojectbilling b ON b.project_id = p.id
+    GROUP BY p.id
+    ORDER BY p.created_at DESC
+");
+
+$rows = [];
+while ($row = $result->fetch_assoc()) {
+    $rows[] = $row;
+}
+
+echo json_encode($rows);
