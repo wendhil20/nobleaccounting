@@ -368,7 +368,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <div class="flex gap-3">
                         <button type="button" class="mode-btn" id="mode-billing" onclick="setMode('billing')">
                             <i class="fa-solid fa-file-invoice-dollar text-orange-400"></i>
-                            Billing
+                            Collection
                         </button>
                         <button type="button" class="mode-btn" id="mode-expense" onclick="setMode('expense')">
                             <i class="fa-solid fa-receipt text-slate-500"></i>
