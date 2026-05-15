@@ -253,9 +253,10 @@ function renderTableSection(
         $bg = ($i % 2 === 0) ? $C_WHITE : 'F9FAFB';
         xApply($ws, "A{$row}:O{$row}", [xFill($bg)]);
 
-        // NO. column
-        $ws->setCellValue("C{$row}", $i + 1);
-        xApply($ws, "C{$row}", [xFill($bg), xFont('9CA3AF', false, 9), xAlign('center', 'center'), xBorder($C_BORDER)]);
+        // NO. column — merge B:C
+        $ws->mergeCells("B{$row}:C{$row}");
+        $ws->setCellValue("B{$row}", $i + 1);
+        xApply($ws, "B{$row}:C{$row}", [xFill($bg), xFont('9CA3AF', false, 9), xAlign('center', 'center'), xBorder($C_BORDER)]);
 
         // Margin cols
         xApply($ws, "A{$row}", [xFill($bg), xBorder($bg)]);
@@ -336,7 +337,7 @@ if ($incomeLoss !== null) {
 
 // ── BILLING HEADERS ───────────────────────────────────────────────────────────
 $billingHeaders = [
-    ['C', 'C', 'NO.'],
+    ['B', 'C', 'NO.'],
     ['D', 'G', 'PARTICULARS',    'particulars'],
     ['H', 'I', 'AMOUNT',         'amount'],
     ['J', 'K', 'BANK / CHECK',   'bank_check'],
@@ -361,8 +362,8 @@ renderTableSection($ws, $row,
 
 // ── EXPENSE HEADERS ───────────────────────────────────────────────────────────
 $expenseHeaders = [
-    ['C', 'C', 'NO.'],
-    ['D', 'F', 'TITLE',            'title'],
+    ['B', 'C', 'NO.'],
+    ['D', 'F', 'ACCOUNT TITLE',            'title'],
     ['G', 'G', 'PARTICULARS',      'particulars'],
     ['H', 'I', 'AMOUNT',           'amount'],
     ['J', 'K', 'MODE OF PAYMENT',  'mode_of_payment'],

@@ -309,7 +309,7 @@ if (!$project) {
                         <tr style="background:#374151; color:white; position:sticky; top:30px; z-index:1;">
                             <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:32px;">NO.
                             </th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left; width:120px;">TITLE
+                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left; width:120px;">ACCOUNT TITLE
                             </th>
                             <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left;">PARTICULARS</th>
                             <th style="padding:5px 8px; border:1px solid #4b5563; text-align:right; width:100px;">AMOUNT

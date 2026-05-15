@@ -302,6 +302,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             <select id="f-status"
                                 class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400">
                                 <option value="">— Select —</option>
+                                <option>New</option>
                                 <option>Ongoing</option>
                                 <option>Completed</option>
                                 <option>On Hold</option>
@@ -397,9 +398,13 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             <div>
                                 <label
                                     class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Amount</label>
-                                <input id="b-amount" type="number" step="0.01"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400"
-                                    placeholder="0.00">
+                                <div class="relative">
+                                    <span
+                                        class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold">₱</span>
+                                    <input id="b-amount" type="text" inputmode="decimal"
+                                        class="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2 text-sm outline-none focus:border-orange-400 font-mono"
+                                        placeholder="0.00" oninput="formatAmountInput(this)">
+                                </div>
                             </div>
                             <div>
                                 <label
@@ -468,9 +473,13 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             <div>
                                 <label
                                     class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Amount</label>
-                                <input id="e-amount" type="number" step="0.01"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400"
-                                    placeholder="0.00">
+                                <div class="relative">
+                                    <span
+                                        class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold">₱</span>
+                                    <input id="e-amount" type="text" inputmode="decimal"
+                                        class="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2 text-sm outline-none focus:border-slate-400 font-mono"
+                                        placeholder="0.00" oninput="formatAmountInput(this)">
+                                </div>
                             </div>
                             <div>
                                 <label
@@ -543,6 +552,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             }
 
             const statusColors = {
+                'New': 'bg-purple-100 text-purple-700',
                 'Ongoing': 'bg-blue-100 text-blue-700',
                 'Completed': 'bg-green-100 text-green-700',
                 'On Hold': 'bg-yellow-100 text-yellow-700',
@@ -676,12 +686,21 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
         function populateProjectDropdown(projects) {
             const sel = document.getElementById('entry-project-id');
-            // Keep placeholder
+            const modalOpen = !document.getElementById('entry-modal').classList.contains('hidden');
+            const savedVal = sel.value;
+
             sel.innerHTML = '<option value="">— Choose a project —</option>';
             projects.forEach(p => {
-                const label = `${p.project_name}${p.reference_no ? '  [' + p.reference_no + ']' : ''}`;
-                sel.innerHTML += `<option value="${p.id}">${label}</option>`;
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.project_name + (p.reference_no ? '  [' + p.reference_no + ']' : '');
+                sel.appendChild(opt);
             });
+
+            // Never wipe the user's selection if the modal is open
+            if (modalOpen && savedVal) {
+                sel.value = savedVal;
+            }
         }
 
         function openEntryModal() {
@@ -720,16 +739,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         function setMode(mode) {
             currentMode = mode;
 
-            // Reset mode button styles
-            document.getElementById('mode-billing').className = 'mode-btn';
-            document.getElementById('mode-expense').className = 'mode-btn';
-            document.getElementById('mode-hybrid').className = 'mode-btn';
+            // ── Update mode button styles ──────────────────────────
+            const modeClass = {
+                billing: 'mode-btn active-billing',
+                expense: 'mode-btn active-expense',
+                hybrid: 'mode-btn active-hybrid'
+            };
+            ['billing', 'expense', 'hybrid'].forEach(m => {
+                document.getElementById('mode-' + m).className = m === mode ? modeClass[m] : 'mode-btn';
+            });
 
-            // Activate selected
-            const modeClass = { billing: 'mode-btn active-billing', expense: 'mode-btn active-expense', hybrid: 'mode-btn active-hybrid' };
-            document.getElementById('mode-' + mode).className = modeClass[mode];
-
-            // Show/hide fields
+            // ── Show/hide field sections (fields keep their values) ─
             const billingFields = document.getElementById('billing-fields');
             const expenseFields = document.getElementById('expense-fields');
             const entryFields = document.getElementById('entry-fields');
@@ -742,7 +762,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
             if (mode === 'billing') {
                 billingFields.classList.remove('hidden');
-                // Swap section tag color
                 billingFields.querySelector('.section-tag').className = 'section-tag billing';
                 hint.textContent = 'Billing mode — fill in the payment received from the client.';
             } else if (mode === 'expense') {
@@ -758,6 +777,32 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             }
 
             saveBtn.disabled = false;
+        }
+
+        // ── AMOUNT FORMATTING ──────────────────────────────────────────────────────────
+
+        function formatAmountInput(el) {
+            // Strip everything except digits and one decimal point
+            let raw = el.value.replace(/[^0-9.]/g, '');
+
+            // Allow only one decimal point
+            const parts = raw.split('.');
+            if (parts.length > 2) raw = parts[0] + '.' + parts.slice(1).join('');
+
+            // Limit decimal to 2 places
+            if (parts[1] !== undefined) {
+                raw = parts[0] + '.' + parts[1].slice(0, 2);
+            }
+
+            // Format integer part with commas
+            const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            el.value = parts[1] !== undefined ? intPart + '.' + (parts[1] || '') : intPart;
+        }
+
+        function getRawAmount(id) {
+            // Strip commas → parse as float → send clean number to backend
+            const val = document.getElementById(id).value.replace(/,/g, '');
+            return val === '' ? '' : parseFloat(val);
         }
 
         async function saveEntry() {
@@ -777,7 +822,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     id: null,
                     project_id: parseInt(projectId),
                     particulars: document.getElementById('b-particulars').value,
-                    amount: document.getElementById('b-amount').value,
+                    amount: getRawAmount('b-amount'),
                     bank_check: document.getElementById('b-bank-check').value,
                     payment_date: document.getElementById('b-payment-date').value,
                     reference: document.getElementById('b-reference').value,
@@ -799,7 +844,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     project_id: parseInt(projectId),
                     title: document.getElementById('e-title').value,
                     particulars: document.getElementById('e-particulars').value,
-                    amount: document.getElementById('e-amount').value,
+                    amount: getRawAmount('e-amount'),
                     mode_of_payment: document.getElementById('e-mode').value,
                     payment_date: document.getElementById('e-payment-date').value,
                     reference: document.getElementById('e-reference').value,
