@@ -383,7 +383,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
                 <!-- Step 3: Fields (shown based on mode) -->
                 <div id="entry-fields" class="hidden space-y-4">
-
+                    <div id="hybrid-grid" class="grid grid-cols-1 gap-4">
                     <!-- ─── BILLING FIELDS ─────────────────────────────── -->
                     <div id="billing-fields" class="hidden">
                         <span class="section-tag billing">Billed &amp; Paid by Client</span>
@@ -504,24 +504,23 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             </div>
                         </div>
                     </div>
-
-                </div><!-- /entry-fields -->
-            </div>
-
-            <!-- Footer -->
-            <div
-                class="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-xl">
-                <p id="entry-mode-hint" class="text-[10px] text-gray-400 italic">Select a mode above to continue.</p>
-                <div class="flex items-center gap-2">
-                    <button onclick="closeEntryModal()"
-                        class="text-sm text-gray-500 hover:text-gray-700 px-4 py-2 rounded border border-gray-200">Cancel</button>
-                    <button id="entry-save-btn" onclick="saveEntry()" disabled
-                        class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all">
-                        <i class="fa-solid fa-floppy-disk text-xs"></i> Save Entry
-                    </button>
                 </div>
+            </div><!-- /entry-fields -->
+        </div>
+
+        <!-- Footer -->
+        <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-xl">
+            <p id="entry-mode-hint" class="text-[10px] text-gray-400 italic">Select a mode above to continue.</p>
+            <div class="flex items-center gap-2">
+                <button onclick="closeEntryModal()"
+                    class="text-sm text-gray-500 hover:text-gray-700 px-4 py-2 rounded border border-gray-200">Cancel</button>
+                <button id="entry-save-btn" onclick="saveEntry()" disabled
+                    class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all">
+                    <i class="fa-solid fa-floppy-disk text-xs"></i> Save Entry
+                </button>
             </div>
         </div>
+    </div>
     </div>
 
 
@@ -734,10 +733,18 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             ['e-title', 'e-particulars', 'e-amount', 'e-mode', 'e-payment-date', 'e-reference', 'e-remarks'].forEach(id => {
                 document.getElementById(id).value = '';
             });
+
+            const modalBox = document.querySelector('#entry-modal > div');
+            const hybridGrid = document.getElementById('hybrid-grid');
+            modalBox.classList.remove('max-w-5xl');
+            modalBox.classList.add('max-w-2xl');
+            hybridGrid.classList.remove('grid-cols-2');
+            hybridGrid.classList.add('grid-cols-1');
         }
 
         function setMode(mode) {
             currentMode = mode;
+
 
             // ── Update mode button styles ──────────────────────────
             const modeClass = {
@@ -774,6 +781,21 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 billingFields.querySelector('.section-tag').className = 'section-tag hybrid-b';
                 expenseFields.querySelector('.section-tag').className = 'section-tag hybrid-e';
                 hint.textContent = 'Hybrid mode — fill both a billing and an expense entry at once.';
+            }
+
+            const modalBox = document.querySelector('#entry-modal > div');
+            const hybridGrid = document.getElementById('hybrid-grid');
+
+            if (mode === 'hybrid') {
+                modalBox.classList.remove('max-w-2xl');
+                modalBox.classList.add('max-w-5xl');
+                hybridGrid.classList.remove('grid-cols-1');
+                hybridGrid.classList.add('grid-cols-2');
+            } else {
+                modalBox.classList.remove('max-w-5xl');
+                modalBox.classList.add('max-w-2xl');
+                hybridGrid.classList.remove('grid-cols-2');
+                hybridGrid.classList.add('grid-cols-1');
             }
 
             saveBtn.disabled = false;

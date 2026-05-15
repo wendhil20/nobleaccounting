@@ -31,7 +31,7 @@ if (!$project) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($project['project_name']) ?> — Project Monitoring</title>
+    <title><?= htmlspecialchars($project['project_name']) ?> - Project Monitoring</title>
     <?php include ROOT_PATH . '/link/top.php'; ?>
     <?php include ROOT_PATH . '/admin/navigation/sidebar.php'; ?>
     <style>
@@ -309,7 +309,8 @@ if (!$project) {
                         <tr style="background:#374151; color:white; position:sticky; top:30px; z-index:1;">
                             <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:32px;">NO.
                             </th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left; width:120px;">ACCOUNT TITLE
+                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left; width:120px;">ACCOUNT
+                                TITLE
                             </th>
                             <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left;">PARTICULARS</th>
                             <th style="padding:5px 8px; border:1px solid #4b5563; text-align:right; width:100px;">AMOUNT
@@ -385,7 +386,7 @@ if (!$project) {
                     <div>
                         <label
                             class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Amount</label>
-                        <input id="b-amount" type="number" step="0.01"
+                        <input id="b-amount" type="text" inputmode="decimal" oninput="formatAmountInput(this)"
                             class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400">
                     </div>
                     <div>
@@ -504,6 +505,13 @@ if (!$project) {
         const CONTRACT_AMOUNT = <?= floatval($project['contract_amount'] ?? 0) ?>;
         const BASE_URL = '<?= BASE_URL ?>';
 
+        function formatAmountInput(input) {
+            let raw = input.value.replace(/,/g, '').replace(/[^0-9.]/g, '');
+            const parts = raw.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            input.value = parts.length > 1 ? parts[0] + '.' + parts[1] : parts[0];
+        }
+
         // ─── BILLING ─────────────────────────────────────────────────────────────────
 
         function fetchBilling() {
@@ -572,7 +580,9 @@ if (!$project) {
         function editBilling(row) {
             document.getElementById('b-edit-id').value = row.id;
             document.getElementById('b-particulars').value = row.particulars ?? '';
-            document.getElementById('b-amount').value = row.amount ?? '';
+            document.getElementById('b-amount').value = row.amount
+                ? parseFloat(row.amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })
+                : '';
             document.getElementById('b-bank-check').value = row.bank_check ?? '';
             document.getElementById('b-payment-date').value = row.payment_date ?? '';
             document.getElementById('b-reference').value = row.reference ?? '';
@@ -585,7 +595,7 @@ if (!$project) {
                 id: document.getElementById('b-edit-id').value || null,
                 project_id: PROJECT_ID,
                 particulars: document.getElementById('b-particulars').value,
-                amount: document.getElementById('b-amount').value,
+                amount: document.getElementById('b-amount').value.replace(/,/g, ''),
                 bank_check: document.getElementById('b-bank-check').value,
                 payment_date: document.getElementById('b-payment-date').value,
                 reference: document.getElementById('b-reference').value,
