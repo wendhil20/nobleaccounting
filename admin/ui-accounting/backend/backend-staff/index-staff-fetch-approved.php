@@ -23,6 +23,7 @@ $result = $conn->query("SELECT b.*,
 $data = [];
 while ($row = $result->fetch_assoc()) {
     $row['items'] = json_decode($row['items'], true);
+    $row['attachments'] = json_decode($row['attachments'] ?? '[]', true); // ← dagdag
     $data[] = $row;
 }
 

@@ -1,5 +1,5 @@
 <?php
-// index-graphic-main.php
+// index-designer-main.php
 session_name('nobleadmin');
 session_start();
 
@@ -7,7 +7,7 @@ include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
 include ROOT_PATH . '/admin/authentication/index-roles.php';
 
-$allowedRoles = [ROLE_DESIGNER];
+$allowedRoles = [ROLE_GRAPHIC];
 include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
 

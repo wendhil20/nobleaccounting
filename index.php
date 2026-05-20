@@ -144,10 +144,10 @@ $routes = [
     'graphicdesign'                    => 'admin/ui-graphicdesign/index-graphic-main.php',
 
     // designer
-    'designer'                         => 'admin/ui-designer/designer-main.php',
+    'designer'                         => 'admin/ui-designer/index-designer-main.php',
 
     // cutting list
-    'cuttinglist'                      => 'admin/ui-cuttinglist/cuttinglist-main.php',
+    'cuttinglist'                      => 'admin/ui-cuttinglist/index-cuttinglist-main.php',
 
     'unauthorized'                     => 'admin/authentication/index-unauthorized.php',
     'fetchrequests'                    => 'admin/requestcentral/fetch-requests.php',

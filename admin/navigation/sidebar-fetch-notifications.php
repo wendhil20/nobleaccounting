@@ -13,6 +13,7 @@ if (!$user_id) { echo json_encode([]); exit; }
 
 $result = $conn->query("
     SELECT n.id, n.message, n.is_read, n.created_at,
+           n.link,                          
            b.control_no, b.requestor_name, b.id as request_id,
            actor.name as sender_name
     FROM noblenotification n

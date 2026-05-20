@@ -366,21 +366,21 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 tbody.innerHTML = `<tr><td colspan="9" class="px-5 py-8 text-center text-gray-400">No completed vouchers yet.</td></tr>`;
                 return;
             }
-        tbody.innerHTML = data.map(row => {
-    const items = row.items ?? [];
-    const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
-    
-const isComplete = row.approver_name && (row.receiver_name || row.manual_receiver_name) && row.voucher_status === 'released';
-const isPending = !row.approver_name || (!row.receiver_name && !row.manual_receiver_name);
-    
-    const rowClass = isComplete
-        ? 'bg-green-50 hover:bg-green-100'
-        : isPending
-            ? 'bg-red-100 hover:bg-red-200'
-            : 'hover:bg-gray-50';
+            tbody.innerHTML = data.map(row => {
+                const items = row.items ?? [];
+                const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
 
-    return `
-<tr class="border-t border-gray-100 transition-colors ${rowClass}">
+                const isComplete = row.approver_name && (row.receiver_name || row.manual_receiver_name) && row.voucher_status === 'released';
+                const isPending = !row.approver_name || (!row.receiver_name && !row.manual_receiver_name);
+
+                const rowClass = isComplete
+                    ? 'bg-green-50 hover:bg-green-100'
+                    : isPending
+                        ? 'bg-red-100 hover:bg-red-200'
+                        : 'hover:bg-gray-50';
+
+                return `
+<tr data-id="${row.id}" class="border-t border-gray-100 transition-colors ${rowClass}">
                <td class="px-5 py-3 font-mono text-xs text-blue-500 cursor-pointer underline"
     onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})">
     ${row.voucher_control_no ?? '—'}
@@ -412,7 +412,7 @@ const isPending = !row.approver_name || (!row.receiver_name && !row.manual_recei
             const items = row.items ?? [];
             const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
 
-            
+
 
             // Header
             document.getElementById('v-control-no').textContent = row.control_no;
@@ -449,15 +449,15 @@ const isPending = !row.approver_name || (!row.receiver_name && !row.manual_recei
                 ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
 
             // Received By — manual o system
-const receiverName = row.manual_receiver_name || row.receiver_name || '';
-const receivedAt = row.manual_receiver_date 
-    ? new Date(row.manual_receiver_date).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' })
-    : row.received_at 
-        ? new Date(row.received_at.replace(' ','T')).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' })
-        : '';
+            const receiverName = row.manual_receiver_name || row.receiver_name || '';
+            const receivedAt = row.manual_receiver_date
+                ? new Date(row.manual_receiver_date).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
+                : row.received_at
+                    ? new Date(row.received_at.replace(' ', 'T')).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
+                    : '';
 
-document.getElementById('v-receiver').textContent = receiverName;
-document.getElementById('v-received-at').textContent = receivedAt;
+            document.getElementById('v-receiver').textContent = receiverName;
+            document.getElementById('v-received-at').textContent = receivedAt;
 
 
             // Items
@@ -486,23 +486,23 @@ document.getElementById('v-received-at').textContent = receivedAt;
 
 
             // Footer buttons
-const footerBtns = document.getElementById('v-footer-btns');
-const closeBtn = `<button onclick="closeVoucherModal()" class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all border border-gray-200">Close</button>`;
+            const footerBtns = document.getElementById('v-footer-btns');
+            const closeBtn = `<button onclick="closeVoucherModal()" class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all border border-gray-200">Close</button>`;
 
-if (!row.budget_received_by) {
-    footerBtns.innerHTML = closeBtn + `
+            if (!row.budget_received_by) {
+                footerBtns.innerHTML = closeBtn + `
         <span class="flex items-center gap-2 text-xs text-gray-400 px-4 py-2 font-medium bg-gray-50 rounded-lg border border-gray-200">
             <i class="fa-solid fa-lock text-gray-300"></i>
             Waiting for staff to mark as received
         </span>`;
-} else if (!row.voucher_status) {
-    footerBtns.innerHTML = closeBtn + `
+            } else if (!row.voucher_status) {
+                footerBtns.innerHTML = closeBtn + `
         <button onclick="confirmSubmit()"
             class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
             <i class="fa-solid fa-paper-plane mr-1"></i>Submit Voucher
         </button>`;
-} else if (row.voucher_status === 'ready_to_release') {
-    footerBtns.innerHTML = closeBtn + `
+            } else if (row.voucher_status === 'ready_to_release') {
+                footerBtns.innerHTML = closeBtn + `
         <div class="flex items-center gap-2">
             <input type="text" id="manual-receiver-name" placeholder="Receiver name (optional)"
                 class="border border-gray-200 rounded px-3 py-1.5 text-xs outline-none focus:border-orange-400 w-44">
@@ -513,14 +513,14 @@ if (!row.budget_received_by) {
                 <i class="fa-solid fa-check mr-1"></i>Release Cash Voucher
             </button>
         </div>`;
-} else {
-    footerBtns.innerHTML = closeBtn + `
+            } else {
+                footerBtns.innerHTML = closeBtn + `
         <span class="text-xs text-gray-400 px-4 py-2 font-medium">
             ${row.voucher_status === 'released'
-                ? '<i class="fa-solid fa-check text-green-500 mr-1"></i>Released'
-                : '<i class="fa-solid fa-clock text-yellow-500 mr-1"></i>Waiting for approval'}
+                        ? '<i class="fa-solid fa-check text-green-500 mr-1"></i>Released'
+                        : '<i class="fa-solid fa-clock text-yellow-500 mr-1"></i>Waiting for approval'}
         </span>`;
-}
+            }
 
             document.getElementById('voucher-modal').classList.remove('hidden');
         }
@@ -577,27 +577,27 @@ if (!row.budget_received_by) {
                 });
         }
 
-function releaseVoucher(voucherId) {
-    const manualName = document.getElementById('manual-receiver-name')?.value.trim() ?? '';
-    const manualDate = document.getElementById('manual-receiver-date')?.value ?? '';
+        function releaseVoucher(voucherId) {
+            const manualName = document.getElementById('manual-receiver-name')?.value.trim() ?? '';
+            const manualDate = document.getElementById('manual-receiver-date')?.value ?? '';
 
-    fetch('<?= BASE_URL ?>/releasevoucher', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ voucher_id: voucherId, manual_name: manualName, manual_date: manualDate })
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                closeVoucherModal();
-                showToast('Cash voucher released!');
-                allData = [];
-                fetchVouchers();
-            } else {
-                showToast(data.error ?? 'Failed to release.', 'error');
-            }
-        });
-}
+            fetch('<?= BASE_URL ?>/releasevoucher', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ voucher_id: voucherId, manual_name: manualName, manual_date: manualDate })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeVoucherModal();
+                        showToast('Cash voucher released!');
+                        allData = [];
+                        fetchVouchers();
+                    } else {
+                        showToast(data.error ?? 'Failed to release.', 'error');
+                    }
+                });
+        }
         function fetchVouchers() {
             fetch('<?= BASE_URL ?>/fetchreceived')
                 .then(res => res.json())
@@ -621,8 +621,64 @@ function releaseVoucher(voucherId) {
             renderTable(filtered);
         });
 
+        // CSS — isang beses lang
+        const style = document.createElement('style');
+        style.textContent = `
+    @keyframes badgePulse {
+        0%   { transform: scale(1);   opacity: 1; }
+        50%  { transform: scale(1.4); opacity: 0.5; }
+        100% { transform: scale(1);   opacity: 1; }
+    }
+    .highlight-row td:first-child {
+        position: relative;
+    }
+    .highlight-badge {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background-color: #ef4444;
+        border-radius: 50%;
+        animation: badgePulse 0.8s ease-in-out 6;
+        margin-right: 6px;
+        vertical-align: middle;
+        flex-shrink: 0;
+    }
+`;
+        document.head.appendChild(style);
+
+        // Highlight logic — run after fetchRequests
+        function checkHighlight() {
+            const params = new URLSearchParams(window.location.search);
+            const highlightId = params.get('highlight');
+            if (!highlightId) return;
+
+            // Ulit-ulitin hanggang lumabas yung row (kasi async ang fetch)
+            const interval = setInterval(() => {
+                const row = document.querySelector(`tr[data-id="${highlightId}"]`);
+                if (row) {
+                    clearInterval(interval);
+                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    row.classList.add('highlight-row');
+
+                    // Dagdag badge sa first td
+                    const firstTd = row.querySelector('td:first-child');
+                    const badge = document.createElement('span');
+                    badge.className = 'highlight-badge';
+                    firstTd.prepend(badge);
+
+                    // Tanggalin badge after animation
+                    setTimeout(() => badge.remove(), 5000);
+                }
+            }, 200);
+
+            // Stop after 5 seconds kung hindi pa rin makita
+            setTimeout(() => clearInterval(interval), 5000);
+        }
+
         fetchVouchers();
+        setTimeout(checkHighlight, 500);
         setInterval(fetchVouchers, 5000);
+
 
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') fetchVouchers();

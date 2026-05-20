@@ -66,11 +66,13 @@ if ($success && $affected > 0) {
 
     while ($staff = $staffResult->fetch_assoc()) {
         $staff_id = intval($staff['id']);
+        $link = '/accountingstaff'; // ← page ng staff
+
         $stmt2 = $conn->prepare("
-            INSERT INTO noblenotification (user_id, request_id, message, is_read, created_at, sender_id)
-            VALUES (?, ?, ?, 0, NOW(), ?)
+            INSERT INTO noblenotification (user_id, request_id, message, is_read, created_at, sender_id, link)
+            VALUES (?, ?, ?, 0, NOW(), ?, ?)
         ");
-        $stmt2->bind_param("iisi", $staff_id, $id, $message, $user_id);
+        $stmt2->bind_param("iisis", $staff_id, $id, $message, $user_id, $link);
         $stmt2->execute();
     }
 }

@@ -50,14 +50,17 @@ if ($success) {
     ");
 
     while ($a = $assistants->fetch_assoc()) {
-        $aid = intval($a['id']);
-        $stmt2 = $conn->prepare("
-            INSERT INTO noblenotification (user_id, request_id, message, is_read, created_at, sender_id)
-            VALUES (?, ?, ?, 0, NOW(), ?)
-        ");
-        $stmt2->bind_param("iisi", $aid, $request_id, $message, $user_id);
-        $stmt2->execute();
-    }
+    $aid = intval($a['id']);
+    
+    $link = '/cashvoucherdashboard'; // ← page ng custoassistant
+    
+    $stmt2 = $conn->prepare("
+        INSERT INTO noblenotification (user_id, request_id, message, is_read, created_at, sender_id, link)
+        VALUES (?, ?, ?, 0, NOW(), ?, ?)
+    ");
+    $stmt2->bind_param("iisis", $aid, $request_id, $message, $user_id, $link);
+    $stmt2->execute();
+}
 }
 
 echo json_encode(['success' => $success]);

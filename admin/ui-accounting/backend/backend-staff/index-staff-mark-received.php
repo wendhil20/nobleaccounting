@@ -7,8 +7,8 @@ include ROOT_PATH . '/admin/authentication/index-authguard.php';
 
 header('Content-Type: application/json');
 
-$body    = json_decode(file_get_contents('php://input'), true);
-$id      = intval($body['id'] ?? 0);
+$body = json_decode(file_get_contents('php://input'), true);
+$id = intval($body['id'] ?? 0);
 $user_id = intval($_SESSION['account_id'] ?? 0);
 
 if (!$id || !$user_id) {
@@ -38,13 +38,17 @@ if ($success && $affected > 0) {
 
     while ($c = $custodians->fetch_assoc()) {
         $cid = intval($c['id']);
+
+        $link = '/accountingcustodian'; // ← page ng custodian
+
         $stmt2 = $conn->prepare("
-            INSERT INTO noblenotification (user_id, request_id, message, is_read, created_at, sender_id)
-            VALUES (?, ?, ?, 0, NOW(), ?)
-        ");
-        $stmt2->bind_param("iisi", $cid, $id, $message, $user_id);  
+        INSERT INTO noblenotification (user_id, request_id, message, is_read, created_at, sender_id, link)
+        VALUES (?, ?, ?, 0, NOW(), ?, ?)
+    ");
+        $stmt2->bind_param("iisis", $cid, $id, $message, $user_id, $link);
         $stmt2->execute();
     }
+
 }
 
 echo json_encode(['success' => $success, 'affected' => $affected]);

@@ -2,6 +2,7 @@
 // Included sa bawat department main page — hindi standalone
 // admin/requestcentral/requests-view.php
 ?>
+
 <div class="mb-6">
     <h1 class="text-xl font-bold text-gray-800">Budget Requests</h1>
     <p class="text-sm text-gray-400 mt-1">Requests sent to you for approval</p>
@@ -138,7 +139,13 @@
 
         <!-- Status lang — walang action buttons -->
         <div class="flex flex-col px-6 py-4 border-t-2 border-gray-800 gap-2">
-
+            <!-- Attachments -->
+            <div id="view-attachments" class="hidden">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">
+                    <i class="fa-solid fa-paperclip mr-1"></i> Attachments
+                </p>
+                <div id="view-attachments-grid" class="flex flex-wrap gap-2"></div>
+            </div>
             <div id="view-reject-comment"></div>
         </div>
 
@@ -169,6 +176,15 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="hidden fixed inset-0 z-[70] bg-black/90 flex items-center justify-center px-4"
+        onclick="closeLightbox()">
+        <button class="absolute top-4 right-4 text-white text-2xl hover:text-gray-300 transition-colors">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <img id="lightbox-img" src="" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl">
     </div>
 </div>
 
@@ -232,6 +248,7 @@
             </button>
         </div>
     </div>
+
 </div>
 
 <script>
@@ -328,7 +345,7 @@
                             : 'hover:bg-gray-50';
 
                     return `
-    <tr class="border-t border-gray-100 transition-colors ${rowClass}">
+    <tr data-id="${row.id}" class="border-t border-gray-100 transition-colors ${rowClass}">
        <td class="px-5 py-3 font-mono text-xs text-blue-500 underline cursor-pointer" 
            onclick="viewRequest(${JSON.stringify(row).replace(/"/g, '&quot;')})">
                ${row.control_no}
@@ -487,6 +504,8 @@
         // Status lang — walang accept/reject buttons
         document.getElementById('view-status-badge').innerHTML = statusBadge(row.status);
 
+
+
         // ← DITO ilagay — bago mag-show ng modal
         const approverName = row.approver_name ?? '';
         const approvedAt = row.approved_at
@@ -507,6 +526,32 @@
                <p class="text-sm text-red-700">${rejectComment}</p>
            </div>`
                 : '';
+        }
+
+        // Attachments
+        let attachments = [];
+        try {
+            const raw = row.attachments;
+            attachments = typeof raw === 'string' ? JSON.parse(raw) : (raw ?? []);
+        } catch (e) {
+            attachments = [];
+        }
+        const attachmentsSection = document.getElementById('view-attachments');
+        if (attachmentsSection) {
+            if (attachments.length) {
+                attachmentsSection.classList.remove('hidden');
+                document.getElementById('view-attachments-grid').innerHTML = attachments.map(path => `
+            <div class="relative group/thumb cursor-pointer" onclick="openLightbox('<?= BASE_URL ?>/${path}')">
+                <img src="<?= BASE_URL ?>/${path}" 
+                    class="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all">
+                <div class="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/20 rounded-lg transition-all flex items-center justify-center">
+                    <i class="fa-solid fa-magnifying-glass text-white opacity-0 group-hover/thumb:opacity-100 transition-all text-xs"></i>
+                </div>
+            </div>
+        `).join('');
+            } else {
+                attachmentsSection.classList.add('hidden');
+            }
         }
 
         // Received By
@@ -742,9 +787,82 @@
             });
     }
 
+    function openLightbox(src) {
+        document.getElementById('lightbox-img').src = src;
+        document.getElementById('lightbox').classList.remove('hidden');
+        event.stopPropagation(); // para hindi ma-close ang view modal
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.add('hidden');
+        document.getElementById('lightbox-img').src = '';
+    }
+
+    // Close lightbox sa ESC key
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeLightbox();
+    });
+
     function closeViewModal() {
         document.getElementById('view-modal').classList.add('hidden');
     }
+
+    // CSS — isang beses lang
+    const style = document.createElement('style');
+    style.textContent = `
+    @keyframes badgePulse {
+        0%   { transform: scale(1);   opacity: 1; }
+        50%  { transform: scale(1.4); opacity: 0.5; }
+        100% { transform: scale(1);   opacity: 1; }
+    }
+    .highlight-row td:first-child {
+        position: relative;
+    }
+    .highlight-badge {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background-color: #ef4444;
+        border-radius: 50%;
+        animation: badgePulse 0.8s ease-in-out 6;
+        margin-right: 6px;
+        vertical-align: middle;
+        flex-shrink: 0;
+    }
+`;
+    document.head.appendChild(style);
+
+    // Highlight logic — run after fetchRequests
+    function checkHighlight() {
+        const params = new URLSearchParams(window.location.search);
+        const highlightId = params.get('highlight');
+        if (!highlightId) return;
+
+        // Ulit-ulitin hanggang lumabas yung row (kasi async ang fetch)
+        const interval = setInterval(() => {
+            const row = document.querySelector(`tr[data-id="${highlightId}"]`);
+            if (row) {
+                clearInterval(interval);
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                row.classList.add('highlight-row');
+
+                // Dagdag badge sa first td
+                const firstTd = row.querySelector('td:first-child');
+                const badge = document.createElement('span');
+                badge.className = 'highlight-badge';
+                firstTd.prepend(badge);
+
+                // Tanggalin badge after animation
+                setTimeout(() => badge.remove(), 5000);
+            }
+        }, 200);
+
+        // Stop after 5 seconds kung hindi pa rin makita
+        setTimeout(() => clearInterval(interval), 5000);
+    }
+
+    fetchRequests();
+    setTimeout(checkHighlight, 500); // slight delay para matapos muna mag-render
 
     fetchRequests();
 

@@ -413,7 +413,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                         }
 
                         return `
-                            <div onclick="sidebarClickNotif(${n.id})" class="flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-gray-50 ${n.is_read == 0
+<div onclick="sidebarClickNotif(${n.id}, '${n.link ?? ''}', ${n.request_id ?? 0})" class="flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-gray-50 ${n.is_read == 0
                                 ? (isPing ? 'bg-red-50 border-l-[3px] border-red-400' : 'bg-orange-50 border-l-[3px] border-orange-400')
                                 : 'border-l-[3px] border-transparent'}">
                                 <div class="w-8 h-8 rounded-full ${n.is_read == 0
@@ -436,13 +436,20 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                 .catch(err => console.error('Notif error:', err));
         }
 
-        function sidebarClickNotif(id) {
-            fetch('<?= BASE_URL ?>/marknotificationsread', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            }).then(() => sidebarFetchNotifications());
+        function sidebarClickNotif(id, link, requestId) {
+    fetch('<?= BASE_URL ?>/marknotificationsread', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+    }).then(() => {
+        if (link) {
+            // Idagdag ang request_id sa URL as query param
+            window.location.href = '<?= BASE_URL ?>' + link + '?highlight=' + requestId;
+        } else {
+            sidebarFetchNotifications();
         }
+    });
+}
 
         function sidebarMarkAllRead() {
             fetch('<?= BASE_URL ?>/marknotificationsread', {

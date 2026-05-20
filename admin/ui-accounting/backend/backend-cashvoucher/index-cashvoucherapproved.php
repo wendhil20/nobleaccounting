@@ -47,14 +47,17 @@ if ($success && $stmt->affected_rows > 0) {
     ");
 
     while ($c = $custodians->fetch_assoc()) {
-        $cid = intval($c['id']);
-        $stmt2 = $conn->prepare("
-            INSERT INTO noblenotification (user_id, request_id, message, is_read, created_at, sender_id)
-            VALUES (?, ?, ?, 0, NOW(), ?)
-        ");
-        $stmt2->bind_param("iisi", $cid, $request_id, $message, $user_id);
-        $stmt2->execute();
-    }
+    $cid = intval($c['id']);
+    
+    $link = '/accountingcustodian'; // ← page ng custodian
+    
+    $stmt2 = $conn->prepare("
+        INSERT INTO noblenotification (user_id, request_id, message, is_read, created_at, sender_id, link)
+        VALUES (?, ?, ?, 0, NOW(), ?, ?)
+    ");
+    $stmt2->bind_param("iisis", $cid, $request_id, $message, $user_id, $link);
+    $stmt2->execute();
+}
 }
 
 echo json_encode(['success' => $success]);

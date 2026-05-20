@@ -164,6 +164,25 @@ $today = date('Y-m-d');
                 </div>
             </div>
 
+            <!-- ── Attachments ── -->
+            <div class="px-6 py-4 border-t-2 border-gray-800">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-3">
+                    <i class="fa-solid fa-paperclip mr-1"></i> Attachments
+                    <span class="font-normal text-gray-400 normal-case tracking-normal ml-1">(Images will be converted
+                        to WebP)</span>
+                </p>
+
+               <div id="drop-zone" class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-all group">
+    <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-300 group-hover:text-orange-400 transition-colors mb-2"></i>
+    <span class="text-xs text-gray-400 group-hover:text-orange-500 transition-colors font-medium">Click or drag images here</span>
+    <span class="text-[10px] text-gray-300 mt-0.5">JPG, PNG, WEBP — multiple allowed</span>
+</div>
+<input type="file" id="attachment-input" accept="image/jpeg,image/png,image/webp" multiple class="hidden">
+
+                <!-- Preview Grid -->
+                <div id="attachment-preview" class="mt-3 flex flex-wrap gap-2"></div>
+            </div>
+
             <!-- ── Footer Signatures ── -->
             <div class="grid grid-cols-2 border-t-2 border-gray-800">
                 <div class="px-8 py-5 border-r-2 border-gray-800">
@@ -237,6 +256,71 @@ $today = date('Y-m-d');
     <script>
         let rowCount = 0;
         let selectedHeadId = null;
+        // ── Attachment handling ──────────────────────────────
+        let attachmentFiles = []; // stores { name, webpBase64 }
+
+        document.getElementById('drop-zone').addEventListener('click', () =>
+            document.getElementById('attachment-input').click());
+
+        document.getElementById('attachment-input').addEventListener('change', e => {
+            handleFiles([...e.target.files]);
+            e.target.value = ''; // reset so same file can be re-added
+        });
+
+        // Drag & drop
+        const dz = document.getElementById('drop-zone');
+        dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('border-orange-500', 'bg-orange-50'); });
+        dz.addEventListener('dragleave', () => dz.classList.remove('border-orange-500', 'bg-orange-50'));
+        dz.addEventListener('drop', e => {
+            e.preventDefault();
+            dz.classList.remove('border-orange-500', 'bg-orange-50');
+            handleFiles([...e.dataTransfer.files].filter(f => f.type.startsWith('image/')));
+        });
+
+        function handleFiles(files) {
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Convert to WebP via canvas
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        canvas.getContext('2d').drawImage(img, 0, 0);
+                        const webpBase64 = canvas.toDataURL('image/webp', 0.85);
+
+                        const id = Date.now() + '_' + Math.random().toString(36).slice(2);
+                        const name = file.name.replace(/\.[^.]+$/, '') + '.webp';
+                        attachmentFiles.push({ id, name, webpBase64 });
+                        renderPreviews();
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderPreviews() {
+            const container = document.getElementById('attachment-preview');
+            container.innerHTML = attachmentFiles.map(f => `
+        <div class="relative group/thumb w-20 h-20 rounded overflow-hidden border border-gray-200 shadow-sm">
+            <img src="${f.webpBase64}" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/40 transition-all flex items-center justify-center">
+                <button onclick="removeAttachment('${f.id}')"
+                    class="opacity-0 group-hover/thumb:opacity-100 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[8px] px-1 truncate">${f.name}</p>
+        </div>
+    `).join('');
+        }
+
+        function removeAttachment(id) {
+            attachmentFiles = attachmentFiles.filter(f => f.id !== id);
+            renderPreviews();
+        }
 
         function openSubmitModal() {
             document.getElementById('submit-modal').classList.remove('hidden');
@@ -298,73 +382,83 @@ $today = date('Y-m-d');
         }
 
         function confirmSubmit() {
-    if (!selectedHeadId) return;
+            if (!selectedHeadId) return;
 
-    // Kunin ang form values
-    const controlNo      = document.querySelector('input[value^="NHREQUEST"]').value;
-    const requestorName = document.getElementById('requestor-name-input').value;
-    const purpose       = document.getElementById('purpose-input').value;
-    const dateRequested  = document.querySelector('input[type="date"]').value;
+            if (attachmentFiles.length === 0) {
+                const notif = document.createElement('div');
+                notif.className = 'fixed bottom-5 right-5 z-50 bg-red-500 text-white text-sm font-semibold px-5 py-3 rounded-lg shadow-lg flex items-center gap-2';
+                notif.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Please attach at least one proof before submitting.';
+                document.body.appendChild(notif);
+                setTimeout(() => notif.remove(), 3000);
+                return;
+            }
 
-    // Kunin ang items
-    const items = [];
-    document.querySelectorAll('#item-rows tr').forEach(tr => {
-        const inputs = tr.querySelectorAll('input');
-        const amount = tr.querySelector('.row-amount')?.textContent.replace('₱', '').replace(/,/g, '').trim();
-        items.push({
-            description : inputs[0]?.value || '',
-            purpose     : inputs[1]?.value || '',
-            quantity    : inputs[2]?.value || 0,
-            unit_price  : inputs[3]?.value || 0,
-            amount      : amount || '0.00',
-            notes       : inputs[4]?.value || ''
-        });
-    });
+            // Kunin ang form values
+            const controlNo = document.querySelector('input[value^="NHREQUEST"]').value;
+            const requestorName = document.getElementById('requestor-name-input').value;
+            const purpose = document.getElementById('purpose-input').value;
+            const dateRequested = document.querySelector('input[type="date"]').value;
 
-    // Validate
-    if (!requestorName || !purpose) {
-        alert('Please fill in Requestor Name and Purpose before submitting.');
-        return;
-    }
+            // Kunin ang items
+            const items = [];
+            document.querySelectorAll('#item-rows tr').forEach(tr => {
+                const inputs = tr.querySelectorAll('input');
+                const amount = tr.querySelector('.row-amount')?.textContent.replace('₱', '').replace(/,/g, '').trim();
+                items.push({
+                    description: inputs[0]?.value || '',
+                    purpose: inputs[1]?.value || '',
+                    quantity: inputs[2]?.value || 0,
+                    unit_price: inputs[3]?.value || 0,
+                    amount: amount || '0.00',
+                    notes: inputs[4]?.value || ''
+                });
+            });
 
-    const btn = document.getElementById('confirm-submit-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> Submitting...';
+            // Validate
+            if (!requestorName || !purpose) {
+                alert('Please fill in Requestor Name and Purpose before submitting.');
+                return;
+            }
 
-    fetch('<?= BASE_URL ?>/submitrequest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            control_no      : controlNo,
-            requestor_name  : requestorName,
-            purpose         : purpose,
-            date_requested  : dateRequested,
-            sent_to         : selectedHeadId,
-            items           : items
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            closeSubmitModal();
-            // Success notification
-            const notif = document.createElement('div');
-            notif.className = 'fixed top-5 right-5 z-50 bg-green-500 text-white text-sm font-semibold px-5 py-3 rounded-lg shadow-lg flex items-center gap-2';
-            notif.innerHTML = '<i class="fa-solid fa-check"></i> Request submitted successfully!';
-            document.body.appendChild(notif);
-            setTimeout(() => notif.remove(), 3000);
-        } else {
-            alert('Failed: ' + data.error);
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i> Confirm & Submit';
+            const btn = document.getElementById('confirm-submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> Submitting...';
+
+            fetch('<?= BASE_URL ?>/submitrequest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    control_no: controlNo,
+                    requestor_name: requestorName,
+                    purpose: purpose,
+                    date_requested: dateRequested,
+                    sent_to: selectedHeadId,
+                    items: items,
+                    attachments: attachmentFiles.map(f => ({ name: f.name, data: f.webpBase64 }))
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeSubmitModal();
+                        // Success notification
+                        const notif = document.createElement('div');
+                        notif.className = 'fixed top-5 right-5 z-50 bg-green-500 text-white text-sm font-semibold px-5 py-3 rounded-lg shadow-lg flex items-center gap-2';
+                        notif.innerHTML = '<i class="fa-solid fa-check"></i> Request submitted successfully!';
+                        document.body.appendChild(notif);
+                        setTimeout(() => notif.remove(), 3000);
+                    } else {
+                        alert('Failed: ' + data.error);
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i> Confirm & Submit';
+                    }
+                })
+                .catch(() => {
+                    alert('Network error. Please try again.');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i> Confirm & Submit';
+                });
         }
-    })
-    .catch(() => {
-        alert('Network error. Please try again.');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i> Confirm & Submit';
-    });
-}
 
         function addRow() {
             rowCount++;

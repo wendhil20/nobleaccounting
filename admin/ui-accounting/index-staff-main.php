@@ -155,6 +155,14 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     </table>
                 </div>
 
+                <!-- Attachments -->
+                <div id="view-attachments" class="hidden px-6 py-3 border-t-2 border-gray-800">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">
+                        <i class="fa-solid fa-paperclip mr-1"></i> Attachments
+                    </p>
+                    <div id="view-attachments-grid" class="flex flex-wrap gap-2"></div>
+                </div>
+
                 <!-- Signatures -->
                 <div class="grid grid-cols-2 border-t-2 border-gray-800">
                     <div class="px-5 py-4 border-r-2 border-gray-800">
@@ -179,6 +187,14 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </div>
 
             </div>
+        </div>
+
+        <div id="lightbox" class="hidden fixed inset-0 z-[200] bg-black/90 flex items-center justify-center px-4"
+            onclick="closeLightbox()">
+            <button class="absolute top-4 right-4 text-white text-2xl hover:text-gray-300 transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <img id="lightbox-img" src="" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl">
         </div>
 
         <script>
@@ -242,6 +258,29 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                <p class="text-[10px] text-gray-400">${receivedAt}</p>`
                     : '';
 
+                // Attachments
+                let attachments = [];
+                try {
+                    const raw = row.attachments;
+                    attachments = Array.isArray(raw) ? raw : (typeof raw === 'string' && raw.trim() ? JSON.parse(raw) : []);
+                } catch (e) { attachments = []; }
+
+                const attachSection = document.getElementById('view-attachments');
+                if (attachments.length) {
+                    attachSection.classList.remove('hidden');
+                    document.getElementById('view-attachments-grid').innerHTML = attachments.map(path => `
+        <div class="relative group/thumb cursor-pointer" onclick="openLightbox('<?= BASE_URL ?>/${path}', event)">
+            <img src="<?= BASE_URL ?>/${path}" 
+                class="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all">
+            <div class="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/20 rounded-lg transition-all flex items-center justify-center">
+                <i class="fa-solid fa-magnifying-glass text-white opacity-0 group-hover/thumb:opacity-100 transition-all text-xs"></i>
+            </div>
+        </div>
+    `).join('');
+                } else {
+                    attachSection.classList.add('hidden');
+                }
+
                 document.getElementById('view-modal').classList.remove('hidden');
             }
 
@@ -272,7 +311,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
 
                             return `
-                    <tr class="border-t border-gray-100 hover:bg-gray-50 transition-colors">
+                    <tr data-id="${row.id}" class="border-t border-gray-100 hover:bg-gray-50 transition-colors">
                         <td class="px-5 py-3 font-mono text-xs text-blue-500">${row.control_no}</td>
                         <td class="px-5 py-3">
                             <p class="font-medium text-gray-800">${row.requestor_name}</p>
@@ -344,9 +383,77 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 }, 3000);
             }
 
-            fetchApproved();
+            function openLightbox(src, e) {
+                if (e) e.stopPropagation();
+                document.getElementById('lightbox-img').src = src;
+                document.getElementById('lightbox').classList.remove('hidden');
+            }
 
-            // Realtime — every 5 seconds mag-refresh
+            function closeLightbox() {
+                document.getElementById('lightbox').classList.add('hidden');
+                document.getElementById('lightbox-img').src = '';
+            }
+
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') closeLightbox();
+            });
+
+            // CSS — isang beses lang
+            const style = document.createElement('style');
+            style.textContent = `
+    @keyframes badgePulse {
+        0%   { transform: scale(1);   opacity: 1; }
+        50%  { transform: scale(1.4); opacity: 0.5; }
+        100% { transform: scale(1);   opacity: 1; }
+    }
+    .highlight-row td:first-child {
+        position: relative;
+    }
+    .highlight-badge {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background-color: #ef4444;
+        border-radius: 50%;
+        animation: badgePulse 0.8s ease-in-out 6;
+        margin-right: 6px;
+        vertical-align: middle;
+        flex-shrink: 0;
+    }
+`;
+            document.head.appendChild(style);
+
+            // Highlight logic — run after fetchRequests
+            function checkHighlight() {
+                const params = new URLSearchParams(window.location.search);
+                const highlightId = params.get('highlight');
+                if (!highlightId) return;
+
+                // Ulit-ulitin hanggang lumabas yung row (kasi async ang fetch)
+                const interval = setInterval(() => {
+                    const row = document.querySelector(`tr[data-id="${highlightId}"]`);
+                    if (row) {
+                        clearInterval(interval);
+                        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        row.classList.add('highlight-row');
+
+                        // Dagdag badge sa first td
+                        const firstTd = row.querySelector('td:first-child');
+                        const badge = document.createElement('span');
+                        badge.className = 'highlight-badge';
+                        firstTd.prepend(badge);
+
+                        // Tanggalin badge after animation
+                        setTimeout(() => badge.remove(), 5000);
+                    }
+                }, 200);
+
+                // Stop after 5 seconds kung hindi pa rin makita
+                setTimeout(() => clearInterval(interval), 5000);
+            }
+
+            fetchApproved();
+            setTimeout(checkHighlight, 500); // ← ito na lang
             setInterval(fetchApproved, 5000);
 
             document.addEventListener('visibilitychange', () => {
