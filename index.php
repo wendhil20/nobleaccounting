@@ -53,6 +53,12 @@ if ($request === '' || $request === 'home') {
 // ─── Define Admin Routes ──────────────────────────────────────────────────────
 $adminRoutes = [
 
+    // annoucnement             
+    'saveannouncement',             
+    'deleteannouncement',             
+    'fetchannouncementsadmin',         
+    'generalannouncement',             
+
      // it
     'it',                               
 

@@ -1,7 +1,6 @@
 <?php
 // fetchannouncements.php
-session_name('noblerequest');
-session_start();
+
 include ROOT_PATH . '/network/connect.php';
 header('Content-Type: application/json');
 

@@ -1,6 +1,5 @@
 <?php
-session_name('noblehome');
-session_start();
+
 header('Content-Type: application/json');
 
 include ROOT_PATH . '/network/connect.php';
