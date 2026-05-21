@@ -1,8 +1,5 @@
 <?php
 // index.php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
 define('ROOT_PATH', __DIR__);
 
 require_once ROOT_PATH . '/vendor/autoload.php';  
@@ -52,6 +49,97 @@ $request = trim($request, '/');
 if ($request === '' || $request === 'home') {
     $request = 'home';
 }
+
+// ─── Define Admin Routes ──────────────────────────────────────────────────────
+$adminRoutes = [
+
+     // it
+    'it',                               
+
+    // accounting
+    'accounting',                       
+    'download-pdfbudgetrequest',        
+    'accountingdashboard',              
+    'announcementdashboard',            
+    'announcement',                     
+
+    //staffaccounting
+    'accountingstaff',                  
+    'accountingstaffdashboard',         
+    'fetchapproved',                    
+    'markreceived',                     
+    'fetchacknowledged',                
+    'accountingstaffannouncement',      
+
+    // custodian
+    'accountingcustodian',              
+    'accountingcustodiandashboard',     
+    'fetchreceived',                    
+    'submitrequestvoucher',             
+    'accountingcustodianassistant',     
+    'announcementcustodian',            
+
+    // custiodiansublink
+    'projectmonitor',                   
+    'projectdetail',                    
+    'fetchprojects',                    
+    'saveproject',                      
+    'fetchprojectbilling',              
+    'saveprojectbilling',               
+    'deleteprojectbilling',             
+    'fetchprojectexpense',              
+    'saveprojectexpense',               
+    'deleteprojectexpense',             
+    'exportprojectexcel',               
+    'saveincomeloss',                   
+
+    //cashvoucher
+    'cashvoucherdashboard',             
+    'cashvoucherapproved',              
+    'cashvoucherprepared',              
+    'cashvoucherfetchall',              
+    'releasevoucher',                   
+
+    // hr
+    'humanresource',                    
+    'superad',                          
+    'department',                       
+    'hrfetch',                          
+    'hrposition',                       
+    'humanresourcerequest',             
+
+    // operation
+    'operation',                        
+
+    // sales & market
+    'salesmarket',                      
+    // graphic design
+    'graphicdesign',                 
+    // designer
+    'designer',                         
+    // cutting list
+    'cuttinglist',           
+    
+    'unauthorized',                    
+    'fetchrequests',                   
+    'actionrequest',                   
+    'fetchnotifications',              
+    'marknotificationsread',           
+    'notificationstream',              
+    'pingrequest',                     
+    'fetchstaff',                      
+    'heartbeat',                       
+
+
+];
+
+if (in_array($request, $adminRoutes)) {
+    session_name("nobleadmin");
+} else {
+    session_name("nobleuser");
+}
+
+session_start();
 
 $routes = [
     'home'                             => 'user/authentication/index-login.php',
@@ -158,10 +246,13 @@ $routes = [
     'pingrequest'                      => 'admin/requestcentral/ping-request.php',
     'fetchstaff'                       => 'admin/requestcentral/fetch-staff.php',
     'heartbeat'                        => 'admin/authentication/index-heartbeat.php',
+
+    //user
     'fetchnotificationsuser'           => 'user/navigation/backend/backend-notification/fetchnotifications.php',
     'readnotificationuser'             => 'user/navigation/backend/backend-notification/readnotification.php',
     'notificationsuser'                => 'user/ui/index-notifications.php',
 ];
+
 
 $file = $routes[$request] ?? null;
 

@@ -1,7 +1,6 @@
 <?php
 // index-heartbeat.php
-session_name('nobleadmin');
-session_start();
+
 include ROOT_PATH . '/network/connect.php';
 
 $user_id = intval($_SESSION['account_id'] ?? 0);

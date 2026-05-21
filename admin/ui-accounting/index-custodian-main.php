@@ -1,7 +1,5 @@
 <?php
 // index-custodian-main.php
-session_name('nobleadmin');
-session_start();
 
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
@@ -578,26 +576,37 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         }
 
         function releaseVoucher(voucherId) {
-            const manualName = document.getElementById('manual-receiver-name')?.value.trim() ?? '';
-            const manualDate = document.getElementById('manual-receiver-date')?.value ?? '';
+    const manualName = document.getElementById('manual-receiver-name')?.value.trim() ?? '';
+    const manualDate = document.getElementById('manual-receiver-date')?.value ?? '';
 
-            fetch('<?= BASE_URL ?>/releasevoucher', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ voucher_id: voucherId, manual_name: manualName, manual_date: manualDate })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        closeVoucherModal();
-                        showToast('Cash voucher released!');
-                        allData = [];
-                        fetchVouchers();
-                    } else {
-                        showToast(data.error ?? 'Failed to release.', 'error');
-                    }
-                });
-        }
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Releasing...`;
+
+    fetch('<?= BASE_URL ?>/releasevoucher', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voucher_id: voucherId, manual_name: manualName, manual_date: manualDate })
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                closeVoucherModal();
+                showToast('Cash voucher released!');
+                allData = [];
+                fetchVouchers();
+            } else {
+                showToast(data.error ?? 'Failed to release.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-check mr-1"></i>Release Cash Voucher`;
+            }
+        })
+        .catch(() => {
+            showToast('Network error. Please try again.', 'error');
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-check mr-1"></i>Release Cash Voucher`;
+        });
+}
         function fetchVouchers() {
             fetch('<?= BASE_URL ?>/fetchreceived')
                 .then(res => res.json())
@@ -607,6 +616,25 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     document.getElementById('last-updated').textContent =
                         'Updated ' + new Date().toLocaleTimeString('en-PH');
                 });
+        }
+
+        function showToast(message, type = 'success') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+            };
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-6 right-6 z-[999] flex items-center gap-3 ${colors[type]} text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-lg transition-all duration-300 opacity-0 translate-y-2`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> ${message}`;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('opacity-0', 'translate-y-2');
+            });
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         document.getElementById('search-input').addEventListener('input', function () {

@@ -1,6 +1,5 @@
 <?php
-session_name('nobleadmin');
-session_start();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

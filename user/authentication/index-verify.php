@@ -1,7 +1,5 @@
 <?php
 // user/authentication/index-verify.php
-session_name('noblehome');
-session_start();
 
 include ROOT_PATH . '/network/connect.php';
 

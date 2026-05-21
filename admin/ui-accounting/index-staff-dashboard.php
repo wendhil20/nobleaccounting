@@ -1,7 +1,6 @@
 <?php
 // index-staff-dashboard.php
-session_name('nobleadmin');
-session_start();
+
 
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
