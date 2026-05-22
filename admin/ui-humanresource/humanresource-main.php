@@ -73,9 +73,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </button>
             </div>
 
-            <div class="space-y-4">
+            <form class="space-y-4" onsubmit="return false;">
                 <input type="hidden" id="edit-id">
-
                 <!-- Name -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Name</label>
@@ -86,7 +85,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
                 <!-- New Password -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">New Password</label>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">New
+                        Password</label>
                     <div class="relative">
                         <input id="edit-password" type="password"
                             class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400 transition pr-10"
@@ -101,15 +101,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
                 <!-- Confirm Password -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Confirm Password</label>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Confirm
+                        Password</label>
                     <input id="edit-confirm-password" type="password"
                         class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
                         placeholder="Repeat new password">
                 </div>
 
                 <!-- Error message -->
+                <!-- Error message -->
                 <p id="edit-error" class="text-xs text-red-500 hidden"></p>
-            </div>
+            </form>
 
             <div class="flex gap-3 mt-6">
                 <button onclick="closeEditModal()"
