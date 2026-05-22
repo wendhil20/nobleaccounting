@@ -53,6 +53,10 @@ if ($request === '' || $request === 'home') {
 // ─── Define Admin Routes ──────────────────────────────────────────────────────
 $adminRoutes = [
 
+    // authentication admin
+    'logout',                           
+    'loginadmin',                       
+
     // annoucnement             
     'saveannouncement',             
     'deleteannouncement',             

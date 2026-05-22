@@ -17,4 +17,4 @@ if ($id === 'all') {
 }
 
 $stmt->execute();
-echo json_encode(['success' => true]);
+echo json_encode(['success' => true]); 
