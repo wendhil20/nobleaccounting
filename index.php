@@ -119,7 +119,8 @@ $adminRoutes = [
     'department',                       
     'hrfetch',                          
     'hrposition',                       
-    'humanresourcerequest',             
+    'humanresourcerequest',    
+    'hrupdate',         
 
     // operation
     'operation',                        
@@ -234,9 +235,10 @@ $routes = [
     'humanresource'                    => 'admin/ui-humanresource/humanresource-main.php',
     'superad'                          => 'admin/ui-humanresource/humanresource-registration-account.php',
     'department'                       => 'admin/ui-humanresource/humanresource-registration-department.php',
-    'hrfetch'                          => 'admin/ui-humanresource/humanresource-hrfetch.php',
-    'hrposition'                       => 'admin/ui-humanresource/humanresource-hrposition.php',
+    'hrfetch'                          => 'admin/ui-humanresource/backend/backend-role/humanresource-hrfetch.php',
+    'hrposition'                       => 'admin/ui-humanresource/backend/backend-role/humanresource-hrposition.php',
     'humanresourcerequest'             => 'admin/ui-humanresource/humanresource-request.php',
+    'hrupdate'                         => 'admin/ui-humanresource/backend/backend-account/hrupdate.php',
 
     // operation
     'operation'                        => 'admin/ui-operation/index-operation-main.php',

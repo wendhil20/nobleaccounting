@@ -37,8 +37,9 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         class="flex items-center gap-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition shadow-sm">
                         <i class="fa-solid fa-calendar-days text-orange-400"></i>
                         Dates with Requests
-                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
 
@@ -57,14 +58,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     </div>
                 </div>
 
-                <button onclick="prevMonth()" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 transition text-gray-500">
+                <button onclick="prevMonth()"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 transition text-gray-500">
                     <i class="fa-solid fa-chevron-left text-xs"></i>
                 </button>
                 <span id="cal-label" class="text-sm font-semibold text-gray-700 min-w-[130px] text-center"></span>
-                <button onclick="nextMonth()" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 transition text-gray-500">
+                <button onclick="nextMonth()"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 transition text-gray-500">
                     <i class="fa-solid fa-chevron-right text-xs"></i>
                 </button>
-                <button onclick="goToday()" class="text-xs font-semibold text-orange-500 border border-orange-200 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition">
+                <button onclick="goToday()"
+                    class="text-xs font-semibold text-orange-500 border border-orange-200 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition">
                     Today
                 </button>
                 <div class="flex items-center gap-1.5 ml-2">
@@ -78,11 +82,11 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4">
             <!-- Day headers -->
             <div class="grid grid-cols-7 border-b border-gray-100">
-                <?php foreach (['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] as $d): ?>
-                <div class="py-2.5 text-center text-[11px] font-bold text-gray-400 uppercase tracking-widest
+                <?php foreach (['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $d): ?>
+                    <div class="py-2.5 text-center text-[11px] font-bold text-gray-400 uppercase tracking-widest
                     <?= $d === 'Sun' ? 'text-red-400' : ($d === 'Sat' ? 'text-blue-400' : '') ?>">
-                    <?= $d ?>
-                </div>
+                        <?= $d ?>
+                    </div>
                 <?php endforeach; ?>
             </div>
             <!-- Cells -->
@@ -142,7 +146,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     </div>
                     <div class="w-px h-12 bg-gray-400"></div>
                     <div class="flex-1">
-                        <h1 class="font-bold text-sm uppercase tracking-wide leading-tight">Noblehome Construction Corporation</h1>
+                        <h1 class="font-bold text-sm uppercase tracking-wide leading-tight">Noblehome Construction
+                            Corporation</h1>
                         <p class="text-[10px] text-gray-500 mt-1 leading-relaxed">
                             1181 MC Premiere Bldg., EDSA Balintawak Quezon City<br>
                             noblehomeconsl.ph@gmail.com | Tel. No. 02-88221295 | Cell. No. 0968-591-6544
@@ -151,19 +156,26 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </div>
                 <div class="flex flex-col">
                     <div class="flex items-center justify-between px-4 py-2 border-b-2 border-gray-800 gap-4">
-                        <h2 class="font-bold text-sm uppercase tracking-widest whitespace-nowrap">Budget Request Form</h2>
-                        <button onclick="closeViewModal()" class="text-gray-400 hover:text-red-500 transition-colors p-1">
+                        <h2 class="font-bold text-sm uppercase tracking-widest whitespace-nowrap">Budget Request Form
+                        </h2>
+                        <button onclick="closeViewModal()"
+                            class="text-gray-400 hover:text-red-500 transition-colors p-1">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
                     <div class="flex flex-row flex-1 text-[10px]">
                         <div class="flex flex-col border-r-2 border-gray-800 flex-1">
-                            <span class="bg-orange-500 text-white font-bold px-4 py-1 uppercase tracking-wider text-center border-b-2 border-gray-800">Control No.</span>
-                            <p id="view-control-no" class="flex-1 px-4 py-1 font-mono text-xs text-center bg-gray-50 min-w-[180px]"></p>
+                            <span
+                                class="bg-orange-500 text-white font-bold px-4 py-1 uppercase tracking-wider text-center border-b-2 border-gray-800">Control
+                                No.</span>
+                            <p id="view-control-no"
+                                class="flex-1 px-4 py-1 font-mono text-xs text-center bg-gray-50 min-w-[180px]"></p>
                         </div>
                         <div class="flex flex-col flex-1">
-                            <span class="bg-orange-500 text-white font-bold px-4 py-1 uppercase tracking-wider text-center border-b-2 border-gray-800">Date:</span>
-                            <p id="view-date" class="flex-1 px-4 py-1 font-mono text-xs text-center bg-gray-50 min-w-[150px]"></p>
+                            <span
+                                class="bg-orange-500 text-white font-bold px-4 py-1 uppercase tracking-wider text-center border-b-2 border-gray-800">Date:</span>
+                            <p id="view-date"
+                                class="flex-1 px-4 py-1 font-mono text-xs text-center bg-gray-50 min-w-[150px]"></p>
                         </div>
                     </div>
                 </div>
@@ -172,11 +184,15 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             <!-- Requestor + Purpose -->
             <div class="grid grid-cols-2 border-b-2 border-gray-800">
                 <div class="flex items-center gap-2 px-6 py-3 border-r-2 border-gray-800">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Requestor Name:</span>
+                    <span
+                        class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Requestor
+                        Name:</span>
                     <p id="view-requestor" class="text-sm text-gray-800"></p>
                 </div>
                 <div class="flex items-center gap-2 px-6 py-3">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Purpose of Request:</span>
+                    <span
+                        class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Purpose
+                        of Request:</span>
                     <p id="view-purpose" class="text-sm text-gray-800"></p>
                 </div>
             </div>
@@ -198,7 +214,9 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <tbody id="view-items-tbody"></tbody>
                     <tfoot>
                         <tr class="border-t-2 border-gray-800 bg-gray-50">
-                            <td colspan="5" class="px-4 py-2 font-bold text-xs uppercase tracking-widest text-right border-r border-gray-300">Total:</td>
+                            <td colspan="5"
+                                class="px-4 py-2 font-bold text-xs uppercase tracking-widest text-right border-r border-gray-300">
+                                Total:</td>
                             <td id="view-total" class="px-4 py-2 font-bold font-mono text-right"></td>
                             <td></td>
                         </tr>
@@ -248,16 +266,16 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
     <script>
         // ─── State ───────────────────────────────────────────
-        let allRequests   = [];
+        let allRequests = [];
         let previousCount = 0;
-        let calYear       = new Date().getFullYear();
-        let calMonth      = new Date().getMonth();
-        let selectedDate  = null;
+        let calYear = new Date().getFullYear();
+        let calMonth = new Date().getMonth();
+        let selectedDate = null;
         let highlightDone = false;
 
         // ─── Calendar ────────────────────────────────────────
-        const MONTH_NAMES = ['January','February','March','April','May','June',
-                             'July','August','September','October','November','December'];
+        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'];
 
         function renderCalendar() {
             document.getElementById('cal-label').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
@@ -265,9 +283,9 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             const grid = document.getElementById('calendar-grid');
             grid.innerHTML = '';
 
-            const firstDay   = new Date(calYear, calMonth, 1).getDay();
+            const firstDay = new Date(calYear, calMonth, 1).getDay();
             const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-            const today      = new Date();
+            const today = new Date();
 
             // Group by date
             const byDate = {};
@@ -286,14 +304,14 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
-                const mm      = String(calMonth + 1).padStart(2, '0');
-                const dd      = String(day).padStart(2, '0');
+                const mm = String(calMonth + 1).padStart(2, '0');
+                const dd = String(day).padStart(2, '0');
                 const dateStr = `${calYear}-${mm}-${dd}`;
                 const requests = byDate[dateStr] ?? [];
 
-                const isToday    = (today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === day);
+                const isToday = (today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === day);
                 const isSelected = selectedDate === dateStr;
-                const dayOfWeek  = (firstDay + day - 1) % 7;
+                const dayOfWeek = (firstDay + day - 1) % 7;
                 const isSun = dayOfWeek === 0;
                 const isSat = dayOfWeek === 6;
 
@@ -306,11 +324,11 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
                 // approved = not yet received (status still 'approved'), received = has receiver_name
                 const forReceive = requests.filter(r => !r.receiver_name).length;
-                const received   = requests.filter(r => r.receiver_name).length;
+                const received = requests.filter(r => r.receiver_name).length;
 
                 const dots = [
-                    forReceive ? `<span class="inline-block w-2 h-2 rounded-full bg-blue-400"></span>`  : '',
-                    received   ? `<span class="inline-block w-2 h-2 rounded-full bg-green-400"></span>` : '',
+                    forReceive ? `<span class="inline-block w-2 h-2 rounded-full bg-blue-400"></span>` : '',
+                    received ? `<span class="inline-block w-2 h-2 rounded-full bg-green-400"></span>` : '',
                 ].join('');
 
                 const countBadge = requests.length
@@ -339,7 +357,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             }
 
             // Trailing blanks
-            const total    = firstDay + daysInMonth;
+            const total = firstDay + daysInMonth;
             const trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
             for (let i = 0; i < trailing; i++) {
                 const blank = document.createElement('div');
@@ -366,7 +384,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
         function goToday() {
             const now = new Date();
-            calYear  = now.getFullYear();
+            calYear = now.getFullYear();
             calMonth = now.getMonth();
             selectedDate = null;
             closeDayPanel();
@@ -390,14 +408,22 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             } else {
                 tbody.innerHTML = requests.map(row => {
                     const isReceived = !!row.receiver_name;
-                    const rowClass   = isReceived ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50';
-                    const items      = row.items ?? [];
-                    const total      = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+                    const rowClass = isReceived ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50';
+                    const items = row.items ?? [];
+                    const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+
+                    // PALITAN NG
+                    const receivedAt = row.received_at
+                        ? new Date(row.received_at.replace(' ', 'T')).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })
+                        + ' ' + new Date(row.received_at.replace(' ', 'T')).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
+                        : '';
 
                     const statusBadgeHtml = isReceived
-                        ? `<span class="bg-green-100 text-green-700 text-[10px] font-semibold px-2 py-1 rounded-full uppercase tracking-wide">Received</span>`
+                        ? `<div>
+        <span class="bg-green-100 text-green-700 text-[10px] font-semibold px-2 py-1 rounded-full uppercase tracking-wide">Received</span>
+        <p class="text-[9px] text-gray-400 mt-0.5">${receivedAt}</p>
+       </div>`
                         : `<span class="bg-blue-100 text-blue-700 text-[10px] font-semibold px-2 py-1 rounded-full uppercase tracking-wide">For Receive</span>`;
-
                     const actionHtml = isReceived
                         ? `<button onclick='viewRequest(${JSON.stringify(row).replace(/"/g, '&quot;')})'
                             class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-[10px] font-semibold px-3 py-1 rounded-full transition-all">
@@ -431,9 +457,9 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         <td class="px-5 py-3">
                             <p class="text-sm text-gray-700">${row.approver_name ?? ''}</p>
                             <p class="text-[10px] text-gray-400">${row.approved_at
-                                ? new Date(row.approved_at.replace(' ','T')).toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'})
-                                  + ' ' + new Date(row.approved_at.replace(' ','T')).toLocaleTimeString('en-PH',{hour:'numeric',minute:'2-digit',hour12:true})
-                                : ''}</p>
+                            ? new Date(row.approved_at.replace(' ', 'T')).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
+                            + ' ' + new Date(row.approved_at.replace(' ', 'T')).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
+                            : ''}</p>
                         </td>
                         <td class="px-5 py-3">${statusBadgeHtml}</td>
                         <td class="px-5 py-3">${actionHtml}</td>
@@ -452,36 +478,36 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         }
 
         // ─── Fetch ───────────────────────────────────────────
-      // ─── Fetch ───────────────────────────────────────────
-function fetchApproved() {
-    fetch('<?= BASE_URL ?>/fetchapproved')
-        .then(res => res.json())
-        .then(data => {
-            const countChanged = data.length !== previousCount;
+        // ─── Fetch ───────────────────────────────────────────
+        function fetchApproved() {
+            fetch('<?= BASE_URL ?>/fetchapproved')
+                .then(res => res.json())
+                .then(data => {
+                    const countChanged = data.length !== previousCount;
 
-            if (countChanged || !highlightDone) {
-                previousCount = data.length;
-                allRequests   = data;
+                    if (countChanged || !highlightDone) {
+                        previousCount = data.length;
+                        allRequests = data;
 
-                renderCalendar();
-                buildDatesDropdown();
+                        renderCalendar();
+                        buildDatesDropdown();
 
-                if (selectedDate) {
-                    const filtered = allRequests.filter(r => r.date_requested?.startsWith(selectedDate));
-                    openDayPanel(selectedDate, filtered);
-                }
+                        if (selectedDate) {
+                            const filtered = allRequests.filter(r => r.date_requested?.startsWith(selectedDate));
+                            openDayPanel(selectedDate, filtered);
+                        }
 
-                document.getElementById('last-updated').textContent =
-                    'Updated ' + new Date().toLocaleTimeString('en-PH');
-            }
+                        document.getElementById('last-updated').textContent =
+                            'Updated ' + new Date().toLocaleTimeString('en-PH');
+                    }
 
-            if (!highlightDone) {
-                highlightDone = true;
-                checkHighlight();
-            }
-        })
-        .catch(err => console.error('Fetch error:', err));
-}
+                    if (!highlightDone) {
+                        highlightDone = true;
+                        checkHighlight();
+                    }
+                })
+                .catch(err => console.error('Fetch error:', err));
+        }
 
         // ─── Mark Received ───────────────────────────────────
         function markReceived(id) {
@@ -490,22 +516,23 @@ function fetchApproved() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id })
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('Request marked as received!', 'received');
-                    previousCount = 0;
-                    fetchApproved();
-                }
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Request marked as received!', 'received');
+                        previousCount = 0;
+                        highlightDone = false; // ← dagdag ito
+                        fetchApproved();
+                    }
+                });
         }
 
         // ─── View Modal ──────────────────────────────────────
         function viewRequest(row) {
             document.getElementById('view-control-no').textContent = row.control_no;
-            document.getElementById('view-date').textContent       = row.date_requested;
-            document.getElementById('view-requestor').textContent  = row.requestor_name;
-            document.getElementById('view-purpose').textContent    = row.purpose;
+            document.getElementById('view-date').textContent = row.date_requested;
+            document.getElementById('view-requestor').textContent = row.requestor_name;
+            document.getElementById('view-purpose').textContent = row.purpose;
 
             const items = row.items ?? [];
             let total = 0, rowNum = 0;
@@ -539,17 +566,17 @@ function fetchApproved() {
                 `<span class="${statusClass} text-[10px] font-semibold px-2 py-1 rounded-full uppercase tracking-wide">${statusLabel}</span>`;
 
             const approverName = row.approver_name ?? '';
-            const approvedAt   = row.approved_at
+            const approvedAt = row.approved_at
                 ? new Date(row.approved_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })
-                  + ' ' + new Date(row.approved_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
+                + ' ' + new Date(row.approved_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
                 : '';
             document.getElementById('view-approved-by').innerHTML = approverName
                 ? `<p class="text-sm font-semibold text-gray-800">${approverName}</p><p class="text-[10px] text-gray-400">${approvedAt}</p>` : '';
 
             const receiverName = row.receiver_name ?? '';
-            const receivedAt   = row.received_at
+            const receivedAt = row.received_at
                 ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })
-                  + ' ' + new Date(row.received_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
+                + ' ' + new Date(row.received_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
                 : '';
             document.getElementById('view-received-by').innerHTML = receiverName
                 ? `<p class="text-sm font-semibold text-gray-800">${receiverName}</p><p class="text-[10px] text-gray-400">${receivedAt}</p>` : '';
@@ -558,20 +585,50 @@ function fetchApproved() {
             let attachments = [];
             try {
                 const raw = row.attachments;
+                console.log('attachments raw:', raw); // ← dagdag ito pansamantala
                 attachments = Array.isArray(raw) ? raw : (typeof raw === 'string' && raw.trim() ? JSON.parse(raw) : []);
+                console.log('attachments parsed:', attachments); // ← at ito
             } catch (e) { attachments = []; }
 
             const attachSection = document.getElementById('view-attachments');
+            // ── attachment_status badge ──
+            const oldBadge = document.getElementById('view-attachment-status-badge');
+            if (oldBadge) oldBadge.remove();
+
+            if ((row.attachment_status ?? 'attached') === 'follow_up') {
+                const badge = document.createElement('div');
+                badge.id = 'view-attachment-status-badge';
+                badge.className = 'flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 mb-2 mx-6 mt-3';
+                badge.innerHTML = `
+        <i class="fa-solid fa-clock text-yellow-500 text-xs"></i>
+        <span class="text-xs font-semibold text-yellow-700">Attachment pending — requestor will follow up</span>
+    `;
+               document.getElementById('view-attachments').before(badge);
+            }
             if (attachments.length) {
                 attachSection.classList.remove('hidden');
-                document.getElementById('view-attachments-grid').innerHTML = attachments.map(path => `
-                    <div class="relative group/thumb cursor-pointer" onclick="openLightbox('<?= BASE_URL ?>/${path}', event)">
-                        <img src="<?= BASE_URL ?>/${path}"
-                            class="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all">
-                        <div class="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/20 rounded-lg transition-all flex items-center justify-center">
-                            <i class="fa-solid fa-magnifying-glass text-white opacity-0 group-hover/thumb:opacity-100 transition-all text-xs"></i>
-                        </div>
-                    </div>`).join('');
+                document.getElementById('view-attachments-grid').innerHTML = attachments.map(path => {
+                    const isPdf = path.toLowerCase().endsWith('.pdf');
+                    const fullUrl = `<?= BASE_URL ?>/${path}`;
+
+                    if (isPdf) {
+                        return `
+        <a href="${fullUrl}" target="_blank"
+            class="relative flex flex-col items-center justify-center w-20 h-20 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all bg-red-50 cursor-pointer gap-1">
+            <i class="fa-solid fa-file-pdf text-red-500 text-2xl"></i>
+            <span class="text-[9px] text-red-400 font-semibold uppercase tracking-wide">PDF</span>
+        </a>`;
+                    }
+
+                    return `
+    <div class="relative group/thumb cursor-pointer" onclick="openLightbox('${fullUrl}', event)">
+        <img src="${fullUrl}"
+            class="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all">
+        <div class="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/20 rounded-lg transition-all flex items-center justify-center">
+            <i class="fa-solid fa-magnifying-glass text-white opacity-0 group-hover/thumb:opacity-100 transition-all text-xs"></i>
+        </div>
+    </div>`;
+                }).join('');
             } else {
                 attachSection.classList.add('hidden');
             }
@@ -598,7 +655,7 @@ function fetchApproved() {
             const existing = document.getElementById('toast-notif');
             if (existing) existing.remove();
             const color = type === 'received' ? 'bg-blue-500' : 'bg-green-500';
-            const icon  = type === 'received' ? 'fa-circle-check' : 'fa-check';
+            const icon = type === 'received' ? 'fa-circle-check' : 'fa-check';
             const toast = document.createElement('div');
             toast.id = 'toast-notif';
             toast.className = `fixed bottom-6 right-6 z-[999] flex items-center gap-3 ${color} text-white text-sm font-medium px-5 py-3 rounded-xl shadow-lg transition-all duration-300 opacity-0`;
@@ -646,7 +703,7 @@ function fetchApproved() {
                 const label = d.toLocaleDateString('en-PH', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
                 const dots = [
                     forReceive ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-400"  title="${forReceive} for receive"></span>` : '',
-                    received   ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400" title="${received} received"></span>` : '',
+                    received ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400" title="${received} received"></span>` : '',
                 ].join('');
                 return `
                 <li class="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-orange-50 cursor-pointer transition group"
@@ -669,7 +726,7 @@ function fetchApproved() {
             const filtered = allDatesCache.filter(({ date }) => {
                 const d = new Date(date + 'T00:00:00');
                 return d.toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-                         .toLowerCase().includes(q) || date.includes(q);
+                    .toLowerCase().includes(q) || date.includes(q);
             });
             renderDatesList(filtered);
         }
@@ -684,7 +741,7 @@ function fetchApproved() {
         function jumpToDate(dateStr) {
             document.getElementById('dates-dropdown').classList.add('hidden');
             const d = new Date(dateStr + 'T00:00:00');
-            calYear  = d.getFullYear();
+            calYear = d.getFullYear();
             calMonth = d.getMonth();
             renderCalendar();
             const requests = allRequests.filter(r => r.date_requested?.startsWith(dateStr));
@@ -699,41 +756,41 @@ function fetchApproved() {
 
         // ─── Highlight (from ping/redirect) ──────────────────
         // PALITAN ANG BUONG checkHighlight() ng:
-function checkHighlight() {
-    const params      = new URLSearchParams(window.location.search);
-    const highlightId = params.get('highlight');
-    const jumpDate    = params.get('date'); // format: YYYY-MM-DD
+        function checkHighlight() {
+            const params = new URLSearchParams(window.location.search);
+            const highlightId = params.get('highlight');
+            const jumpDate = params.get('date'); // format: YYYY-MM-DD
 
-    if (!highlightId) return;
+            if (!highlightId) return;
 
-    // Kung may date, jump ang calendar doon
-    if (jumpDate) {
-        const d = new Date(jumpDate + 'T00:00:00');
-        calYear  = d.getFullYear();
-        calMonth = d.getMonth();
-        renderCalendar();
+            // Kung may date, jump ang calendar doon
+            if (jumpDate) {
+                const d = new Date(jumpDate + 'T00:00:00');
+                calYear = d.getFullYear();
+                calMonth = d.getMonth();
+                renderCalendar();
 
-        // Open ang day panel para sa date na iyon
-        const requests = allRequests.filter(r => r.date_requested?.startsWith(jumpDate));
-        openDayPanel(jumpDate, requests);
-    }
+                // Open ang day panel para sa date na iyon
+                const requests = allRequests.filter(r => r.date_requested?.startsWith(jumpDate));
+                openDayPanel(jumpDate, requests);
+            }
 
-    // Highlight ang row sa day panel
-    const interval = setInterval(() => {
-        const row = document.querySelector(`tr[data-id="${highlightId}"]`);
-        if (row) {
-            clearInterval(interval);
-            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Highlight ang row sa day panel
+            const interval = setInterval(() => {
+                const row = document.querySelector(`tr[data-id="${highlightId}"]`);
+                if (row) {
+                    clearInterval(interval);
+                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-            const firstTd = row.querySelector('td:first-child');
-            const badge = document.createElement('span');
-            badge.className = 'highlight-badge';
-            firstTd.prepend(badge);
-            setTimeout(() => badge.remove(), 5000);
+                    const firstTd = row.querySelector('td:first-child');
+                    const badge = document.createElement('span');
+                    badge.className = 'highlight-badge';
+                    firstTd.prepend(badge);
+                    setTimeout(() => badge.remove(), 5000);
+                }
+            }, 200);
+            setTimeout(() => clearInterval(interval), 5000);
         }
-    }, 200);
-    setTimeout(() => clearInterval(interval), 5000);
-}
 
         const style = document.createElement('style');
         style.textContent = `
@@ -764,4 +821,5 @@ function checkHighlight() {
         });
     </script>
 </body>
+
 </html>

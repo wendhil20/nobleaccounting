@@ -32,21 +32,30 @@ if (!empty($attachments)) {
     $uploadDir = ROOT_PATH . '/uploads/attachments/';
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
-    $allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    $allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
-    foreach ($attachments as $file) {
-        // Detect MIME from base64 header
-        if (!preg_match('#^data:(image/\w+);base64,#', $file['data'], $matches)) continue;
-        if (!in_array($matches[1], $allowed)) continue;
+  foreach ($attachments as $file) {
+    // ✅ Match both image/* and application/pdf
+    if (!preg_match('#^data:([\w]+/[\w+\-]+);base64,#', $file['data'], $matches)) continue;
+    
+    $mime = $matches[1];
+    $allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!in_array($mime, $allowed)) continue;
 
-        $base64  = preg_replace('#^data:image/\w+;base64,#', '', $file['data']);
-        $binary  = base64_decode($base64);
-        if (!$binary) continue;
+    $base64 = preg_replace('#^data:[\w]+/[\w+\-]+;base64,#', '', $file['data']);
+    $binary = base64_decode($base64);
+    if (!$binary) continue;
 
-        $filename = uniqid('att_', true) . '.webp';
-        file_put_contents($uploadDir . $filename, $binary);
-        $savedPaths[] = 'uploads/attachments/' . $filename;
-    }
+    // ✅ Correct extension per MIME
+    $ext = match($mime) {
+        'application/pdf' => 'pdf',
+        default           => 'webp',
+    };
+
+    $filename = uniqid('att_', true) . '.' . $ext;
+    file_put_contents($uploadDir . $filename, $binary);
+    $savedPaths[] = 'uploads/attachments/' . $filename;
+}
 }
 
 $attachmentsJson = json_encode($savedPaths);
@@ -67,10 +76,21 @@ if (!$control_no || !$requestor_name || !$purpose || !$sent_to || !$user_id) {
     exit;
 }
 
+$attachment_status = trim($body['attachment_status'] ?? 'attached');
+if (!in_array($attachment_status, ['attached', 'follow_up'])) {
+    $attachment_status = 'attached';
+}
+
+// Kung follow_up, hindi required ang attachments
+if (!$control_no || !$requestor_name || !$purpose || !$sent_to || !$user_id) {
+    echo json_encode(['success' => false, 'error' => 'Missing fields']);
+    exit;
+}
+
 $stmt = $conn->prepare("INSERT INTO noblebudgetrequest 
-    (control_no, user_id, requestor_name, purpose, date_requested, sent_to, items, attachments) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("sisssiss",
+    (control_no, user_id, requestor_name, purpose, date_requested, sent_to, items, attachments, attachment_status) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("sisssisss",
     $control_no,
     $user_id,
     $requestor_name,
@@ -78,7 +98,8 @@ $stmt->bind_param("sisssiss",
     $date_requested,
     $sent_to,
     $items,
-    $attachmentsJson
+    $attachmentsJson,
+    $attachment_status
 );
 
 $result = $stmt->execute();

@@ -9,6 +9,8 @@ header('Content-Type: application/json');
 $user_id = intval($_SESSION['account_id'] ?? 0);
 if (!$user_id) { echo json_encode([]); exit; }
 
+$conn->query("DELETE FROM noblenotification WHERE created_at < NOW() - INTERVAL 30 DAY");
+
 $result = $conn->query("
     SELECT n.id, n.message, n.is_read, n.created_at,
            n.link,                          

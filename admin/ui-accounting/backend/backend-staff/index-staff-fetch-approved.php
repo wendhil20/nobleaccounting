@@ -10,18 +10,19 @@ header('Content-Type: application/json');
 $result = $conn->query("SELECT b.*, 
     n.name as sender_name, 
     n.email as sender_email,
-    r.name as approver_name
+    r.name as approver_name,
+    recv.name as receiver_name
     FROM noblebudgetrequest b
     LEFT JOIN nobleaccount n ON b.user_id = n.id
     LEFT JOIN noblerole r ON b.approved_by = r.id
+    LEFT JOIN noblerole recv ON b.received_by = recv.id
     WHERE b.status = 'approved' 
-    AND b.received_by IS NULL
     ORDER BY b.approved_at DESC");
 
 $data = [];
 while ($row = $result->fetch_assoc()) {
     $row['items'] = json_decode($row['items'], true);
-    $row['attachments'] = json_decode($row['attachments'] ?? '[]', true); // ← dagdag
+    $row['attachments'] = json_decode($row['attachments'] ?? '[]', true); // ← dagdag ito
     $data[] = $row;
 }
 

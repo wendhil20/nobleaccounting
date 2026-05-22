@@ -47,11 +47,12 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             <th class="px-5 py-3 text-left">Role / Department</th>
                             <th class="px-5 py-3 text-left">Position</th>
                             <th class="px-5 py-3 text-left">Created At</th>
+                            <th class="px-5 py-3 text-left">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="accounts-tbody">
                         <tr>
-                            <td colspan="5" class="px-5 py-8 text-center text-gray-400 text-sm">
+                            <td colspan="7" class="px-5 py-8 text-center text-gray-400 text-sm">
                                 <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading...
                             </td>
                         </tr>
@@ -61,6 +62,67 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         </div>
 
     </main>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-base font-bold text-gray-800">Edit Account</h2>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <input type="hidden" id="edit-id">
+
+                <!-- Name -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Name</label>
+                    <input id="edit-name" type="text"
+                        class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+                        placeholder="Full name">
+                </div>
+
+                <!-- New Password -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">New Password</label>
+                    <div class="relative">
+                        <input id="edit-password" type="password"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400 transition pr-10"
+                            placeholder="Leave blank to keep current">
+                        <button type="button" onclick="togglePasswordVisibility()"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i id="toggle-eye" class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1">Leave blank if you don't want to change the password.</p>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Confirm Password</label>
+                    <input id="edit-confirm-password" type="password"
+                        class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+                        placeholder="Repeat new password">
+                </div>
+
+                <!-- Error message -->
+                <p id="edit-error" class="text-xs text-red-500 hidden"></p>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeEditModal()"
+                    class="flex-1 border border-gray-200 text-gray-600 text-sm font-medium py-2 rounded-lg hover:bg-gray-50 transition">
+                    Cancel
+                </button>
+                <button onclick="saveEdit()"
+                    class="flex-1 bg-amber-400 hover:bg-amber-500 text-white text-sm font-semibold py-2 rounded-lg transition">
+                    <i class="fa-solid fa-floppy-disk mr-1"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         let previousCount = 0;
@@ -84,11 +146,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-wide border-none outline-none cursor-pointer transition-all">
                     <option value="staff" ${row.position === 'staff' ? 'selected' : ''}>Staff</option>
                     <option value="head" ${row.position === 'head' ? 'selected' : ''}>Head</option>
-                     <option value="custodian" ${row.position === 'custodian' ? 'selected' : ''}>Custodian</option>
-                     <option value="custoassistant" ${row.position === 'custoassistant' ? 'selected' : ''}>Custodian Assistant</option>
+                    <option value="custodian" ${row.position === 'custodian' ? 'selected' : ''}>Custodian</option>
+                    <option value="custoassistant" ${row.position === 'custoassistant' ? 'selected' : ''}>Custodian Assistant</option>
                 </select>
             </td>
             <td class="px-5 py-3 text-gray-400 text-xs font-mono">${row.created_at}</td>
+            <td class="px-5 py-3">
+                <button onclick="openEditModal(${row.id}, '${row.name.replace(/'/g, "\\'")}')"
+                    class="bg-amber-100 hover:bg-amber-200 text-amber-700 text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-wide transition-all">
+                    <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
+                </button>
+            </td>
         </tr>
     `).join('');
 
@@ -104,12 +172,11 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     const tbody = document.getElementById('accounts-tbody');
 
                     if (!data.length) {
-                        tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-8 text-center text-gray-400">No accounts found.</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-gray-400">No accounts found.</td></tr>`;
                         previousCount = 0;
                         return;
                     }
 
-                    // Mag-render lang kung may bagong account o force render
                     if (forceRender || data.length !== previousCount) {
                         previousCount = data.length;
                         renderAccounts(data);
@@ -117,7 +184,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 })
                 .catch(() => {
                     document.getElementById('accounts-tbody').innerHTML =
-                        `<tr><td colspan="6" class="px-5 py-8 text-center text-red-400">Failed to load data.</td></tr>`;
+                        `<tr><td colspan="7" class="px-5 py-8 text-center text-red-400">Failed to load data.</td></tr>`;
                 });
         }
 
@@ -130,7 +197,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        // Wala nang fetchAccounts — update lang ang dropdown color
                         const select = document.querySelector(`select[onchange="changePosition(${id}, this.value)"]`);
                         if (select) {
                             select.className = `${newPosition === 'head' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'} 
@@ -140,10 +206,90 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 });
         }
 
-        // Initial load lang — isang beses
+        // ─── Edit Modal ───────────────────────────────────────────────
+
+        function openEditModal(id, name) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-name').value = name;
+            document.getElementById('edit-password').value = '';
+            document.getElementById('edit-confirm-password').value = '';
+            document.getElementById('edit-error').classList.add('hidden');
+            document.getElementById('edit-modal').classList.remove('hidden');
+            document.getElementById('edit-modal').classList.add('flex');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+            document.getElementById('edit-modal').classList.remove('flex');
+        }
+
+        function togglePasswordVisibility() {
+            const input = document.getElementById('edit-password');
+            const icon = document.getElementById('toggle-eye');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        function saveEdit() {
+            const id = document.getElementById('edit-id').value;
+            const name = document.getElementById('edit-name').value.trim();
+            const password = document.getElementById('edit-password').value;
+            const confirmPassword = document.getElementById('edit-confirm-password').value;
+            const errorEl = document.getElementById('edit-error');
+
+            // Validation
+            if (!name) {
+                errorEl.textContent = 'Name is required.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            if (password && password !== confirmPassword) {
+                errorEl.textContent = 'Passwords do not match.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            errorEl.classList.add('hidden');
+
+            const payload = { id, name };
+            if (password) payload.password = password;
+
+            fetch('<?= BASE_URL ?>/hrupdate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeEditModal();
+                        fetchAccounts(true); // Re-render with updated data
+                    } else {
+                        errorEl.textContent = data.message || 'Update failed. Try again.';
+                        errorEl.classList.remove('hidden');
+                    }
+                })
+                .catch(() => {
+                    errorEl.textContent = 'Network error. Try again.';
+                    errorEl.classList.remove('hidden');
+                });
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('edit-modal').addEventListener('click', function (e) {
+            if (e.target === this) closeEditModal();
+        });
+
+        // Initial load
         fetchAccounts(true);
 
-        // Mag-check ng bago kapag nag-focus ulit ang tab (bumalik sa tab)
+        // Re-check on tab focus
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 fetchAccounts();
