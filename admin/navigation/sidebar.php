@@ -333,7 +333,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
 
         function sendHeartbeat() {
             fetch('<?= BASE_URL ?>/heartbeat', { method: 'POST' })
-                .then(() => setDot(true))   // ← dito lang ang kulang mo
+                .then(() => setDot(true))
                 .catch(() => setDot(false));
         }
         function setDot(online) {
@@ -348,7 +348,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
             if (tooltipText) tooltipText.className = `text-xs font-semibold ${online ? 'text-green-400' : 'text-gray-400'}`;
             if (tooltipText) tooltipText.textContent = online ? 'Online' : 'Away';
         }
-        sendHeartbeat();                    // agad sa load → online agad, no refresh needed
+        sendHeartbeat();
         setInterval(sendHeartbeat, 10_000);
 
 
@@ -362,12 +362,11 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                 panel.style.left = '0';
                 overlay.classList.remove('hidden');
                 chevron.classList.add('rotate-90');
-                // TANGGALIN ang sidebarMarkAllRead() dito — huwag agad mark as read
             } else {
                 panel.style.left = '-288px';
                 overlay.classList.add('hidden');
                 chevron.classList.remove('rotate-90');
-                sidebarMarkAllRead(); // mark all read pag ISASARA na lang
+                sidebarMarkAllRead();
             }
         }
 
@@ -406,6 +405,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                     </div>`;
                         return;
                     }
+
                     list.innerHTML = data.map(n => {
                         const isPing = n.message.includes('');
 
@@ -418,8 +418,12 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                             );
                         }
 
+                        // ↓ UPDATED: dalawang bagong param — request_id at date_requested
+                        const requestDate = n.date_requested ?? '';
+
                         return `
-<div onclick="sidebarClickNotif(${n.id}, '${n.link ?? ''}', ${n.request_id ?? 0})" class="flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-gray-50 ${n.is_read == 0
+<div onclick="sidebarClickNotif(${n.id}, '${n.link ?? ''}', ${n.request_id ?? 0}, '${requestDate}')"
+     class="flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-gray-50 ${n.is_read == 0
                                 ? (isPing ? 'bg-red-50 border-l-[3px] border-red-400' : 'bg-orange-50 border-l-[3px] border-orange-400')
                                 : 'border-l-[3px] border-transparent'}">
                                 <div class="w-8 h-8 rounded-full ${n.is_read == 0
@@ -442,20 +446,22 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                 .catch(err => console.error('Notif error:', err));
         }
 
-        function sidebarClickNotif(id, link, requestId) {
-    fetch('<?= BASE_URL ?>/marknotificationsread', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-    }).then(() => {
-        if (link) {
-            // Idagdag ang request_id sa URL as query param
-            window.location.href = '<?= BASE_URL ?>' + link + '?highlight=' + requestId;
-        } else {
-            sidebarFetchNotifications();
+        // ↓ UPDATED: tumatanggap na ng requestDate param, idinagdag sa URL bilang &date=
+        function sidebarClickNotif(id, link, requestId, requestDate) {
+            fetch('<?= BASE_URL ?>/marknotificationsread', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            }).then(() => {
+                if (link) {
+                    let url = '<?= BASE_URL ?>' + link + '?highlight=' + requestId;
+                    if (requestDate) url += '&date=' + requestDate;
+                    window.location.href = url;
+                } else {
+                    sidebarFetchNotifications();
+                }
+            });
         }
-    });
-}
 
         function sidebarMarkAllRead() {
             fetch('<?= BASE_URL ?>/marknotificationsread', {
