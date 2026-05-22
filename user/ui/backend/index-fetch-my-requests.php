@@ -1,8 +1,7 @@
 <?php
 // index-fetch-my-requests.php
 // Route: GET /fetchmyrequests
-session_name('noblehome');
-session_start();
+
 include ROOT_PATH . '/network/connect.php';
 if (empty($_SESSION['logged_in'])) { echo json_encode([]); exit; }
 

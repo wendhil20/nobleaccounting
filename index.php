@@ -71,7 +71,10 @@ $adminRoutes = [
     'download-pdfbudgetrequest',        
     'accountingdashboard',              
     'announcementdashboard',            
-    'announcement',                     
+    'announcement', 
+    'accountingmonitoring', 
+    'accountinggraph',         
+    'fetch-budget-graph-data',         
 
     //staffaccounting
     'accountingstaff',                  
@@ -186,6 +189,9 @@ $routes = [
     'accountingdashboard'              => 'admin/ui-accounting/index-accounting-dashboard.php',
     'announcementdashboard'            => 'admin/ui-accounting/index-accounting-dashboard.php',
     'announcement'                     => 'admin/ui-accounting/index-accounting-announcement.php',
+    'accountingmonitoring'             => 'admin/ui-accounting/index-accounting-monitoring.php',
+    'accountinggraph'                  => 'admin/ui-accounting/index-accounting-graph.php',
+    'fetch-budget-graph-data'          => 'admin/ui-accounting/backend/backend-accounting/fetch-budget-graph-data.php',
 
     //staffaccounting
     'accountingstaff'                  => 'admin/ui-accounting/index-staff-main.php',

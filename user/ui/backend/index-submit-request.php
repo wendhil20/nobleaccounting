@@ -1,7 +1,6 @@
 <?php
 // index-submit-request.php
-session_name('noblehome');
-session_start();
+
 
 include ROOT_PATH . '/network/connect.php';
 

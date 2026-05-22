@@ -58,8 +58,8 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
         <!-- For Accounting Department -->
         <?php if ($role === ROLE_ACCOUNTING): ?>
             <?php if ($isHead): ?>
-                <a href="<?= BASE_URL ?>/accountingdashboard"
-                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingdashboard') ?>">
+                <a href="<?= BASE_URL ?>/accountinggraph"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountinggraph') ?>">
                     <i class="fa-solid fa-chart-line w-4 text-center text-sm"></i>
                     <span>Dashboard</span>
                 </a>
@@ -172,6 +172,12 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/announcementdashboard') ?>">
                 <i class="fa-solid fa-sign-hanging  w-4 text-center text-sm"></i>
                 <span>Announce List</span>
+            </a>
+
+            <a href="<?= BASE_URL ?>/accountingmonitoring"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingmonitoring') ?>">
+                <i class="fa-solid fa-file-circle-check w-4 text-center text-sm"></i>
+                <span>Monitoring Project</span>
             </a>
         <?php endif; ?>
 

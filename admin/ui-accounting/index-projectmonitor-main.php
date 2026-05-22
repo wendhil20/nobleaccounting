@@ -6,7 +6,7 @@ include ROOT_PATH . '/admin/authentication/index-authguard.php';
 include ROOT_PATH . '/admin/authentication/index-roles.php';
 
 $allowedRoles = [ROLE_ACCOUNTING];
-$allowedPositions = [POSITION_CUSTODIAN];
+$allowedPositions = [POSITION_CUSTODIAN,POSITION_HEAD];
 include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
 ?>
