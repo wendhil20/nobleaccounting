@@ -1,22 +1,74 @@
 <?php
-// Included sa bawat department main page — hindi standalone
 // admin/requestcentral/requests-view.php
+// Included sa bawat department main page — hindi standalone
 ?>
 
-<div class="mb-6">
-    <h1 class="text-xl font-bold text-gray-800">Budget Requests</h1>
-    <p class="text-sm text-gray-400 mt-1">Requests sent to you for approval</p>
-</div>
-
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-        <span class="text-sm font-semibold text-gray-700">Incoming Requests</span>
-        <div class="flex items-center gap-2">
+<div class="mb-6 flex items-center justify-between flex-wrap gap-4">
+    <div>
+        <h1 class="text-xl font-bold text-gray-800">Budget Requests</h1>
+        <p class="text-sm text-gray-400 mt-1">Requests sent to you for approval</p>
+    </div>
+    <!-- Month/Year nav -->
+    <div class="flex items-center gap-3">
+        <button onclick="prevMonth()"
+            class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 transition text-gray-500">
+            <i class="fa-solid fa-chevron-left text-xs"></i>
+        </button>
+        <span id="cal-label" class="text-sm font-semibold text-gray-700 min-w-[130px] text-center"></span>
+        <button onclick="nextMonth()"
+            class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 transition text-gray-500">
+            <i class="fa-solid fa-chevron-right text-xs"></i>
+        </button>
+        <button onclick="goToday()"
+            class="text-xs font-semibold text-orange-500 border border-orange-200 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition">
+            Today
+        </button>
+        <div class="flex items-center gap-1.5 ml-2">
             <span id="last-updated" class="text-[10px] text-gray-400"></span>
             <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
         </div>
     </div>
+</div>
 
+<!-- Calendar Grid -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4">
+    <!-- Day headers -->
+    <div class="grid grid-cols-7 border-b border-gray-100">
+        <?php foreach (['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $d): ?>
+            <div class="py-2.5 text-center text-[11px] font-bold text-gray-400 uppercase tracking-widest
+            <?= $d === 'Sun' ? 'text-red-400' : ($d === 'Sat' ? 'text-blue-400' : '') ?>">
+                <?= $d ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <!-- Cells -->
+    <div id="calendar-grid" class="grid grid-cols-7"></div>
+</div>
+
+<!-- Legend -->
+<div class="flex items-center gap-4 mb-6 px-1">
+    <div class="flex items-center gap-1.5">
+        <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+        <span class="text-[11px] text-gray-500">Pending</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+        <span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>
+        <span class="text-[11px] text-gray-500">Approved</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+        <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
+        <span class="text-[11px] text-gray-500">Rejected</span>
+    </div>
+</div>
+
+<!-- Day Detail Panel (hidden by default) -->
+<div id="day-panel" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <span id="day-panel-title" class="text-sm font-semibold text-gray-700"></span>
+        <button onclick="closeDayPanel()" class="text-gray-300 hover:text-gray-500 transition">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
@@ -24,18 +76,12 @@
                     <th class="px-5 py-3 text-left">Control No.</th>
                     <th class="px-5 py-3 text-left">Requestor</th>
                     <th class="px-5 py-3 text-left">Purpose</th>
-                    <th class="px-5 py-3 text-left">Date</th>
                     <th class="px-5 py-3 text-left">Items</th>
                     <th class="px-5 py-3 text-left">Status</th>
                     <th class="px-5 py-3 text-left">Action</th>
                 </tr>
             </thead>
-            <tbody id="requests-tbody">
-                <tr>
-                    <td colspan="7" class="px-5 py-8 text-center text-gray-400 text-sm">
-                        <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading...
-                    </td>
-                </tr>
+            <tbody id="day-requests-tbody">
             </tbody>
         </table>
     </div>
@@ -48,8 +94,6 @@
 
         <!-- Header -->
         <div class="grid grid-cols-[1fr_auto] border-b-2 border-gray-800">
-
-            <!-- Brand + Stamp -->
             <div class="flex items-center gap-4 px-3 py-3 border-r-2 border-gray-800">
                 <div class="w-14 h-14 shrink-0">
                     <img src="<?= BASE_URL ?>/icon/logo.png" alt="Logo" class="w-full h-full object-contain">
@@ -63,9 +107,7 @@
                         noblehomeconsl.ph@gmail.com | Tel. No. 02-88221295 | Cell. No. 0968-591-6544
                     </p>
                 </div>
-
             </div>
-            <!-- Title + Control -->
             <div class="flex flex-col">
                 <div class="flex items-center justify-between px-4 py-2 border-b-2 border-gray-800 gap-4">
                     <h2 class="font-bold text-sm uppercase tracking-widest whitespace-nowrap">Budget Request Form</h2>
@@ -113,7 +155,6 @@
         <div class="overflow-x-auto max-h-[220px] overflow-y-auto">
             <table class="w-full text-sm border-collapse">
                 <thead class="sticky top-0 z-1">
-
                     <tr class="bg-orange-500 text-white text-[11px] font-bold uppercase tracking-wider">
                         <th class="w-10 px-3 py-2 border-r border-orange-400 text-center">No.</th>
                         <th class="px-4 py-2 border-r border-orange-400 text-left">Items / Description</th>
@@ -137,9 +178,8 @@
             </table>
         </div>
 
-        <!-- Status lang — walang action buttons -->
+        <!-- Attachments + Reject comment -->
         <div class="flex flex-col px-6 py-4 border-t-2 border-gray-800 gap-2">
-            <!-- Attachments -->
             <div id="view-attachments" class="hidden">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">
                     <i class="fa-solid fa-paperclip mr-1"></i> Attachments
@@ -150,8 +190,8 @@
         </div>
 
         <!-- Signatures -->
-        <div class="grid grid-cols-2 ">
-            <div class="px-5 ">
+        <div class="grid grid-cols-2">
+            <div class="px-5">
                 <div class="flex items-center gap-2 mb-4">
                     <i class="fa-regular fa-circle-user text-gray-400 text-lg"></i>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600">Approved By:</span>
@@ -161,21 +201,17 @@
                 <div class="border-b-2 border-gray-400 mb-1"></div>
                 <p class="text-[10px] text-center text-gray-500 font-medium uppercase tracking-wider">Head</p>
             </div>
-
             <div class="px-8 py-1">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fa-regular fa-circle-user text-gray-400 text-lg"></i>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600">Received By:</span>
                 </div>
-                <!-- Name kapag may nagreceive na -->
                 <div id="view-received-by" class="text-center"></div>
-                <!-- Button kapag approved pero hindi pa nareceive -->
                 <div id="view-receive-btn"></div>
                 <div class="border-b-2 border-gray-400 mb-1"></div>
                 <p class="text-[10px] text-center text-gray-500 font-medium uppercase tracking-wider">&nbsp;</p>
             </div>
         </div>
-
     </div>
 
     <!-- Lightbox -->
@@ -206,13 +242,10 @@
         </div>
         <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
             <button onclick="closeRejectModal()"
-                class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all">
-                Cancel
-            </button>
+                class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all">Cancel</button>
             <button onclick="confirmReject()"
                 class="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-5 py-2 rounded transition-all">
-                <i class="fa-solid fa-xmark text-xs"></i>
-                Confirm Reject
+                <i class="fa-solid fa-xmark text-xs"></i>Confirm Reject
             </button>
         </div>
     </div>
@@ -239,77 +272,222 @@
                 class="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-800 outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-200 resize-none transition-all"></textarea>
         </div>
         <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
-            <button onclick="closePingModal()" class="text-sm text-gray-500 font-medium px-4 py-2 rounded">
-                Cancel
-            </button>
+            <button onclick="closePingModal()"
+                class="text-sm text-gray-500 font-medium px-4 py-2 rounded">Cancel</button>
             <button onclick="confirmPing()"
                 class="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-5 py-2 rounded transition-all">
                 <i class="fa-solid fa-bell text-xs"></i>Send Ping
             </button>
         </div>
     </div>
-
 </div>
 
 <script>
+    // ─── State ───────────────────────────────────────────
+    let allRequests = [];
     let previousCount = 0;
-
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth(); // 0-based
+    let selectedDate = null;
     let rejectTargetId = null;
-
     let pingTargetRequestId = null;
 
-    function openPingModal(id) {
-        pingTargetRequestId = id;
-        document.getElementById('ping-message').value = '';
-        document.getElementById('ping-staff-list').innerHTML =
-            '<p class="text-xs text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Loading staff...</p>';
-        document.getElementById('ping-modal').classList.remove('hidden');
+    // ─── Calendar ────────────────────────────────────────
+    const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
 
-        fetch('<?= BASE_URL ?>/pingrequest')
-            .then(res => res.json())
-            .then(staff => {
-                document.getElementById('ping-staff-list').innerHTML = staff.length
-                    ? staff.map(s => `
-                    <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
-                        <input type="checkbox" value="${s.id}" class="ping-staff-check w-4 h-4 accent-blue-500">
-                        <div>
-                            <p class="text-sm font-medium text-gray-800">${s.name}</p>
-                            <p class="text-[10px] text-gray-400">${s.email ?? ''}</p>
-                        </div>
-                    </label>`).join('')
-                    : '<p class="text-xs text-gray-400">No staff found.</p>';
-            });
-    }
+    function renderCalendar() {
+        document.getElementById('cal-label').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
 
-    function closePingModal() {
-        document.getElementById('ping-modal').classList.add('hidden');
-        pingTargetRequestId = null;
-    }
+        const grid = document.getElementById('calendar-grid');
+        grid.innerHTML = '';
 
-    function confirmPing() {
-        const checked = [...document.querySelectorAll('.ping-staff-check:checked')];
-        if (!checked.length) {
-            alert('Please select at least one staff to ping.');
-            return;
+        const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+        const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+        const today = new Date();
+
+        // Group requests by date string "YYYY-MM-DD"
+        const byDate = {};
+        allRequests.forEach(r => {
+            const d = r.date_requested ? r.date_requested.substring(0, 10) : null;
+            if (!d) return;
+            if (!byDate[d]) byDate[d] = [];
+            byDate[d].push(r);
+        });
+
+        // Leading empty cells
+        for (let i = 0; i < firstDay; i++) {
+            const blank = document.createElement('div');
+            blank.className = 'min-h-[90px] bg-gray-50/50 border-b border-r border-gray-100';
+            grid.appendChild(blank);
         }
 
-        const staff_ids = checked.map(c => parseInt(c.value));
-        const message = document.getElementById('ping-message').value.trim();
+        for (let day = 1; day <= daysInMonth; day++) {
+            const mm = String(calMonth + 1).padStart(2, '0');
+            const dd = String(day).padStart(2, '0');
+            const dateStr = `${calYear}-${mm}-${dd}`;
+            const requests = byDate[dateStr] ?? [];
 
-        fetch('<?= BASE_URL ?>/pingrequest', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ request_id: pingTargetRequestId, staff_ids, message })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    closePingModal();
-                    showToast('Staff pinged successfully!', 'approved');
-                }
-            });
+            const isToday = (today.getFullYear() === calYear &&
+                today.getMonth() === calMonth &&
+                today.getDate() === day);
+            const isSelected = selectedDate === dateStr;
+            const dayOfWeek = (firstDay + day - 1) % 7;
+            const isSun = dayOfWeek === 0;
+            const isSat = dayOfWeek === 6;
+
+            const cell = document.createElement('div');
+            cell.className = [
+                'min-h-[90px] p-2 border-b border-r border-gray-100 cursor-pointer transition-all duration-150',
+                requests.length ? 'hover:bg-orange-50' : 'hover:bg-gray-50',
+                isSelected ? 'bg-orange-50 ring-2 ring-inset ring-orange-400' : '',
+            ].join(' ');
+
+            // Count by status
+            const pending = requests.filter(r => r.status === 'pending').length;
+            const approved = requests.filter(r => r.status === 'approved').length;
+            const rejected = requests.filter(r => r.status === 'rejected').length;
+
+            const dots = [
+                pending ? `<span class="inline-block w-2 h-2 rounded-full bg-yellow-400"></span>` : '',
+                approved ? `<span class="inline-block w-2 h-2 rounded-full bg-green-400"></span>` : '',
+                rejected ? `<span class="inline-block w-2 h-2 rounded-full bg-red-400"></span>` : '',
+            ].join('');
+
+            const countBadge = requests.length
+                ? `<span class="text-[10px] font-bold text-orange-500">${requests.length} req</span>`
+                : '';
+
+            cell.innerHTML = `
+                <div class="flex items-start justify-between mb-1">
+                    <span class="text-xs font-semibold ${isToday ? 'w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center' : isSun ? 'text-red-400' : isSat ? 'text-blue-400' : 'text-gray-500'}">${day}</span>
+                    ${countBadge}
+                </div>
+                ${requests.length ? `
+                <div class="flex flex-wrap gap-1 mt-1">${dots}</div>
+                <div class="mt-1.5 space-y-0.5">
+                    ${requests.slice(0, 2).map(r => `
+                        <div class="text-[9px] truncate px-1.5 py-0.5 rounded font-medium
+                            ${r.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                    r.status === 'approved' ? 'bg-green-100 text-green-700' :
+                        'bg-red-100 text-red-700'}">
+                            ${r.requestor_name}
+                        </div>`).join('')}
+                    ${requests.length > 2 ? `<div class="text-[9px] text-gray-400 px-1">+${requests.length - 2} more</div>` : ''}
+                </div>` : ''}
+            `;
+
+            cell.onclick = () => openDayPanel(dateStr, requests);
+            grid.appendChild(cell);
+        }
+
+        // Trailing empty cells to complete last row
+        const total = firstDay + daysInMonth;
+        const trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
+        for (let i = 0; i < trailing; i++) {
+            const blank = document.createElement('div');
+            blank.className = 'min-h-[90px] bg-gray-50/50 border-b border-r border-gray-100';
+            grid.appendChild(blank);
+        }
     }
 
+    function prevMonth() {
+        calMonth--;
+        if (calMonth < 0) { calMonth = 11; calYear--; }
+        selectedDate = null;
+        closeDayPanel();
+        renderCalendar();
+    }
+
+    function nextMonth() {
+        calMonth++;
+        if (calMonth > 11) { calMonth = 0; calYear++; }
+        selectedDate = null;
+        closeDayPanel();
+        renderCalendar();
+    }
+
+    function goToday() {
+        const now = new Date();
+        calYear = now.getFullYear();
+        calMonth = now.getMonth();
+        selectedDate = null;
+        closeDayPanel();
+        renderCalendar();
+    }
+
+    // ─── Day Panel ───────────────────────────────────────
+    function openDayPanel(dateStr, requests) {
+        selectedDate = dateStr;
+        renderCalendar(); // re-render to show selection ring
+
+        const panel = document.getElementById('day-panel');
+        const title = document.getElementById('day-panel-title');
+        const tbody = document.getElementById('day-requests-tbody');
+
+        const d = new Date(dateStr + 'T00:00:00');
+        title.textContent = d.toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        if (!requests.length) {
+            tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-8 text-center text-gray-400 text-sm">No requests on this day.</td></tr>`;
+        } else {
+            tbody.innerHTML = requests.map(row => {
+                const isApproved = row.status === 'approved';
+                const isRejected = row.status === 'rejected';
+                const rowClass = isApproved ? 'bg-green-50 hover:bg-green-100' : isRejected ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50';
+                return `
+                <tr data-id="${row.id}" class="border-t border-gray-100 transition-colors ${rowClass}">
+                    <td class="px-5 py-3 font-mono text-xs text-blue-500 underline cursor-pointer"
+                        onclick="viewRequest(${JSON.stringify(row).replace(/"/g, '&quot;')})">
+                        ${row.control_no}
+                    </td>
+                    <td class="px-5 py-3">
+                        <p class="font-medium text-gray-800">${row.requestor_name}</p>
+                        <p class="text-[10px] text-gray-400">${row.sender_email ?? ''}</p>
+                    </td>
+                    <td class="px-5 py-3 text-gray-600">${row.purpose}</td>
+                    <td class="px-5 py-3 text-xs text-gray-500">${row.items?.filter(i => i.description?.trim()).length ?? 0} item(s)</td>
+                    <td class="px-5 py-3">${statusBadge(row.status)}</td>
+                    <td class="px-5 py-3">${actionButtons(row.id, row.status, row)}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        panel.classList.remove('hidden');
+        setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+    }
+
+    function closeDayPanel() {
+        selectedDate = null;
+        document.getElementById('day-panel').classList.add('hidden');
+        renderCalendar();
+    }
+
+    // ─── Fetch ───────────────────────────────────────────
+    function fetchRequests() {
+        fetch('<?= BASE_URL ?>/fetchrequests')
+            .then(res => res.json())
+            .then(data => {
+                if (data.length === previousCount && previousCount !== 0) return;
+                previousCount = data.length;
+                allRequests = data;
+
+                renderCalendar();
+
+                // Refresh day panel if open
+                if (selectedDate) {
+                    const mm = String(calMonth + 1).padStart(2, '0');
+                    const filtered = allRequests.filter(r => r.date_requested?.startsWith(selectedDate));
+                    openDayPanel(selectedDate, filtered);
+                }
+
+                document.getElementById('last-updated').textContent =
+                    'Updated ' + new Date().toLocaleTimeString('en-PH');
+            })
+            .catch(err => console.error('Fetch error:', err));
+    }
+
+    // ─── Shared Helpers ──────────────────────────────────
     function statusBadge(status) {
         const map = {
             pending: 'bg-yellow-100 text-yellow-700',
@@ -319,54 +497,31 @@
         return `<span class="${map[status] ?? 'bg-gray-100 text-gray-500'} text-[10px] font-semibold px-2 py-1 rounded-full uppercase tracking-wide">${status}</span>`;
     }
 
-    function fetchRequests() {
-        fetch('<?= BASE_URL ?>/fetchrequests')
-            .then(res => res.json())
-            .then(data => {
-                const tbody = document.getElementById('requests-tbody');
+    function actionButtons(id, status, row) {
+        const viewBtn = `<button onclick='viewRequest(${JSON.stringify(row)})'
+            class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-[10px] font-semibold px-3 py-1 rounded-full transition-all">
+            <i class="fa-solid fa-eye mr-1"></i>View
+        </button>`;
+        const pingBtn = `<button onclick="openPingModal(${id})"
+            class="bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-semibold px-3 py-1 rounded-full transition-all">
+            <i class="fa-solid fa-bell mr-1"></i>Ping
+        </button>`;
 
-                if (!data.length) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-gray-400">No requests yet.</td></tr>`;
-                    previousCount = 0;
-                    return;
-                }
+        if (status === 'pending') return `
+        <div class="flex items-center gap-2">
+            ${viewBtn}
+            <button onclick="doAction(${id}, 'approved')"
+                class="bg-green-500 hover:bg-green-600 text-white text-[10px] font-semibold px-3 py-1 rounded-full transition-all">
+                <i class="fa-solid fa-check mr-1"></i>Approve
+            </button>
+            <button onclick="openRejectModal(${id})"
+                class="bg-red-500 hover:bg-red-600 text-white text-[10px] font-semibold px-3 py-1 rounded-full transition-all">
+                <i class="fa-solid fa-xmark mr-1"></i>Reject
+            </button>
+        </div>`;
 
-                if (data.length === previousCount) return;
-                previousCount = data.length;
-
-                tbody.innerHTML = data.map(row => {
-                    const isApproved = row.status === 'approved';
-                    const isRejected = row.status === 'rejected';
-
-                    const rowClass = isApproved
-                        ? 'bg-green-50 hover:bg-green-100'
-                        : isRejected
-                            ? 'bg-red-50 hover:bg-red-100'
-                            : 'hover:bg-gray-50';
-
-                    return `
-    <tr data-id="${row.id}" class="border-t border-gray-100 transition-colors ${rowClass}">
-       <td class="px-5 py-3 font-mono text-xs text-blue-500 underline cursor-pointer" 
-           onclick="viewRequest(${JSON.stringify(row).replace(/"/g, '&quot;')})">
-               ${row.control_no}
-        </td>
-        <td class="px-5 py-3">
-            <p class="font-medium text-gray-800">${row.requestor_name}</p>
-            <p class="text-[10px] text-gray-400">${row.sender_email ?? ''}</p>
-        </td>
-        <td class="px-5 py-3 text-gray-600">${row.purpose}</td>
-        <td class="px-5 py-3 text-xs text-gray-400 font-mono">${row.date_requested}</td>
-        <td class="px-5 py-3 text-xs text-gray-500">${row.items?.filter(i => i.description?.trim()).length ?? 0} item(s)</td>
-
-        <td class="px-5 py-3">${statusBadge(row.status)}</td>
-        <td class="px-5 py-3">${actionButtons(row.id, row.status, row)}</td>
-    </tr>`;
-                }).join('');
-
-                document.getElementById('last-updated').textContent =
-                    'Updated ' + new Date().toLocaleTimeString('en-PH');
-            })
-            .catch(err => console.error('Fetch error:', err));
+        if (status === 'approved') return `<div class="flex items-center gap-2">${viewBtn}${pingBtn}</div>`;
+        return viewBtn;
     }
 
     function doAction(id, action, comment = '') {
@@ -388,16 +543,13 @@
     function showToast(message, type = 'approved') {
         const existing = document.getElementById('toast-notif');
         if (existing) existing.remove();
-
         const color = type === 'approved' ? 'bg-green-500' : 'bg-red-500';
         const icon = type === 'approved' ? 'fa-circle-check' : 'fa-xmark';
-
         const toast = document.createElement('div');
         toast.id = 'toast-notif';
         toast.className = `fixed bottom-6 right-6 z-[999] flex items-center gap-3 ${color} text-white text-sm font-medium px-5 py-3 rounded-xl shadow-lg transition-all duration-300 opacity-0`;
         toast.innerHTML = `<i class="fa-solid ${icon}"></i> ${message}`;
         document.body.appendChild(toast);
-
         setTimeout(() => toast.classList.replace('opacity-0', 'opacity-100'), 10);
         setTimeout(() => {
             toast.classList.replace('opacity-100', 'opacity-0');
@@ -405,53 +557,16 @@
         }, 3000);
     }
 
-    function actionButtons(id, status, row) {
-        const viewBtn = `<button onclick='viewRequest(${JSON.stringify(row)})' 
-        class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-[10px] font-semibold px-3 py-1 rounded-full transition-all">
-        <i class="fa-solid fa-eye mr-1"></i>View
-    </button>`;
-
-        const pingBtn = `<button onclick="openPingModal(${id})"
-        class="bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-semibold px-3 py-1 rounded-full transition-all">
-        <i class="fa-solid fa-bell mr-1"></i>Ping
-    </button>`;
-
-        // ← Pending — walang ping
-        if (status === 'pending') return `
-        <div class="flex items-center gap-2">
-            ${viewBtn}
-            <button onclick="doAction(${id}, 'approved')"
-                class="bg-green-500 hover:bg-green-600 text-white text-[10px] font-semibold px-3 py-1 rounded-full transition-all">
-                <i class="fa-solid fa-check mr-1"></i>Approve
-            </button>
-            <button onclick="openRejectModal(${id})"
-                class="bg-red-500 hover:bg-red-600 text-white text-[10px] font-semibold px-3 py-1 rounded-full transition-all">
-                <i class="fa-solid fa-xmark mr-1"></i>Reject
-            </button>
-        </div>`;
-
-        // ← Approved — may ping
-        if (status === 'approved') return `
-        <div class="flex items-center gap-2">
-            ${viewBtn}
-            ${pingBtn}
-        </div>`;
-
-        // ← Rejected — view lang
-        return viewBtn;
-    }
-
+    // ─── Reject Modal ────────────────────────────────────
     function openRejectModal(id) {
         rejectTargetId = id;
         document.getElementById('reject-comment').value = '';
         document.getElementById('reject-modal').classList.remove('hidden');
     }
-
     function closeRejectModal() {
         document.getElementById('reject-modal').classList.add('hidden');
         rejectTargetId = null;
     }
-
     function confirmReject() {
         const comment = document.getElementById('reject-comment').value.trim();
         if (!comment) {
@@ -460,416 +575,218 @@
             return;
         }
         document.getElementById('reject-comment').classList.remove('border-red-400');
-
-        const idToReject = rejectTargetId; // ← i-save muna bago i-close
+        const idToReject = rejectTargetId;
         closeRejectModal();
-        doAction(idToReject, 'rejected', comment); // ← gamitin ang saved id
+        doAction(idToReject, 'rejected', comment);
     }
 
-    function downloadPDF(id) {
-        window.open('<?= BASE_URL ?>/download-pdfbudgetrequest?id=' + id, '_blank');
+    // ─── Ping Modal ──────────────────────────────────────
+    function openPingModal(id) {
+        pingTargetRequestId = id;
+        document.getElementById('ping-message').value = '';
+        document.getElementById('ping-staff-list').innerHTML =
+            '<p class="text-xs text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Loading staff...</p>';
+        document.getElementById('ping-modal').classList.remove('hidden');
+        fetch('<?= BASE_URL ?>/pingrequest')
+            .then(res => res.json())
+            .then(staff => {
+                document.getElementById('ping-staff-list').innerHTML = staff.length
+                    ? staff.map(s => `
+                    <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" value="${s.id}" class="ping-staff-check w-4 h-4 accent-blue-500">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">${s.name}</p>
+                            <p class="text-[10px] text-gray-400">${s.email ?? ''}</p>
+                        </div>
+                    </label>`).join('')
+                    : '<p class="text-xs text-gray-400">No staff found.</p>';
+            });
+    }
+    function closePingModal() {
+        document.getElementById('ping-modal').classList.add('hidden');
+        pingTargetRequestId = null;
+    }
+    function confirmPing() {
+        const checked = [...document.querySelectorAll('.ping-staff-check:checked')];
+        if (!checked.length) { alert('Please select at least one staff to ping.'); return; }
+        const staff_ids = checked.map(c => parseInt(c.value));
+        const message = document.getElementById('ping-message').value.trim();
+        fetch('<?= BASE_URL ?>/pingrequest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ request_id: pingTargetRequestId, staff_ids, message })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) { closePingModal(); showToast('Staff pinged successfully!', 'approved'); }
+            });
     }
 
+    // ─── View Modal ──────────────────────────────────────
     function viewRequest(row) {
-        // Fill modal data — tama na ang mapping
         document.getElementById('view-control-no').textContent = row.control_no;
         document.getElementById('view-date').textContent = row.date_requested;
         document.getElementById('view-requestor').textContent = row.requestor_name;
         document.getElementById('view-purpose').textContent = row.purpose;
 
-        // Items
         const items = row.items ?? [];
-        let total = 0;
-        let rowNum = 0;
+        let total = 0, rowNum = 0;
         document.getElementById('view-items-tbody').innerHTML = items
-            .filter(item => item.description && item.description.trim() !== '')  // ← skip empty
-            .map((item) => {
+            .filter(item => item.description && item.description.trim() !== '')
+            .map(item => {
                 rowNum++;
                 const amount = parseFloat(item.amount) || 0;
                 total += amount;
                 return `
-        <tr class="border-t border-gray-200">
-            <td class="px-3 py-2 text-center text-xs text-gray-400 font-mono border-r border-gray-200 w-10">${rowNum}</td>
-            <td class="px-4 py-2 border-r border-gray-200 min-w-[180px]">${item.description || ''}</td>
-            <td class="px-4 py-2 border-r border-gray-200 min-w-[150px]">${item.purpose || ''}</td>
-            <td class="px-4 py-2 border-r border-gray-200 text-center w-24">${item.quantity || 0}</td>
-            <td class="px-4 py-2 border-r border-gray-200 text-right font-mono w-32">${parseFloat(item.unit_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
-            <td class="px-4 py-2 border-r border-gray-200 text-right font-mono w-32">₱ ${amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
-            <td class="px-4 py-2 min-w-[120px]">${item.notes || ''}</td>
-        </tr>`;
+                <tr class="border-t border-gray-200">
+                    <td class="px-3 py-2 text-center text-xs text-gray-400 font-mono border-r border-gray-200 w-10">${rowNum}</td>
+                    <td class="px-4 py-2 border-r border-gray-200 min-w-[180px]">${item.description || ''}</td>
+                    <td class="px-4 py-2 border-r border-gray-200 min-w-[150px]">${item.purpose || ''}</td>
+                    <td class="px-4 py-2 border-r border-gray-200 text-center w-24">${item.quantity || 0}</td>
+                    <td class="px-4 py-2 border-r border-gray-200 text-right font-mono w-32">${parseFloat(item.unit_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+                    <td class="px-4 py-2 border-r border-gray-200 text-right font-mono w-32">₱ ${amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+                    <td class="px-4 py-2 min-w-[120px]">${item.notes || ''}</td>
+                </tr>`;
             }).join('');
-
         document.getElementById('view-total').textContent = '₱ ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-
-        // Status lang — walang accept/reject buttons
         document.getElementById('view-status-badge').innerHTML = statusBadge(row.status);
 
-
-
-        // ← DITO ilagay — bago mag-show ng modal
-        const approverName = row.approver_name ?? '';
-        const approvedAt = row.approved_at
-            ? new Date(row.approved_at).toLocaleDateString('en-PH', {
-                year: 'numeric', month: 'long', day: 'numeric'
-            }) + ' ' + new Date(row.approved_at).toLocaleTimeString('en-PH', {
-                hour: 'numeric', minute: '2-digit', hour12: true
-            })
-            : '';
-
-        // Pagkatapos ng view-status-badge
-        const rejectComment = row.reject_comment ?? '';
         const rejectDiv = document.getElementById('view-reject-comment');
-        if (rejectDiv) {
-            rejectDiv.innerHTML = rejectComment && row.status === 'rejected'
-                ? `<div class="mt-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+        rejectDiv.innerHTML = (row.reject_comment && row.status === 'rejected')
+            ? `<div class="mt-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
                <p class="text-[10px] font-bold uppercase tracking-widest text-red-500 mb-1">Reason for Rejection:</p>
-               <p class="text-sm text-red-700">${rejectComment}</p>
-           </div>`
-                : '';
-        }
+               <p class="text-sm text-red-700">${row.reject_comment}</p></div>` : '';
 
-        // Attachments
         let attachments = [];
-        try {
-            const raw = row.attachments;
-            attachments = typeof raw === 'string' ? JSON.parse(raw) : (raw ?? []);
-        } catch (e) {
-            attachments = [];
-        }
-        const attachmentsSection = document.getElementById('view-attachments');
-        if (attachmentsSection) {
-            if (attachments.length) {
-                attachmentsSection.classList.remove('hidden');
-                document.getElementById('view-attachments-grid').innerHTML = attachments.map(path => `
-            <div class="relative group/thumb cursor-pointer" onclick="openLightbox('<?= BASE_URL ?>/${path}')">
-                <img src="<?= BASE_URL ?>/${path}" 
-                    class="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all">
-                <div class="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/20 rounded-lg transition-all flex items-center justify-center">
-                    <i class="fa-solid fa-magnifying-glass text-white opacity-0 group-hover/thumb:opacity-100 transition-all text-xs"></i>
-                </div>
-            </div>
-        `).join('');
-            } else {
-                attachmentsSection.classList.add('hidden');
-            }
+        try { const raw = row.attachments; attachments = typeof raw === 'string' ? JSON.parse(raw) : (raw ?? []); } catch (e) { }
+        const attachSec = document.getElementById('view-attachments');
+        if (attachments.length) {
+            attachSec.classList.remove('hidden');
+            document.getElementById('view-attachments-grid').innerHTML = attachments.map(path => `
+                <div class="relative group/thumb cursor-pointer" onclick="openLightbox('<?= BASE_URL ?>/${path}')">
+                    <img src="<?= BASE_URL ?>/${path}" class="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/20 rounded-lg transition-all flex items-center justify-center">
+                        <i class="fa-solid fa-magnifying-glass text-white opacity-0 group-hover/thumb:opacity-100 transition-all text-xs"></i>
+                    </div>
+                </div>`).join('');
+        } else {
+            attachSec.classList.add('hidden');
         }
 
-        // Received By
+        const approverName = row.approver_name ?? '';
+        const approvedAt = row.approved_at ? new Date(row.approved_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + new Date(row.approved_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
         const receiverName = row.receiver_name ?? '';
-        const receivedAt = row.received_at
-            ? new Date(row.received_at).toLocaleDateString('en-PH', {
-                year: 'numeric', month: 'long', day: 'numeric'
-            }) + ' ' + new Date(row.received_at).toLocaleTimeString('en-PH', {
-                hour: 'numeric', minute: '2-digit', hour12: true
-            })
-            : '';
-
-        document.getElementById('view-received-by').innerHTML = receiverName
-            ? `<p class="text-sm font-semibold text-gray-800">${receiverName}</p>
-       <p class="text-[10px] text-gray-400">${receivedAt}</p>`
-            : '';
-
-        // Download PDF button — approved + received na
-        const downloadBtn = document.getElementById('view-download-btn');
-        const pdfBtn = (row.status === 'approved' && row.receiver_name)
-            ? `<button onclick="downloadPDF(${row.id})"
-            class="flex items-center gap-1.5 bg-gray-800 hover:bg-gray-900 text-white text-[11px] font-semibold px-3 py-1.5 rounded-md transition-all whitespace-nowrap">
-            <i class="fa-solid fa-file-pdf text-[10px]"></i>Download PDF
-        </button>`
-            : '';
-
-        downloadBtn.innerHTML = `
-    ${pdfBtn}
-    <button onclick="printRequest(${row.id})"
-        class="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-md transition-all whitespace-nowrap">
-        <i class="fa-solid fa-print text-[10px]"></i>Print
-    </button>`;
+        const receivedAt = row.received_at ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + new Date(row.received_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
 
         document.getElementById('view-approved-by').innerHTML = approverName
-            ? `<p class="text-sm font-semibold text-gray-800">${approverName}</p>
-       <p class="text-[10px] text-gray-400">${approvedAt}</p>`
-            : '';
+            ? `<p class="text-sm font-semibold text-gray-800">${approverName}</p><p class="text-[10px] text-gray-400">${approvedAt}</p>` : '';
+        document.getElementById('view-received-by').innerHTML = receiverName
+            ? `<p class="text-sm font-semibold text-gray-800">${receiverName}</p><p class="text-[10px] text-gray-400">${receivedAt}</p>` : '';
+
+        const downloadBtn = document.getElementById('view-download-btn');
+        const pdfBtn = (row.status === 'approved' && row.receiver_name)
+            ? `<button onclick="downloadPDF(${row.id})" class="flex items-center gap-1.5 bg-gray-800 hover:bg-gray-900 text-white text-[11px] font-semibold px-3 py-1.5 rounded-md transition-all whitespace-nowrap">
+               <i class="fa-solid fa-file-pdf text-[10px]"></i>Download PDF</button>` : '';
+        downloadBtn.innerHTML = `${pdfBtn}
+            <button onclick="printRequest(${row.id})" class="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-md transition-all whitespace-nowrap">
+                <i class="fa-solid fa-print text-[10px]"></i>Print</button>`;
+
         document.getElementById('view-modal').classList.remove('hidden');
     }
 
+    function closeViewModal() { document.getElementById('view-modal').classList.add('hidden'); }
+    function downloadPDF(id) { window.open('<?= BASE_URL ?>/download-pdfbudgetrequest?id=' + id, '_blank'); }
+
+    function openLightbox(src) {
+        document.getElementById('lightbox-img').src = src;
+        document.getElementById('lightbox').classList.remove('hidden');
+        event.stopPropagation();
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.add('hidden');
+        document.getElementById('lightbox-img').src = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
     function printRequest(id) {
-        // Hanapin yung row data mula sa current na nakita
         fetch('<?= BASE_URL ?>/fetchrequests')
             .then(res => res.json())
             .then(data => {
                 const row = data.find(r => r.id == id);
                 if (!row) return;
-
                 const items = row.items ?? [];
-                let total = 0;
-                let itemRows = '';
-                let filledCount = 0;
-
-                items.forEach((item, i) => {
+                let total = 0, itemRows = '', filledCount = 0;
+                items.forEach(item => {
                     if (!item.description) return;
                     filledCount++;
                     const amount = parseFloat(item.amount || 0);
                     total += amount;
-                    itemRows += `
-                <tr>
-                    <td style="text-align:center;border:1px solid #ccc;padding:5px;">${filledCount}</td>
-                    <td style="border:1px solid #ccc;padding:5px;">${item.description || ''}</td>
-                    <td style="border:1px solid #ccc;padding:5px;">${item.purpose || ''}</td>
-                    <td style="text-align:center;border:1px solid #ccc;padding:5px;">${item.quantity || 0}</td>
-                    <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">${parseFloat(item.unit_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
-                    <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">₱ ${amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
-                    <td style="border:1px solid #ccc;padding:5px;">${item.notes || ''}</td>
-                </tr>`;
+                    itemRows += `<tr>
+                        <td style="text-align:center;border:1px solid #ccc;padding:5px;">${filledCount}</td>
+                        <td style="border:1px solid #ccc;padding:5px;">${item.description || ''}</td>
+                        <td style="border:1px solid #ccc;padding:5px;">${item.purpose || ''}</td>
+                        <td style="text-align:center;border:1px solid #ccc;padding:5px;">${item.quantity || 0}</td>
+                        <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">${parseFloat(item.unit_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+                        <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">₱ ${amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+                        <td style="border:1px solid #ccc;padding:5px;">${item.notes || ''}</td></tr>`;
                 });
-
-                // Empty rows hanggang 5
                 for (let e = filledCount; e < 5; e++) {
-                    itemRows += `
-                <tr>
-                    <td style="text-align:center;border:1px solid #ccc;padding:5px;color:#ccc;">${e + 1}</td>
-                    <td style="border:1px solid #ccc;padding:5px;height:22px;"></td>
-                    <td style="border:1px solid #ccc;padding:5px;"></td>
-                    <td style="text-align:center;border:1px solid #ccc;padding:5px;">0</td>
-                    <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">0.00</td>
-                    <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">₱ 0.00</td>
-                    <td style="border:1px solid #ccc;padding:5px;"></td>
-                </tr>`;
+                    itemRows += `<tr>
+                        <td style="text-align:center;border:1px solid #ccc;padding:5px;color:#ccc;">${e + 1}</td>
+                        <td style="border:1px solid #ccc;padding:5px;height:22px;"></td>
+                        <td style="border:1px solid #ccc;padding:5px;"></td>
+                        <td style="text-align:center;border:1px solid #ccc;padding:5px;">0</td>
+                        <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">0.00</td>
+                        <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">₱ 0.00</td>
+                        <td style="border:1px solid #ccc;padding:5px;"></td></tr>`;
                 }
-
                 const approverName = row.approver_name ?? '';
-                const approvedAt = row.approved_at
-                    ? new Date(row.approved_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })
-                    + ' ' + new Date(row.approved_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
-                    : '';
+                const approvedAt = row.approved_at ? new Date(row.approved_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + new Date(row.approved_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
                 const receiverName = row.receiver_name ?? '';
-                const receivedAt = row.received_at
-                    ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })
-                    + ' ' + new Date(row.received_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
-                    : '';
-
-                const html = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Budget Request - ${row.control_no}</title>
-<style>
-    * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; padding: 15px; }
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #f97316; color: white; padding: 6px 8px; font-size: 10px; text-transform: uppercase; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .label { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #555; }
-    .control-box { background: #f97316; color: white; font-weight: bold; text-align: center; padding: 4px 8px; font-size: 9px; text-transform: uppercase; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .sig-line { border-top: 1px solid #999; margin-top: 40px; }
-    @page { size: A4 landscape; margin: 1cm; }
-</style>
-</head>
-<body>
-<div style="border:1px solid #111;">
-
-    <!-- Header -->
-    <table style="border-bottom:1px solid #111;">
-        <tr>
-            <td style="width:60%;border-right:1px solid #111;padding:10px;">
-                <table>
-                    <tr>
-                        <td style="width:60px;">
-                            <img src="<?= BASE_URL ?>/icon/logo.png" style="width:50px;height:50px;object-fit:contain;">
-                        </td>
-                        <td style="border-left:1px solid #aaa;padding-left:10px;">
-                            <strong style="font-size:11px;text-transform:uppercase;">Noblehome Construction Corporation</strong><br>
-                            <span style="font-size:9px;color:#666;">
-                                1181 MC Premiere Bldg., EDSA Balintawak Quezon City<br>
-                                noblehomeconsl.ph@gmail.com | Tel. No. 02-88221295 | Cell. No. 0968-591-6544
-                            </span>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-            <td style="width:40%;padding:0;vertical-align:top;">
-                <div style="font-weight:bold;font-size:12px;text-transform:uppercase;letter-spacing:1px;padding:8px;border-bottom:1px solid #111;">
-                    Budget Request Form
-                </div>
-                <table style="width:100%;">
-                    <tr>
-                        <td style="width:50%;border-right:1px solid #111;padding:0;vertical-align:top;">
-                            <div class="control-box">Control No.</div>
-                            <div style="text-align:center;font-family:monospace;font-size:10px;padding:6px;background:#f9fafb;">
-                                ${row.control_no}
-                            </div>
-                        </td>
-                        <td style="width:50%;padding:0;vertical-align:top;">
-                            <div class="control-box">Date</div>
-                            <div style="text-align:center;font-family:monospace;font-size:10px;padding:6px;background:#f9fafb;">
-                                ${row.date_requested}
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-
-    <!-- Requestor + Purpose -->
-    <table style="border-bottom:1px solid #111;">
-        <tr>
-            <td style="width:50%;border-right:1px solid #111;padding:8px;">
-                <span class="label">Requestor Name:</span>
-                <span style="font-size:12px;margin-left:5px;">${row.requestor_name}</span>
-            </td>
-            <td style="width:50%;padding:8px;">
-                <span class="label">Purpose of Request:</span>
-                <span style="font-size:12px;margin-left:5px;">${row.purpose}</span>
-            </td>
-        </tr>
-    </table>
-
-    <!-- Items Table -->
-    <table style="border-collapse:collapse;width:100%;border-bottom:1px solid #111;">
-        <thead>
-            <tr>
-                <th style="width:5%;border:1px solid #ea6c00;">No.</th>
-                <th style="border:1px solid #ea6c00;text-align:left;">Items / Description</th>
-                <th style="border:1px solid #ea6c00;text-align:left;">Purpose</th>
-                <th style="width:8%;border:1px solid #ea6c00;">Qty</th>
-                <th style="width:13%;border:1px solid #ea6c00;">Unit Price</th>
-                <th style="width:13%;border:1px solid #ea6c00;">Amount</th>
-                <th style="border:1px solid #ea6c00;text-align:left;">Notes</th>
-            </tr>
-        </thead>
-        <tbody>${itemRows}</tbody>
-        <tfoot>
-            <tr>
-                <td colspan="5" style="text-align:right;font-weight:bold;padding:6px;border:1px solid #ccc;font-size:10px;text-transform:uppercase;">Total:</td>
+                const receivedAt = row.received_at ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + new Date(row.received_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
+                const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Budget Request - ${row.control_no}</title>
+                <style>*{box-sizing:border-box;}body{font-family:Arial,sans-serif;font-size:11px;margin:0;padding:15px;}table{width:100%;border-collapse:collapse;}th{background:#f97316;color:white;padding:6px 8px;font-size:10px;text-transform:uppercase;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.label{font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#555;}.control-box{background:#f97316;color:white;font-weight:bold;text-align:center;padding:4px 8px;font-size:9px;text-transform:uppercase;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.sig-line{border-top:1px solid #999;margin-top:40px;}@page{size:A4 landscape;margin:1cm;}</style></head><body>
+                <div style="border:1px solid #111;">
+                <table style="border-bottom:1px solid #111;"><tr>
+                <td style="width:60%;border-right:1px solid #111;padding:10px;"><table><tr>
+                <td style="width:60px;"><img src="<?= BASE_URL ?>/icon/logo.png" style="width:50px;height:50px;object-fit:contain;"></td>
+                <td style="border-left:1px solid #aaa;padding-left:10px;"><strong style="font-size:11px;text-transform:uppercase;">Noblehome Construction Corporation</strong><br>
+                <span style="font-size:9px;color:#666;">1181 MC Premiere Bldg., EDSA Balintawak Quezon City<br>noblehomeconsl.ph@gmail.com | Tel. No. 02-88221295 | Cell. No. 0968-591-6544</span></td></tr></table></td>
+                <td style="width:40%;padding:0;vertical-align:top;"><div style="font-weight:bold;font-size:12px;text-transform:uppercase;letter-spacing:1px;padding:8px;border-bottom:1px solid #111;">Budget Request Form</div>
+                <table style="width:100%;"><tr>
+                <td style="width:50%;border-right:1px solid #111;padding:0;vertical-align:top;"><div class="control-box">Control No.</div><div style="text-align:center;font-family:monospace;font-size:10px;padding:6px;background:#f9fafb;">${row.control_no}</div></td>
+                <td style="width:50%;padding:0;vertical-align:top;"><div class="control-box">Date</div><div style="text-align:center;font-family:monospace;font-size:10px;padding:6px;background:#f9fafb;">${row.date_requested}</div></td>
+                </tr></table></td></tr></table>
+                <table style="border-bottom:1px solid #111;"><tr>
+                <td style="width:50%;border-right:1px solid #111;padding:8px;"><span class="label">Requestor Name:</span><span style="font-size:12px;margin-left:5px;">${row.requestor_name}</span></td>
+                <td style="width:50%;padding:8px;"><span class="label">Purpose of Request:</span><span style="font-size:12px;margin-left:5px;">${row.purpose}</span></td></tr></table>
+                <table style="border-collapse:collapse;width:100%;border-bottom:1px solid #111;"><thead><tr>
+                <th style="width:5%;border:1px solid #ea6c00;">No.</th><th style="border:1px solid #ea6c00;text-align:left;">Items / Description</th>
+                <th style="border:1px solid #ea6c00;text-align:left;">Purpose</th><th style="width:8%;border:1px solid #ea6c00;">Qty</th>
+                <th style="width:13%;border:1px solid #ea6c00;">Unit Price</th><th style="width:13%;border:1px solid #ea6c00;">Amount</th>
+                <th style="border:1px solid #ea6c00;text-align:left;">Notes</th></tr></thead>
+                <tbody>${itemRows}</tbody>
+                <tfoot><tr><td colspan="5" style="text-align:right;font-weight:bold;padding:6px;border:1px solid #ccc;font-size:10px;text-transform:uppercase;">Total:</td>
                 <td style="text-align:right;font-weight:bold;font-family:monospace;border:1px solid #ccc;padding:6px;">₱ ${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
-                <td style="border:1px solid #ccc;"></td>
-            </tr>
-        </tfoot>
-    </table>
-
-    <!-- Signatures -->
-    <table style="width:100%;">
-        <tr>
-            <td style="width:50%;border-right:1px solid #111;padding:15px 20px;vertical-align:bottom;">
-                <span class="label">Approved By:</span>
-                <div style="margin-top:20px;text-align:center;">
-                    <strong style="font-size:12px;">${approverName}</strong><br>
-                    <span style="font-size:9px;color:#888;">${approvedAt}</span>
-                </div>
-                <div class="sig-line"></div>
-                <div style="text-align:center;font-size:9px;text-transform:uppercase;color:#888;margin-top:3px;">Head</div>
-            </td>
-            <td style="width:50%;padding:15px 20px;vertical-align:bottom;">
-                <span class="label">Received By:</span>
-                <div style="margin-top:20px;text-align:center;">
-                    <strong style="font-size:12px;">${receiverName}</strong><br>
-                    <span style="font-size:9px;color:#888;">${receivedAt}</span>
-                </div>
-                <div class="sig-line"></div>
-                <div style="text-align:center;font-size:9px;color:#888;margin-top:3px;">&nbsp;</div>
-            </td>
-        </tr>
-    </table>
-
-</div>
-<script>
-    window.onload = function() {
-        window.print();
-        window.onafterprint = function() { window.close(); };
-    };
-<\/script>
-</body>
-</html>`;
-
-                const printWindow = window.open('', '_blank');
-                printWindow.document.write(html);
-                printWindow.document.close();
+                <td style="border:1px solid #ccc;"></td></tr></tfoot></table>
+                <table style="width:100%;"><tr>
+                <td style="width:50%;border-right:1px solid #111;padding:15px 20px;vertical-align:bottom;"><span class="label">Approved By:</span>
+                <div style="margin-top:20px;text-align:center;"><strong style="font-size:12px;">${approverName}</strong><br><span style="font-size:9px;color:#888;">${approvedAt}</span></div>
+                <div class="sig-line"></div><div style="text-align:center;font-size:9px;text-transform:uppercase;color:#888;margin-top:3px;">Head</div></td>
+                <td style="width:50%;padding:15px 20px;vertical-align:bottom;"><span class="label">Received By:</span>
+                <div style="margin-top:20px;text-align:center;"><strong style="font-size:12px;">${receiverName}</strong><br><span style="font-size:9px;color:#888;">${receivedAt}</span></div>
+                <div class="sig-line"></div><div style="text-align:center;font-size:9px;color:#888;margin-top:3px;">&nbsp;</div></td></tr></table>
+                </div><script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};<\/script></body></html>`;
+                const w = window.open('', '_blank');
+                w.document.write(html);
+                w.document.close();
             });
     }
 
-    function openLightbox(src) {
-        document.getElementById('lightbox-img').src = src;
-        document.getElementById('lightbox').classList.remove('hidden');
-        event.stopPropagation(); // para hindi ma-close ang view modal
-    }
-
-    function closeLightbox() {
-        document.getElementById('lightbox').classList.add('hidden');
-        document.getElementById('lightbox-img').src = '';
-    }
-
-    // Close lightbox sa ESC key
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closeLightbox();
-    });
-
-    function closeViewModal() {
-        document.getElementById('view-modal').classList.add('hidden');
-    }
-
-    // CSS — isang beses lang
-    const style = document.createElement('style');
-    style.textContent = `
-    @keyframes badgePulse {
-        0%   { transform: scale(1);   opacity: 1; }
-        50%  { transform: scale(1.4); opacity: 0.5; }
-        100% { transform: scale(1);   opacity: 1; }
-    }
-    .highlight-row td:first-child {
-        position: relative;
-    }
-    .highlight-badge {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        background-color: #ef4444;
-        border-radius: 50%;
-        animation: badgePulse 0.8s ease-in-out 6;
-        margin-right: 6px;
-        vertical-align: middle;
-        flex-shrink: 0;
-    }
-`;
-    document.head.appendChild(style);
-
-    // Highlight logic — run after fetchRequests
-    function checkHighlight() {
-        const params = new URLSearchParams(window.location.search);
-        const highlightId = params.get('highlight');
-        if (!highlightId) return;
-
-        // Ulit-ulitin hanggang lumabas yung row (kasi async ang fetch)
-        const interval = setInterval(() => {
-            const row = document.querySelector(`tr[data-id="${highlightId}"]`);
-            if (row) {
-                clearInterval(interval);
-                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                row.classList.add('highlight-row');
-
-                // Dagdag badge sa first td
-                const firstTd = row.querySelector('td:first-child');
-                const badge = document.createElement('span');
-                badge.className = 'highlight-badge';
-                firstTd.prepend(badge);
-
-                // Tanggalin badge after animation
-                setTimeout(() => badge.remove(), 5000);
-            }
-        }, 200);
-
-        // Stop after 5 seconds kung hindi pa rin makita
-        setTimeout(() => clearInterval(interval), 5000);
-    }
-
-    fetchRequests();
-    setTimeout(checkHighlight, 500); // slight delay para matapos muna mag-render
-
+    // ─── Init ────────────────────────────────────────────
     fetchRequests();
 
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            previousCount = 0;
-            fetchRequests();
-        }
+        if (document.visibilityState === 'visible') { previousCount = 0; fetchRequests(); }
     });
 </script>
