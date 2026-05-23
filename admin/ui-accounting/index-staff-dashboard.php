@@ -33,6 +33,14 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
                 <span class="text-sm font-semibold text-gray-700">Received List</span>
                 <div class="flex items-center gap-3">
+                    <!-- Category Filter -->
+                    <select id="category-filter"
+                        class="text-xs border border-gray-200 rounded-full px-3 py-1.5 outline-none focus:border-amber-400 transition-all text-gray-600 bg-white">
+                        <option value="">All Categories</option>
+                        <option value="project">Project</option>
+                        <option value="client">Client</option>
+                        <option value="nhcc">NHCC</option>
+                    </select>
                     <!-- Search Bar -->
                     <div class="relative">
                         <i
@@ -54,6 +62,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                                 <th class="px-5 py-3 text-left">Control No.</th>
                                 <th class="px-5 py-3 text-left">Requestor</th>
                                 <th class="px-5 py-3 text-left">Purpose</th>
+                                <th class="px-5 py-3 text-left">Category</th>
                                 <th class="px-5 py-3 text-left">Date</th>
                                 <th class="px-5 py-3 text-left">Total</th>
                                 <th class="px-5 py-3 text-left">Approved By</th>
@@ -275,14 +284,31 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         </div>
     </div>
 
+    <div id="cat-tooltip" class="fixed z-[9999] pointer-events-none hidden" style="visibility:hidden">
+        <div
+            class="bg-gray-800 text-white text-xs font-medium px-3 py-2 rounded-lg shadow-lg max-w-[220px] break-words leading-relaxed">
+            <span id="cat-tooltip-label" class="text-gray-400 text-[10px] block mb-0.5 uppercase tracking-wider"></span>
+            <span id="cat-tooltip-ref"></span>
+        </div>
+        <div class="w-2 h-2 bg-gray-800 rotate-45 mx-auto -mt-1"></div>
+    </div>
+
     <script>
         let allData = [];
 
-        function renderTable(data) {
+        function highlight(text, q) {
+            if (!text) return '';
+            if (!q) return text;
+            const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return String(text).replace(new RegExp(`(${escaped})`, 'gi'),
+                '<mark class="bg-yellow-200 text-yellow-900 rounded px-0.5">$1</mark>');
+        }
+
+        function renderTable(data, q = '') {
             const tbody = document.getElementById('received-tbody');
 
             if (!data.length) {
-                tbody.innerHTML = `<tr><td colspan="8" class="px-5 py-8 text-center text-gray-400">No received requests yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="px-5 py-8 text-center text-gray-400">No received requests yet.</td></tr>`;
                 return;
             }
 
@@ -296,21 +322,23 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         hour: 'numeric', minute: '2-digit', hour12: true
                     })
                     : '—';
-                const isSuccess = row.approver_name && row.receiver_name; // ← add this
+                const isSuccess = row.approver_name && row.receiver_name;
+
                 return `
 <tr class="border-t border-gray-100 transition-colors ${isSuccess ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50'}">
-    <td class="px-5 py-3 font-mono text-xs text-blue-500">${row.control_no}</td>
+    <td class="px-5 py-3 font-mono text-xs text-blue-500">${highlight(row.control_no, q)}</td>
     <td class="px-5 py-3">
-        <p class="font-medium text-gray-800">${row.requestor_name}</p>
+        <p class="font-medium text-gray-800">${highlight(row.requestor_name, q)}</p>
         <p class="text-[10px] text-gray-400">${row.sender_email ?? ''}</p>
     </td>
-    <td class="px-5 py-3 text-gray-600">${row.purpose}</td>
+    <td class="px-5 py-3 text-gray-600">${highlight(row.purpose, q)}</td>
+    <td class="px-5 py-3">${categoryBadge(row.request_category, row.request_reference)}</td>
     <td class="px-5 py-3 text-xs text-gray-400 font-mono">${row.date_requested}</td>
     <td class="px-5 py-3 font-mono text-xs font-semibold ${isSuccess ? 'text-green-600' : 'text-gray-700'}">
         ₱ ${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
     </td>
-    <td class="px-5 py-3 text-sm text-gray-700">${row.approver_name ?? '—'}</td>
-    <td class="px-5 py-3 text-sm text-gray-700">${row.receiver_name ?? '—'}</td>
+    <td class="px-5 py-3 text-sm text-gray-700">${highlight(row.approver_name ?? '—', q)}</td>
+    <td class="px-5 py-3 text-sm text-gray-700">${highlight(row.receiver_name ?? '—', q)}</td>
     <td class="px-5 py-3 text-xs text-gray-400">${receivedAt}</td>
     <td class="px-5 py-3">
         <button onclick='printRequest(${JSON.stringify(row).replace(/'/g, "\\'")})'
@@ -379,25 +407,84 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 .then(res => res.json())
                 .then(data => {
                     allData = data;
-                    renderTable(data);
+                    applyFilters();
                     document.getElementById('last-updated').textContent =
                         'Updated ' + new Date().toLocaleTimeString('en-PH');
                 })
                 .catch(err => console.error('Fetch error:', err));
         }
 
-        // Search
-        document.getElementById('search-input').addEventListener('input', function () {
-            const q = this.value.toLowerCase();
-            const filtered = allData.filter(row =>
-                row.control_no?.toLowerCase().includes(q) ||
-                row.requestor_name?.toLowerCase().includes(q) ||
-                row.purpose?.toLowerCase().includes(q) ||
-                row.approver_name?.toLowerCase().includes(q) ||
-                row.receiver_name?.toLowerCase().includes(q)
-            );
-            renderTable(filtered);
-        });
+        function categoryBadge(category, reference) {
+            if (!category) return '<span class="text-gray-300 text-xs">—</span>';
+            const map = {
+                project: { label: 'Project', icon: 'fa-helmet-safety', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+                client: { label: 'Client', icon: 'fa-user-tie', color: 'bg-purple-100 text-purple-700 border-purple-200' },
+                nhcc: { label: 'NHCC', icon: 'fa-building', color: 'bg-orange-100 text-orange-700 border-orange-200' },
+            };
+            const cfg = map[category] ?? { label: category, icon: 'fa-tag', color: 'bg-gray-100 text-gray-600 border-gray-200' };
+            if (!reference) {
+                return `<span class="inline-flex items-center gap-1 border rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.color}">
+                    <i class="fa-solid ${cfg.icon} text-[9px]"></i> ${cfg.label}
+                </span>`;
+            }
+            const safeRef = reference.replace(/'/g, "\\'").replace(/`/g, '\\`');
+            return `<div class="relative inline-block"
+        onmouseenter="showCatTooltip(event, '${cfg.label}', '${safeRef}')"
+        onmouseleave="hideCatTooltip()">
+        <span class="inline-flex items-center gap-1 border rounded-full px-2 py-0.5 text-[10px] font-semibold cursor-default ${cfg.color}">
+            <i class="fa-solid ${cfg.icon} text-[9px]"></i> ${cfg.label}
+            <i class="fa-solid fa-circle-info text-[8px] opacity-50"></i>
+        </span>
+    </div>`;
+        }
+
+        function showCatTooltip(e, label, reference) {
+            const tip = document.getElementById('cat-tooltip');
+            document.getElementById('cat-tooltip-label').textContent = label;
+            document.getElementById('cat-tooltip-ref').textContent = reference;
+            tip.style.visibility = 'hidden';
+            tip.classList.remove('hidden');
+            const rect = e.currentTarget.getBoundingClientRect();
+            const tipW = tip.offsetWidth;
+            const tipH = tip.offsetHeight;
+            let left = rect.left + (rect.width / 2) - (tipW / 2);
+            left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
+            let top = rect.top - tipH - 8;
+            if (top < 8) top = rect.bottom + 8;
+            tip.style.left = left + 'px';
+            tip.style.top = top + 'px';
+            tip.style.visibility = 'visible';
+        }
+
+        function hideCatTooltip() {
+            document.getElementById('cat-tooltip').classList.add('hidden');
+        }
+
+        function applyFilters() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            const cat = document.getElementById('category-filter').value;
+
+            const filtered = allData.filter(row => {
+                const matchSearch =
+                    row.control_no?.toLowerCase().includes(q) ||
+                    row.requestor_name?.toLowerCase().includes(q) ||
+                    row.purpose?.toLowerCase().includes(q) ||
+                    row.approver_name?.toLowerCase().includes(q) ||
+                    row.receiver_name?.toLowerCase().includes(q) ||
+                    row.request_reference?.toLowerCase().includes(q);
+
+                const matchCategory = !cat || row.request_category === cat;
+
+                return matchSearch && matchCategory;
+            });
+
+            renderTable(filtered, q);
+        }
+
+        // Event listeners para sa filters
+        document.getElementById('category-filter').addEventListener('change', applyFilters);
+        document.getElementById('search-input').addEventListener('input', applyFilters);
+
 
         fetchReceived();
         setInterval(fetchReceived, 5000);

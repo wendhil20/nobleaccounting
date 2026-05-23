@@ -301,7 +301,15 @@ $position = $_SESSION['position'] ?? '';
             return `<span class="${map[status] ?? 'bg-gray-100 text-gray-500'} text-[10px] font-semibold px-2 py-1 rounded-full uppercase tracking-wide">${label[status] ?? status}</span>`;
         }
 
-        function renderTable(data) {
+        function highlight(text, q) {
+            if (!text) return '';
+            if (!q) return text;
+            const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return String(text).replace(new RegExp(`(${escaped})`, 'gi'),
+                '<mark class="bg-yellow-200 text-yellow-900 rounded px-0.5">$1</mark>');
+        }
+
+        function renderTable(data, q = '') {
             const tbody = document.getElementById('voucher-tbody');
             if (!data.length) {
                 tbody.innerHTML = `<tr><td colspan="8" class="px-5 py-8 text-center text-gray-400">No vouchers yet.</td></tr>`;
@@ -311,26 +319,26 @@ $position = $_SESSION['position'] ?? '';
                 const items = row.items ?? [];
                 const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
                 return `
-            <tr data-id="${row.id}" class="border-t border-gray-100 hover:bg-gray-50 transition-colors">
-                <td class="px-5 py-3 font-mono text-xs text-blue-500 cursor-pointer underline"
-                    onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})">
-                    ${row.control_no}
-                </td>
-                <td class="px-5 py-3 text-xs text-gray-700">${row.voucher_title ?? '—'}</td>
-                <td class="px-5 py-3 text-gray-800">${row.voucher_payee ?? '—'}</td>
-                <td class="px-5 py-3 text-gray-600">${row.purpose}</td>
-                <td class="px-5 py-3 text-xs text-gray-400 font-mono">${row.date_requested}</td>
-                <td class="px-5 py-3 font-mono text-xs font-semibold text-gray-700">
-                    PHP ${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
-                </td>
-                <td class="px-5 py-3">${row.voucher_status ? statusBadge(row.voucher_status) : '<span class="text-[10px] text-gray-400">Not submitted</span>'}</td>
-                <td class="px-5 py-3">
-                    <button onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})"
-                        class="bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-semibold px-3 py-1.5 rounded-full transition-all">
-                        <i class="fa-solid fa-receipt mr-1"></i>View
-                    </button>
-                </td>
-            </tr>`;
+    <tr data-id="${row.id}" class="border-t border-gray-100 hover:bg-gray-50 transition-colors">
+        <td class="px-5 py-3 font-mono text-xs text-blue-500 cursor-pointer underline"
+            onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})">
+            ${highlight(row.control_no, q)}
+        </td>
+        <td class="px-5 py-3 text-xs text-gray-700">${highlight(row.voucher_title ?? '—', q)}</td>
+        <td class="px-5 py-3 text-gray-800">${highlight(row.voucher_payee ?? '—', q)}</td>
+        <td class="px-5 py-3 text-gray-600">${highlight(row.purpose, q)}</td>
+        <td class="px-5 py-3 text-xs text-gray-400 font-mono">${row.date_requested}</td>
+        <td class="px-5 py-3 font-mono text-xs font-semibold text-gray-700">
+            PHP ${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+        </td>
+        <td class="px-5 py-3">${row.voucher_status ? statusBadge(row.voucher_status) : '<span class="text-[10px] text-gray-400">Not submitted</span>'}</td>
+        <td class="px-5 py-3">
+            <button onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})"
+                class="bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-semibold px-3 py-1.5 rounded-full transition-all">
+                <i class="fa-solid fa-receipt mr-1"></i>View
+            </button>
+        </td>
+    </tr>`;
             }).join('');
         }
 
@@ -504,15 +512,20 @@ $position = $_SESSION['position'] ?? '';
                 .then(data => {
                     if (data.length === previousCount) return;
                     previousCount = data.length;
-
                     allData = data;
-                    renderTable(data);
+                    const q = document.getElementById('search-input').value.toLowerCase();
+                    const filtered = q ? allData.filter(row =>
+                        row.control_no?.toLowerCase().includes(q) ||
+                        row.voucher_title?.toLowerCase().includes(q) ||
+                        row.voucher_payee?.toLowerCase().includes(q) ||
+                        row.purpose?.toLowerCase().includes(q)
+                    ) : allData;
+                    renderTable(filtered, q);
                     document.getElementById('last-updated').textContent =
                         'Updated ' + new Date().toLocaleTimeString('en-PH');
                 })
                 .catch(err => console.error('Fetch error:', err));
         }
-
         document.getElementById('search-input').addEventListener('input', function () {
             const q = this.value.toLowerCase();
             const filtered = allData.filter(row =>
@@ -521,7 +534,7 @@ $position = $_SESSION['position'] ?? '';
                 row.voucher_payee?.toLowerCase().includes(q) ||
                 row.purpose?.toLowerCase().includes(q)
             );
-            renderTable(filtered);
+            renderTable(filtered, q);
         });
 
         // CSS — isang beses lang

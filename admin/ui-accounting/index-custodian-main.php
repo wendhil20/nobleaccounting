@@ -23,56 +23,185 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 <body class="bg-slate-100">
     <main class="ml-56 min-h-screen p-8">
 
-        <div class="mb-6">
-            <h1 class="text-xl font-bold text-gray-800">Cash Vouchers</h1>
-            <p class="text-sm text-gray-400 mt-1">Completed and received budget requests</p>
-        </div>
+        <!-- Header -->
+        <div class="mb-6 flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <h1 class="text-xl font-bold text-gray-800">Cash Vouchers</h1>
+                <p class="text-sm text-gray-400 mt-1">Completed and received budget requests</p>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap">
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                <span class="text-sm font-semibold text-gray-700">Voucher Records</span>
-                <div class="flex items-center gap-3">
+                <!-- Calendar nav (only visible in calendar mode) -->
+                <div id="cal-controls" class="hidden items-center gap-2">
+                    <div class="relative" id="dates-dropdown-wrap">
+                        <button onclick="toggleDatesDropdown(event)"
+                            class="flex items-center gap-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition shadow-sm">
+                            <i class="fa-solid fa-calendar-days text-orange-400"></i>
+                            Dates with Vouchers
+                            <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div id="dates-dropdown"
+                            class="hidden absolute left-0 mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+                            <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Dates with Vouchers</p>
+                                <span id="dates-dropdown-count" class="text-[10px] text-gray-400"></span>
+                            </div>
+                            <div class="px-3 py-2 border-b border-gray-100">
+                                <input type="text" id="dates-search" placeholder="Search date..." oninput="filterDatesDropdown()"
+                                    class="w-full text-xs border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-orange-400 transition">
+                            </div>
+                            <ul id="dates-list" class="max-h-64 overflow-y-auto py-1"></ul>
+                        </div>
+                    </div>
+                    <button onclick="prevMonth()"
+                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 transition text-gray-500">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <span id="cal-label" class="text-sm font-semibold text-gray-700 min-w-[130px] text-center"></span>
+                    <button onclick="nextMonth()"
+                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 transition text-gray-500">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                    <button onclick="goToday()"
+                        class="text-xs font-semibold text-orange-500 border border-orange-200 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition">
+                        Today
+                    </button>
+                </div>
+
+                <!-- List controls (only visible in list mode) -->
+                <div id="list-controls" class="flex items-center gap-3">
+                    <select id="category-filter"
+                        class="text-xs border border-gray-200 rounded-full px-3 py-1.5 outline-none focus:border-amber-400 transition-all text-gray-600 bg-white">
+                        <option value="">All Categories</option>
+                        <option value="project">Project</option>
+                        <option value="client">Client</option>
+                        <option value="nhcc">NHCC</option>
+                    </select>
                     <div class="relative">
-                        <i
-                            class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                         <input type="text" id="search-input" placeholder="Search..."
                             class="pl-8 pr-4 py-1.5 text-xs border border-gray-200 rounded-full outline-none focus:border-amber-400 transition-all w-48">
                     </div>
-                    <span id="last-updated" class="text-[10px] text-gray-400"></span>
-                    <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                </div>
+
+                <span id="last-updated" class="text-[10px] text-gray-400"></span>
+                <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+
+                <!-- View Toggle -->
+                <div class="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <button id="btn-list" onclick="setView('list')"
+                        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all bg-orange-500 text-white">
+                        <i class="fa-solid fa-list text-[10px]"></i> List
+                    </button>
+                    <button id="btn-calendar" onclick="setView('calendar')"
+                        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all text-gray-500 hover:bg-gray-50">
+                        <i class="fa-solid fa-calendar-days text-[10px]"></i> Calendar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── LIST VIEW ─────────────────────────────────── -->
+        <div id="view-list">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                    <span class="text-sm font-semibold text-gray-700">Voucher Records</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <div class="max-h-[500px] overflow-y-auto scrollbar-thin">
+                        <table class="w-full text-sm">
+                            <thead class="sticky top-0 z-10">
+                                <tr class="bg-gray-50 text-[11px] font-semibold text-black uppercase tracking-widest">
+                                    <th class="px-5 py-3 text-left">Voucher No.</th>
+                                    <th class="px-5 py-3 text-left">Budget Request No.</th>
+                                    <th class="px-5 py-3 text-left">Payee</th>
+                                    <th class="px-5 py-3 text-left">Payment For</th>
+                                    <th class="px-5 py-3 text-left">Date</th>
+                                    <th class="px-5 py-3 text-left">Total Amount</th>
+                                    <th class="px-5 py-3 text-left">Approved By</th>
+                                    <th class="px-5 py-3 text-left">Received By</th>
+                                    <th class="px-5 py-3 text-left">Status</th>
+                                    <th class="px-5 py-3 text-left">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="voucher-tbody">
+                                <tr>
+                                    <td colspan="10" class="px-5 py-8 text-center text-gray-400 text-sm">
+                                        <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── CALENDAR VIEW ─────────────────────────────── -->
+        <div id="view-calendar" class="hidden">
+
+            <!-- Calendar Grid -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4">
+                <div class="grid grid-cols-7 border-b border-gray-100">
+                    <?php foreach (['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $d): ?>
+                        <div class="py-2.5 text-center text-[11px] font-bold text-gray-400 uppercase tracking-widest <?= $d === 'Sun' ? 'text-red-400' : ($d === 'Sat' ? 'text-blue-400' : '') ?>">
+                            <?= $d ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <div id="calendar-grid" class="grid grid-cols-7"></div>
+            </div>
+
+            <!-- Legend -->
+            <div class="flex items-center gap-4 mb-6 px-1">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+                    <span class="text-[11px] text-gray-500">For Approval</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                    <span class="text-[11px] text-gray-500">Ready to Release</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>
+                    <span class="text-[11px] text-gray-500">Released</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
+                    <span class="text-[11px] text-gray-500">Not Submitted</span>
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
-                <div class="max-h-[500px] overflow-y-auto scrollbar-thin">
+            <!-- Day Detail Panel -->
+            <div id="day-panel" class="hidden bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                    <span id="day-panel-title" class="text-sm font-semibold text-gray-700"></span>
+                    <button onclick="closeDayPanel()" class="text-gray-300 hover:text-gray-500 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="overflow-x-auto max-h-[400px] overflow-y-auto scrollbar-thin">
                     <table class="w-full text-sm">
                         <thead class="sticky top-0 z-10">
-                            <tr class="bg-gray-50 text-[11px] font-semibold text-black uppercase tracking-widest">
+                            <tr class="bg-gray-50 text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
                                 <th class="px-5 py-3 text-left">Voucher No.</th>
-                                <th class="px-5 py-3 text-left">Budget Request No.</th>
                                 <th class="px-5 py-3 text-left">Payee</th>
                                 <th class="px-5 py-3 text-left">Payment For</th>
-                                <th class="px-5 py-3 text-left">Date</th>
+                                <th class="px-5 py-3 text-left">Category</th>
                                 <th class="px-5 py-3 text-left">Total Amount</th>
-                                <th class="px-5 py-3 text-left">Approved By</th>
-                                <th class="px-5 py-3 text-left">Received By</th>
                                 <th class="px-5 py-3 text-left">Status</th>
                                 <th class="px-5 py-3 text-left">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="voucher-tbody">
-                            <tr>
-                                <td colspan="9" class="px-5 py-8 text-center text-gray-400 text-sm">
-                                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading...
-                                </td>
-                            </tr>
-                        </tbody>
+                        <tbody id="day-vouchers-tbody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Cash Voucher Modal -->
+        <!-- ─── VOUCHER MODAL (shared) ────────────────────── -->
         <div id="voucher-modal"
             class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8 overflow-y-auto">
             <div class="bg-white w-full max-w-4xl rounded-sm shadow-xl border border-gray-300 my-auto">
@@ -83,10 +212,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         <img src="<?= BASE_URL ?>/icon/logo.png" alt="Logo" class="w-12 h-12 object-contain">
                         <div>
                             <p class="font-bold text-sm uppercase">Noblehome Construction Corporation</p>
-                            <p class="text-[10px] text-gray-500">1181 MC Premiere Bldg., EDSA Bldg., EDSA Balintawak
-                                Quezon City</p>
-                            <p class="text-[10px] text-gray-500">noblehomeconsl.ph@gmail.com | Tel. No. 02-88221295 |
-                                Cell. No. 0968-591-6544</p>
+                            <p class="text-[10px] text-gray-500">1181 MC Premiere Bldg., EDSA Bldg., EDSA Balintawak Quezon City</p>
+                            <p class="text-[10px] text-gray-500">noblehomeconsl.ph@gmail.com | Tel. No. 02-88221295 | Cell. No. 0968-591-6544</p>
                         </div>
                     </div>
                     <div></div>
@@ -94,19 +221,12 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         <p class="font-bold text-lg uppercase tracking-widest text-gray-800">Cash Voucher</p>
                         <p id="v-title" class="text-[10px] text-gray-500 uppercase tracking-wider mb-1"></p>
                         <div class="grid grid-cols-2 mt-1">
-                            <div
-                                class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider text-center border-r border-orange-400">
-                                Voucher No.</div>
-                            <div
-                                class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider text-center">
-                                Date:</div>
+                            <div class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider text-center border-r border-orange-400">Voucher No.</div>
+                            <div class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider text-center">Date:</div>
                         </div>
                         <div class="grid grid-cols-2">
-                            <div id="v-control-no"
-                                class="border border-gray-300 text-xs font-mono px-3 py-1 text-center bg-gray-50 border-r-0">
-                            </div>
-                            <div id="v-date"
-                                class="border border-gray-300 text-xs font-mono px-3 py-1 text-center bg-gray-50"></div>
+                            <div id="v-control-no" class="border border-gray-300 text-xs font-mono px-3 py-1 text-center bg-gray-50 border-r-0"></div>
+                            <div id="v-date" class="border border-gray-300 text-xs font-mono px-3 py-1 text-center bg-gray-50"></div>
                         </div>
                     </div>
                 </div>
@@ -115,55 +235,38 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 <div class="px-6 py-3 border-b border-gray-300 space-y-2">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex items-center gap-2">
-                            <span
-                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Payee</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Payee</span>
                             <span class="text-gray-400 mr-2">:</span>
-                            <input id="v-payee"
-                                class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent" />
+                            <input id="v-payee" class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent" />
                         </div>
                         <div class="flex items-center gap-2">
-                            <span
-                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Payment
-                                For</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Payment For</span>
                             <span class="text-gray-400">:</span>
-                            <input id="v-purpose"
-                                class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent ml-2" />
+                            <input id="v-purpose" class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent ml-2" />
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex items-center gap-2">
-                            <span
-                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Address</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Address</span>
                             <span class="text-gray-400 mr-2">:</span>
-                            <input id="v-address"
-                                class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent" />
+                            <input id="v-address" class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent" />
                         </div>
                         <div class="flex items-center gap-2">
-                            <span
-                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Amount
-                                in Words</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Amount in Words</span>
                             <span class="text-gray-400">:</span>
-                            <input id="v-amount-words" readonly
-                                class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent italic text-gray-700 ml-2" />
+                            <input id="v-amount-words" readonly class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent italic text-gray-700 ml-2" />
                         </div>
                     </div>
                 </div>
 
                 <!-- Particulars Table -->
                 <div class="relative">
-
                     <table class="w-full text-sm border-collapse">
                         <thead>
                             <tr class="bg-orange-500 text-white">
-                                <th
-                                    class="w-12 px-3 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-wider">
-                                    No.</th>
-                                <th
-                                    class="px-4 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-widest">
-                                    P A R T I C U L A R S</th>
-                                <th
-                                    class="w-36 px-4 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-wider">
-                                    Amount (P)</th>
+                                <th class="w-12 px-3 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-wider">No.</th>
+                                <th class="px-4 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-widest">P A R T I C U L A R S</th>
+                                <th class="w-36 px-4 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-wider">Amount (P)</th>
                             </tr>
                         </thead>
                         <tbody id="v-items-tbody"></tbody>
@@ -172,15 +275,11 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                                 <td colspan="3" class="border border-gray-300 p-0">
                                     <div class="flex items-center justify-between px-4 py-2">
                                         <div>
-                                            <span
-                                                class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Payment
-                                                Method No:</span>
+                                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Payment Method No:</span>
                                             <span id="v-second-no" class="font-mono text-xs ml-2 text-gray-700"></span>
                                         </div>
                                         <div class="flex items-center gap-4">
-                                            <span
-                                                class="font-bold text-xs uppercase tracking-widest text-gray-700">Total
-                                                Amount:</span>
+                                            <span class="font-bold text-xs uppercase tracking-widest text-gray-700">Total Amount:</span>
                                             <span id="v-total" class="font-bold font-mono text-sm"></span>
                                         </div>
                                     </div>
@@ -188,52 +287,31 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             </tr>
                         </tfoot>
                     </table>
-
                 </div>
 
                 <!-- Signatures -->
                 <div class="grid grid-cols-4 border-t-2 border-orange-400">
-                    <div
-                        class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">
-                        Prepared By</div>
-                    <div
-                        class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">
-                        Certified Thru Correct</div>
-                    <div
-                        class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">
-                        Approved By</div>
-                    <div
-                        class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5">
-                        Received By</div>
+                    <div class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">Prepared By</div>
+                    <div class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">Certified Thru Correct</div>
+                    <div class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">Approved By</div>
+                    <div class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5">Received By</div>
                 </div>
                 <div class="grid grid-cols-4 border-b border-gray-200">
-                    <!-- Prepared By — blank, manual -->
                     <div class="px-4 py-4 border-r border-gray-200">
-                        <p class="text-[10px] text-gray-500">Name: <span id="v-prepared"
-                                class="text-gray-800 font-semibold text-xs"></span></p>
-                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-prepared-at"
-                                class="text-gray-600 text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500">Name: <span id="v-prepared" class="text-gray-800 font-semibold text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-prepared-at" class="text-gray-600 text-xs"></span></p>
                     </div>
-                    <!-- Certified Thru Correct — from certified_by -->
                     <div class="px-4 py-4 border-r border-gray-200">
-                        <p class="text-[10px] text-gray-500">Name: <span id="v-certified"
-                                class="text-gray-800 font-semibold text-xs"></span></p>
-                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-certified-at"
-                                class="text-gray-600 text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500">Name: <span id="v-certified" class="text-gray-800 font-semibold text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-certified-at" class="text-gray-600 text-xs"></span></p>
                     </div>
-                    <!-- Approved By -->
                     <div class="px-4 py-4 border-r border-gray-200">
-                        <p class="text-[10px] text-gray-500">Name: <span id="v-approver"
-                                class="text-gray-800 font-semibold text-xs"></span></p>
-                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-approved-at"
-                                class="text-gray-600 text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500">Name: <span id="v-approver" class="text-gray-800 font-semibold text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-approved-at" class="text-gray-600 text-xs"></span></p>
                     </div>
-                    <!-- Received By -->
                     <div class="px-4 py-4">
-                        <p class="text-[10px] text-gray-500">Name: <span id="v-receiver"
-                                class="text-gray-800 font-semibold text-xs"></span></p>
-                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-received-at"
-                                class="text-gray-600 text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500">Name: <span id="v-receiver" class="text-gray-800 font-semibold text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-received-at" class="text-gray-600 text-xs"></span></p>
                     </div>
                 </div>
 
@@ -244,99 +322,141 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </div>
             </div>
         </div>
+
+        <!-- Title Modal -->
+        <div id="voucher-title-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
+            <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
+                            <i class="fa-solid fa-tag text-orange-500 text-xs"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-gray-800">Voucher Details</h3>
+                    </div>
+                    <button onclick="document.getElementById('voucher-title-modal').classList.add('hidden')"
+                        class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="px-6 py-5 space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Voucher Title <span class="text-red-400">*</span></label>
+                        <input type="text" id="voucher-title-input" placeholder="e.g. Materials for Site A — May 2026"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-orange-400 transition-all">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Second No. <span class="text-gray-300">(optional)</span></label>
+                        <input type="text" id="voucher-second-no-input" placeholder="e.g. 9808971"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-orange-400 transition-all">
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
+                    <button onclick="document.getElementById('voucher-title-modal').classList.add('hidden')"
+                        class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all">Cancel</button>
+                    <button onclick="submitWithTitle()"
+                        class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>Submit Voucher
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Tooltip -->
+        <div id="cat-tooltip" class="fixed z-[9999] pointer-events-none hidden" style="visibility:hidden">
+            <div class="bg-gray-800 text-white text-xs font-medium px-3 py-2 rounded-lg shadow-lg max-w-[220px] break-words leading-relaxed">
+                <span id="cat-tooltip-label" class="text-gray-400 text-[10px] block mb-0.5 uppercase tracking-wider"></span>
+                <span id="cat-tooltip-ref"></span>
+            </div>
+            <div class="w-2 h-2 bg-gray-800 rotate-45 mx-auto -mt-1"></div>
+        </div>
+
     </main>
 
     <style>
-        .scrollbar-thin::-webkit-scrollbar {
-            width: 4px;
-        }
+        .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
-        .scrollbar-thin::-webkit-scrollbar-track {
-            background: transparent;
+        @keyframes badgePulse {
+            0%   { transform: scale(1);   opacity: 1; }
+            50%  { transform: scale(1.4); opacity: 0.5; }
+            100% { transform: scale(1);   opacity: 1; }
         }
-
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 999px;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
+        .highlight-badge {
+            display: inline-block;
+            width: 10px; height: 10px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            animation: badgePulse 0.8s ease-in-out 6;
+            margin-right: 6px;
+            vertical-align: middle;
+            flex-shrink: 0;
         }
     </style>
 
-    <!-- Title Modal -->
-    <div id="voucher-title-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
-
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
-                        <i class="fa-solid fa-tag text-orange-500 text-xs"></i>
-                    </div>
-                    <h3 class="font-bold text-sm text-gray-800">Voucher Details</h3>
-                </div>
-                <button onclick="document.getElementById('voucher-title-modal').classList.add('hidden')"
-                    class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="px-6 py-5 space-y-4">
-                <!-- Title -->
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Voucher Title <span
-                            class="text-red-400">*</span></label>
-                    <input type="text" id="voucher-title-input" placeholder="e.g. Materials for Site A — May 2026"
-                        class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-orange-400 transition-all">
-                </div>
-
-                <!-- Second No. -->
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Second No. <span
-                            class="text-gray-300">(optional)</span></label>
-                    <input type="text" id="voucher-second-no-input" placeholder="e.g. 9808971"
-                        class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-orange-400 transition-all">
-                </div>
-            </div>
-
-            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
-                <button onclick="document.getElementById('voucher-title-modal').classList.add('hidden')"
-                    class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all">
-                    Cancel
-                </button>
-                <button onclick="submitWithTitle()"
-                    class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all">
-                    <i class="fa-solid fa-paper-plane text-xs"></i>
-                    Submit Voucher
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
+        // ─── State ───────────────────────────────────────────
         let allData = [];
         let currentRow = null;
+        let currentView = 'list';
+        let calYear = new Date().getFullYear();
+        let calMonth = new Date().getMonth();
+        let selectedDate = null;
+        let allDatesCache = [];
 
+        const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+        // ─── View Toggle ─────────────────────────────────────
+        function setView(view) {
+            currentView = view;
+
+            const listEl      = document.getElementById('view-list');
+            const calEl       = document.getElementById('view-calendar');
+            const listCtrl    = document.getElementById('list-controls');
+            const calCtrl     = document.getElementById('cal-controls');
+            const btnList     = document.getElementById('btn-list');
+            const btnCalendar = document.getElementById('btn-calendar');
+
+            if (view === 'list') {
+                listEl.classList.remove('hidden');
+                calEl.classList.add('hidden');
+                listCtrl.classList.remove('hidden');
+                calCtrl.classList.add('hidden');
+                calCtrl.classList.remove('flex');
+                btnList.className     = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all bg-orange-500 text-white';
+                btnCalendar.className = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all text-gray-500 hover:bg-gray-50';
+                applyFilters();
+            } else {
+                listEl.classList.add('hidden');
+                calEl.classList.remove('hidden');
+                listCtrl.classList.add('hidden');
+                calCtrl.classList.remove('hidden');
+                calCtrl.classList.add('flex');
+                btnCalendar.className = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all bg-orange-500 text-white';
+                btnList.className     = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all text-gray-500 hover:bg-gray-50';
+                renderCalendar();
+            }
+        }
+
+        // ─── Helpers ─────────────────────────────────────────
         function numberToWords(amount) {
-            const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
-                'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen',
-                'Seventeen', 'Eighteen', 'Nineteen'];
-            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+            const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
             if (amount === 0) return 'Zero Pesos Only';
             function convertHundreds(n) {
                 let r = '';
-                if (n >= 100) { r += ones[Math.floor(n / 100)] + ' Hundred '; n %= 100; }
-                if (n >= 20) { r += tens[Math.floor(n / 10)] + ' '; n %= 10; }
-                if (n > 0) { r += ones[n] + ' '; }
+                if (n >= 100) { r += ones[Math.floor(n/100)] + ' Hundred '; n %= 100; }
+                if (n >= 20)  { r += tens[Math.floor(n/10)] + ' '; n %= 10; }
+                if (n > 0)    { r += ones[n] + ' '; }
                 return r;
             }
             let intPart = Math.floor(amount);
             let decPart = Math.round((amount - intPart) * 100);
             let result = '';
-            if (intPart >= 1000000) { result += convertHundreds(Math.floor(intPart / 1000000)) + 'Million '; intPart %= 1000000; }
-            if (intPart >= 1000) { result += convertHundreds(Math.floor(intPart / 1000)) + 'Thousand '; intPart %= 1000; }
-            if (intPart > 0) { result += convertHundreds(intPart); }
+            if (intPart >= 1000000) { result += convertHundreds(Math.floor(intPart/1000000)) + 'Million '; intPart %= 1000000; }
+            if (intPart >= 1000)    { result += convertHundreds(Math.floor(intPart/1000)) + 'Thousand '; intPart %= 1000; }
+            if (intPart > 0)        { result += convertHundreds(intPart); }
             result += 'Pesos';
             if (decPart > 0) result += ' and ' + decPart + '/100';
             return result.trim() + ' Only';
@@ -344,119 +464,413 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
         function statusBadge(status) {
             const map = {
-                'voucher_approval': 'bg-yellow-100 text-yellow-700',
-                'ready_to_release': 'bg-blue-100 text-blue-700',
-                'released': 'bg-green-100 text-green-700',
+                'voucher_approval':  'bg-yellow-100 text-yellow-700',
+                'ready_to_release':  'bg-blue-100 text-blue-700',
+                'released':          'bg-green-100 text-green-700',
             };
             const label = {
                 'voucher_approval': 'For Approval',
                 'ready_to_release': 'Ready to Release',
-                'released': 'Released',
+                'released':         'Released',
             };
             const cls = map[status] ?? 'bg-gray-100 text-gray-500';
             const lbl = label[status] ?? status;
             return `<span class="${cls} text-[10px] font-semibold px-2 py-1 rounded-full uppercase tracking-wide">${lbl}</span>`;
         }
 
-        function renderTable(data) {
+        function categoryBadge(category, reference) {
+            if (!category) return '<span class="text-gray-300 text-xs">—</span>';
+            const map = {
+                project: { label: 'Project', icon: 'fa-helmet-safety', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+                client:  { label: 'Client',  icon: 'fa-user-tie',      color: 'bg-purple-100 text-purple-700 border-purple-200' },
+                nhcc:    { label: 'NHCC',    icon: 'fa-building',      color: 'bg-orange-100 text-orange-700 border-orange-200' },
+            };
+            const cfg = map[category] ?? { label: category, icon: 'fa-tag', color: 'bg-gray-100 text-gray-600 border-gray-200' };
+            if (!reference) {
+                return `<span class="inline-flex items-center gap-1 border rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.color}">
+                    <i class="fa-solid ${cfg.icon} text-[9px]"></i> ${cfg.label}
+                </span>`;
+            }
+            const safeRef = reference.replace(/'/g, "\\'").replace(/`/g, '\\`');
+            return `<div class="relative inline-block"
+                onmouseenter="showCatTooltip(event,'${cfg.label}','${safeRef}')"
+                onmouseleave="hideCatTooltip()">
+                <span class="inline-flex items-center gap-1 border rounded-full px-2 py-0.5 text-[10px] font-semibold cursor-default ${cfg.color}">
+                    <i class="fa-solid ${cfg.icon} text-[9px]"></i> ${cfg.label}
+                    <i class="fa-solid fa-circle-info text-[8px] opacity-50"></i>
+                </span>
+            </div>`;
+        }
+
+        function highlight(text, q) {
+            if (!text) return '';
+            if (!q) return text;
+            const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return String(text).replace(new RegExp(`(${escaped})`, 'gi'),
+                '<mark class="bg-yellow-200 text-yellow-900 rounded px-0.5">$1</mark>');
+        }
+
+        function showCatTooltip(e, label, reference) {
+            const tip = document.getElementById('cat-tooltip');
+            document.getElementById('cat-tooltip-label').textContent = label;
+            document.getElementById('cat-tooltip-ref').textContent   = reference;
+            tip.style.visibility = 'hidden';
+            tip.classList.remove('hidden');
+            const rect = e.currentTarget.getBoundingClientRect();
+            const tipW = tip.offsetWidth, tipH = tip.offsetHeight;
+            let left = rect.left + (rect.width / 2) - (tipW / 2);
+            left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
+            let top = rect.top - tipH - 8;
+            if (top < 8) top = rect.bottom + 8;
+            tip.style.left = left + 'px';
+            tip.style.top  = top  + 'px';
+            tip.style.visibility = 'visible';
+        }
+        function hideCatTooltip() { document.getElementById('cat-tooltip').classList.add('hidden'); }
+
+        // ─── LIST VIEW ───────────────────────────────────────
+        function renderTable(data, q = '') {
             const tbody = document.getElementById('voucher-tbody');
             if (!data.length) {
-                tbody.innerHTML = `<tr><td colspan="9" class="px-5 py-8 text-center text-gray-400">No completed vouchers yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="px-5 py-8 text-center text-gray-400">No completed vouchers yet.</td></tr>`;
                 return;
             }
             tbody.innerHTML = data.map(row => {
-                const items = row.items ?? [];
-                const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
-
+                const items   = row.items ?? [];
+                const total   = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
                 const isComplete = row.approver_name && (row.receiver_name || row.manual_receiver_name) && row.voucher_status === 'released';
-                const isPending = !row.approver_name || (!row.receiver_name && !row.manual_receiver_name);
-
-                const rowClass = isComplete
-                    ? 'bg-green-50 hover:bg-green-100'
-                    : isPending
-                        ? 'bg-red-100 hover:bg-red-200'
-                        : 'hover:bg-gray-50';
+                const isPending  = !row.approver_name || (!row.receiver_name && !row.manual_receiver_name);
+                const rowClass   = isComplete ? 'bg-green-50 hover:bg-green-100' : isPending ? 'bg-red-100 hover:bg-red-200' : 'hover:bg-gray-50';
 
                 return `
 <tr data-id="${row.id}" class="border-t border-gray-100 transition-colors ${rowClass}">
-               <td class="px-5 py-3 font-mono text-xs text-blue-500 cursor-pointer underline"
-    onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})">
-    ${row.voucher_control_no ?? '—'}
-</td>
-<td class="px-5 py-3 font-mono text-xs text-gray-500">
-    ${row.budget_control_no}
-</td>
-                <td class="px-5 py-3 text-gray-800">${row.voucher_payee ?? '—'}</td>
-                <td class="px-5 py-3 text-gray-600">${row.purpose}</td>
-                <td class="px-5 py-3 text-xs text-gray-400 font-mono">${row.date_requested}</td>
-                <td class="px-5 py-3 font-mono text-xs font-semibold text-gray-700">
-                    PhP ${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
-                </td>
-                <td class="px-5 py-3 text-sm text-gray-700">${row.approver_name ?? '—'}</td>
-                <td class="px-5 py-3 text-sm text-gray-700">${row.manual_receiver_name || row.receiver_name || '—'}</td>
-                <td class="px-5 py-3">${row.voucher_status ? statusBadge(row.voucher_status) : '<span class="text-[10px] text-gray-400">Not submitted</span>'}</td>
-                <td class="px-5 py-3">
-                    <button onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})"
-                        class="bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-semibold px-3 py-1.5 rounded-full transition-all">
-                        <i class="fa-solid fa-receipt mr-1"></i>View
-                    </button>
-                </td>
-            </tr>`;
+    <td class="px-5 py-3 font-mono text-xs text-blue-500 cursor-pointer underline"
+        onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})">
+        ${highlight(row.voucher_control_no ?? '—', q)}
+    </td>
+    <td class="px-5 py-3 font-mono text-xs text-gray-500">${highlight(row.budget_control_no, q)}</td>
+    <td class="px-5 py-3 text-gray-800">${highlight(row.voucher_payee ?? '—', q)}</td>
+    <td class="px-5 py-3 text-gray-600">${highlight(row.purpose, q)}</td>
+    <td class="px-5 py-3">${categoryBadge(row.request_category, row.request_reference)}</td>
+    <td class="px-5 py-3 text-xs text-gray-400 font-mono">${row.date_requested}</td>
+    <td class="px-5 py-3 font-mono text-xs font-semibold ${isComplete ? 'text-green-600' : 'text-gray-700'}">
+        PhP ${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+    </td>
+    <td class="px-5 py-3 text-sm text-gray-700">${highlight(row.approver_name ?? '—', q)}</td>
+    <td class="px-5 py-3 text-sm text-gray-700">${highlight(row.manual_receiver_name || row.receiver_name || '—', q)}</td>
+    <td class="px-5 py-3">${row.voucher_status ? statusBadge(row.voucher_status) : '<span class="text-[10px] text-gray-400">Not submitted</span>'}</td>
+    <td class="px-5 py-3">
+        <button onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})"
+            class="bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-semibold px-3 py-1.5 rounded-full transition-all">
+            <i class="fa-solid fa-receipt mr-1"></i>View
+        </button>
+    </td>
+</tr>`;
             }).join('');
         }
 
+        function applyFilters() {
+            const q   = document.getElementById('search-input').value.toLowerCase();
+            const cat = document.getElementById('category-filter').value;
+            const filtered = allData.filter(row => {
+                const matchSearch =
+                    row.voucher_control_no?.toLowerCase().includes(q) ||
+                    row.budget_control_no?.toLowerCase().includes(q)  ||
+                    row.voucher_payee?.toLowerCase().includes(q)       ||
+                    row.requestor_name?.toLowerCase().includes(q)      ||
+                    row.purpose?.toLowerCase().includes(q)             ||
+                    row.approver_name?.toLowerCase().includes(q)       ||
+                    row.receiver_name?.toLowerCase().includes(q)       ||
+                    row.request_reference?.toLowerCase().includes(q);
+                const matchCategory = !cat || row.request_category === cat;
+                return matchSearch && matchCategory;
+            });
+            renderTable(filtered, q);
+        }
+
+        document.getElementById('search-input').addEventListener('input', applyFilters);
+        document.getElementById('category-filter').addEventListener('change', applyFilters);
+
+        // ─── CALENDAR VIEW ───────────────────────────────────
+        function statusDotColor(status) {
+            const map = {
+                'voucher_approval': 'bg-yellow-400',
+                'ready_to_release': 'bg-blue-400',
+                'released':         'bg-green-400',
+            };
+            return map[status] ?? 'bg-gray-300';
+        }
+
+        function renderCalendar() {
+            document.getElementById('cal-label').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+            const grid    = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            const firstDay    = new Date(calYear, calMonth, 1).getDay();
+            const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+            const today       = new Date();
+
+            // Group by date
+            const byDate = {};
+            allData.forEach(r => {
+                const d = r.date_requested ? r.date_requested.substring(0, 10) : null;
+                if (!d) return;
+                if (!byDate[d]) byDate[d] = [];
+                byDate[d].push(r);
+            });
+
+            // Blank leading cells
+            for (let i = 0; i < firstDay; i++) {
+                const blank = document.createElement('div');
+                blank.className = 'min-h-[90px] bg-gray-50/50 border-b border-r border-gray-100';
+                grid.appendChild(blank);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const mm      = String(calMonth + 1).padStart(2, '0');
+                const dd      = String(day).padStart(2, '0');
+                const dateStr = `${calYear}-${mm}-${dd}`;
+                const rows    = byDate[dateStr] ?? [];
+                const isToday    = (today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === day);
+                const isSelected = selectedDate === dateStr;
+                const dayOfWeek  = (firstDay + day - 1) % 7;
+
+                const cell = document.createElement('div');
+                cell.className = [
+                    'min-h-[90px] p-2 border-b border-r border-gray-100 cursor-pointer transition-all duration-150',
+                    rows.length ? 'hover:bg-orange-50' : 'hover:bg-gray-50',
+                    isSelected ? 'bg-orange-50 ring-2 ring-inset ring-orange-400' : '',
+                ].join(' ');
+
+                const countBadge = rows.length
+                    ? `<span class="text-[10px] font-bold text-orange-500">${rows.length} voucher${rows.length > 1 ? 's' : ''}</span>` : '';
+
+                // Unique status dots
+                const seenStatuses = [...new Set(rows.map(r => r.voucher_status ?? 'none'))];
+                const dots = seenStatuses.map(s => {
+                    const col = statusDotColor(s);
+                    return `<span class="inline-block w-2 h-2 rounded-full ${col}"></span>`;
+                }).join('');
+
+                cell.innerHTML = `
+                    <div class="flex items-start justify-between mb-1">
+                        <span class="text-xs font-semibold ${isToday
+                            ? 'w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center'
+                            : dayOfWeek === 0 ? 'text-red-400' : dayOfWeek === 6 ? 'text-blue-400' : 'text-gray-500'}">${day}</span>
+                        ${countBadge}
+                    </div>
+                    ${rows.length ? `
+                    <div class="flex flex-wrap gap-1 mt-1">${dots}</div>
+                    <div class="mt-1.5 space-y-0.5">
+                        ${rows.slice(0, 2).map(r => `
+                            <div class="text-[9px] truncate px-1.5 py-0.5 rounded font-medium
+                                ${r.voucher_status === 'released' ? 'bg-green-100 text-green-700'
+                                : r.voucher_status === 'ready_to_release' ? 'bg-blue-100 text-blue-700'
+                                : r.voucher_status === 'voucher_approval' ? 'bg-yellow-100 text-yellow-700'
+                                : 'bg-gray-100 text-gray-500'}">
+                                ${r.voucher_payee || r.purpose || '—'}
+                            </div>`).join('')}
+                        ${rows.length > 2 ? `<div class="text-[9px] text-gray-400 px-1">+${rows.length - 2} more</div>` : ''}
+                    </div>` : ''}`;
+
+                cell.onclick = () => openDayPanel(dateStr, rows);
+                grid.appendChild(cell);
+            }
+
+            // Trailing blank cells
+            const total    = firstDay + daysInMonth;
+            const trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
+            for (let i = 0; i < trailing; i++) {
+                const blank = document.createElement('div');
+                blank.className = 'min-h-[90px] bg-gray-50/50 border-b border-r border-gray-100';
+                grid.appendChild(blank);
+            }
+        }
+
+        function prevMonth() {
+            calMonth--;
+            if (calMonth < 0) { calMonth = 11; calYear--; }
+            selectedDate = null; closeDayPanel(); renderCalendar();
+        }
+        function nextMonth() {
+            calMonth++;
+            if (calMonth > 11) { calMonth = 0; calYear++; }
+            selectedDate = null; closeDayPanel(); renderCalendar();
+        }
+        function goToday() {
+            const now = new Date();
+            calYear = now.getFullYear(); calMonth = now.getMonth();
+            selectedDate = null; closeDayPanel(); renderCalendar();
+        }
+
+        // ─── Day Panel ───────────────────────────────────────
+        function openDayPanel(dateStr, rows) {
+            selectedDate = dateStr;
+            renderCalendar();
+
+            const panel = document.getElementById('day-panel');
+            const title = document.getElementById('day-panel-title');
+            const tbody = document.getElementById('day-vouchers-tbody');
+
+            const d = new Date(dateStr + 'T00:00:00');
+            title.textContent = d.toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            if (!rows.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-gray-400 text-sm">No vouchers on this day.</td></tr>`;
+            } else {
+                tbody.innerHTML = rows.map(row => {
+                    const items = row.items ?? [];
+                    const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+                    const isComplete = row.voucher_status === 'released';
+                    const rowClass   = isComplete ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50';
+
+                    return `
+<tr data-id="${row.id}" class="border-t border-gray-100 transition-colors ${rowClass}">
+    <td class="px-5 py-3 font-mono text-xs text-blue-500 underline cursor-pointer"
+        onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})">
+        ${row.voucher_control_no ?? '—'}
+    </td>
+    <td class="px-5 py-3 text-gray-800 text-sm">${row.voucher_payee ?? '—'}</td>
+    <td class="px-5 py-3 text-gray-600 text-sm">${row.purpose ?? '—'}</td>
+    <td class="px-5 py-3">${categoryBadge(row.request_category, row.request_reference)}</td>
+    <td class="px-5 py-3 font-mono text-xs font-semibold ${isComplete ? 'text-green-600' : 'text-gray-700'}">
+        PhP ${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+    </td>
+    <td class="px-5 py-3">${row.voucher_status ? statusBadge(row.voucher_status) : '<span class="text-[10px] text-gray-400">Not submitted</span>'}</td>
+    <td class="px-5 py-3">
+        <button onclick="viewVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})"
+            class="bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-semibold px-3 py-1.5 rounded-full transition-all">
+            <i class="fa-solid fa-receipt mr-1"></i>View
+        </button>
+    </td>
+</tr>`;
+                }).join('');
+            }
+
+            panel.classList.remove('hidden');
+            setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+        }
+
+        function closeDayPanel() {
+            selectedDate = null;
+            document.getElementById('day-panel').classList.add('hidden');
+            renderCalendar();
+        }
+
+        // ─── Dates Dropdown (calendar) ───────────────────────
+        function buildDatesDropdown() {
+            const byDate = {};
+            allData.forEach(r => {
+                const d = r.date_requested ? r.date_requested.substring(0, 10) : null;
+                if (!d) return;
+                if (!byDate[d]) byDate[d] = { voucher_approval: 0, ready_to_release: 0, released: 0, none: 0, total: 0 };
+                const s = r.voucher_status ?? 'none';
+                byDate[d][s] = (byDate[d][s] || 0) + 1;
+                byDate[d].total++;
+            });
+            allDatesCache = Object.entries(byDate)
+                .sort((a, b) => b[0].localeCompare(a[0]))
+                .map(([date, counts]) => ({ date, ...counts }));
+            document.getElementById('dates-dropdown-count').textContent =
+                allDatesCache.length + ' date' + (allDatesCache.length !== 1 ? 's' : '');
+            renderDatesList(allDatesCache);
+        }
+
+        function renderDatesList(dates) {
+            const ul = document.getElementById('dates-list');
+            if (!dates.length) {
+                ul.innerHTML = '<li class="px-4 py-4 text-xs text-gray-400 text-center">No dates found.</li>';
+                return;
+            }
+            ul.innerHTML = dates.map(({ date, voucher_approval, ready_to_release, released, none, total }) => {
+                const d     = new Date(date + 'T00:00:00');
+                const label = d.toLocaleDateString('en-PH', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+                const dots  = [
+                    voucher_approval ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-yellow-400"></span>` : '',
+                    ready_to_release ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span>`   : '',
+                    released         ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400"></span>`  : '',
+                    none             ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-gray-300"></span>`   : '',
+                ].join('');
+                return `
+<li class="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-orange-50 cursor-pointer transition group"
+    onclick="jumpToDate('${date}')">
+    <div class="flex items-center gap-2">
+        <i class="fa-regular fa-calendar text-gray-300 group-hover:text-orange-400 transition text-xs"></i>
+        <span class="text-xs font-medium text-gray-700">${label}</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+        ${dots}
+        <span class="text-[10px] font-bold text-orange-500 bg-orange-50 group-hover:bg-white border border-orange-200 rounded-full px-1.5 py-0.5 ml-1">${total}</span>
+    </div>
+</li>`;
+            }).join('');
+        }
+
+        function filterDatesDropdown() {
+            const q = document.getElementById('dates-search').value.toLowerCase();
+            if (!q) { renderDatesList(allDatesCache); return; }
+            const filtered = allDatesCache.filter(({ date }) => {
+                const d = new Date(date + 'T00:00:00');
+                return d.toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                    .toLowerCase().includes(q) || date.includes(q);
+            });
+            renderDatesList(filtered);
+        }
+
+        function toggleDatesDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('dates-dropdown').classList.toggle('hidden');
+            document.getElementById('dates-search').value = '';
+            renderDatesList(allDatesCache);
+        }
+
+        function jumpToDate(dateStr) {
+            document.getElementById('dates-dropdown').classList.add('hidden');
+            const d = new Date(dateStr + 'T00:00:00');
+            calYear = d.getFullYear(); calMonth = d.getMonth();
+            renderCalendar();
+            const rows = allData.filter(r => r.date_requested?.startsWith(dateStr));
+            openDayPanel(dateStr, rows);
+            document.getElementById('calendar-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        document.addEventListener('click', () => {
+            document.getElementById('dates-dropdown')?.classList.add('hidden');
+        });
+
+        // ─── Voucher Modal ───────────────────────────────────
         function viewVoucher(row) {
             currentRow = row;
             const items = row.items ?? [];
             const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
 
+            document.getElementById('v-control-no').textContent  = row.control_no;
+            document.getElementById('v-date').textContent        = row.date_requested;
+            document.getElementById('v-second-no').textContent   = row.voucher_second_no ?? '—';
+            document.getElementById('v-title').textContent       = row.voucher_title ?? '';
+            document.getElementById('v-payee').value             = row.voucher_payee ?? '';
+            document.getElementById('v-address').value          = row.voucher_address ?? '';
+            document.getElementById('v-purpose').value          = row.voucher_purpose ?? '';
+            document.getElementById('v-amount-words').value     = numberToWords(total);
+            document.getElementById('v-total').textContent      = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
 
-
-            // Header
-            document.getElementById('v-control-no').textContent = row.control_no;
-            document.getElementById('v-date').textContent = row.date_requested;
-            // Sa header area — ipakita ang second_no kung meron
-            document.getElementById('v-second-no').textContent = row.voucher_second_no ?? '—';
-
-            document.getElementById('v-title').textContent = row.voucher_title ?? '';
-
-            // Inputs — kung may voucher na, i-fill; kung wala, blank
-            document.getElementById('v-payee').value = row.voucher_payee ?? '';
-            document.getElementById('v-address').value = row.voucher_address ?? '';
-            document.getElementById('v-purpose').value = row.voucher_purpose ?? '';
-            document.getElementById('v-amount-words').value = numberToWords(total);
-
-            // Total
-            document.getElementById('v-total').textContent = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-
-            // Prepared
-            document.getElementById('v-prepared').textContent = row.prepared_name ?? '';
+            document.getElementById('v-prepared').textContent    = row.prepared_name ?? '';
             document.getElementById('v-prepared-at').textContent = row.prepared_at
                 ? new Date(row.prepared_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-            // Signatures
-            document.getElementById('v-certified').textContent = row.certified_name ?? '';
+            document.getElementById('v-certified').textContent    = row.certified_name ?? '';
             document.getElementById('v-certified-at').textContent = row.certified_name && row.certified_at
                 ? new Date(row.certified_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-
-            document.getElementById('v-approver').textContent = row.approver_name ?? '';
-            document.getElementById('v-approved-at').textContent = row.approver_name && row.approved_at
+            document.getElementById('v-approver').textContent     = row.approver_name ?? '';
+            document.getElementById('v-approved-at').textContent  = row.approver_name && row.approved_at
                 ? new Date(row.approved_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
 
-            document.getElementById('v-receiver').textContent = row.receiver_name ?? '';
-            document.getElementById('v-received-at').textContent = row.receiver_name && row.received_at
-                ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-
-            // Received By — manual o system
             const receiverName = row.manual_receiver_name || row.receiver_name || '';
-            const receivedAt = row.manual_receiver_date
+            const receivedAt   = row.manual_receiver_date
                 ? new Date(row.manual_receiver_date).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
                 : row.received_at
                     ? new Date(row.received_at.replace(' ', 'T')).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
                     : '';
-
-            document.getElementById('v-receiver').textContent = receiverName;
+            document.getElementById('v-receiver').textContent    = receiverName;
             document.getElementById('v-received-at').textContent = receivedAt;
-
 
             // Items
             let rows = '';
@@ -466,58 +880,57 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 filled++;
                 const amt = parseFloat(item.amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 });
                 rows += `
-            <tr class="border-t border-gray-200">
-                <td class="px-3 py-2 text-center text-xs text-gray-400 border-r border-gray-200">${filled}</td>
-                <td class="px-4 py-2 border-r border-gray-200 text-sm">${item.description}${item.purpose ? ' — ' + item.purpose : ''}</td>
-                <td class="px-4 py-2 text-right font-mono text-sm">${amt}</td>
-            </tr>`;
+<tr class="border-t border-gray-200">
+    <td class="px-3 py-2 text-center text-xs text-gray-400 border-r border-gray-200">${filled}</td>
+    <td class="px-4 py-2 border-r border-gray-200 text-sm">${item.description}${item.purpose ? ' — ' + item.purpose : ''}</td>
+    <td class="px-4 py-2 text-right font-mono text-sm">${amt}</td>
+</tr>`;
             });
             for (let e = filled; e < 5; e++) {
                 rows += `
-            <tr class="border-t border-gray-200">
-                <td class="px-3 py-2 text-center text-xs text-gray-300 border-r border-gray-200">${e + 1}</td>
-                <td class="px-4 py-2 border-r border-gray-200" style="height:28px;"></td>
-                <td class="px-4 py-2"></td>
-            </tr>`;
+<tr class="border-t border-gray-200">
+    <td class="px-3 py-2 text-center text-xs text-gray-300 border-r border-gray-200">${e + 1}</td>
+    <td class="px-4 py-2 border-r border-gray-200" style="height:28px;"></td>
+    <td class="px-4 py-2"></td>
+</tr>`;
             }
             document.getElementById('v-items-tbody').innerHTML = rows;
 
-
             // Footer buttons
             const footerBtns = document.getElementById('v-footer-btns');
-            const closeBtn = `<button onclick="closeVoucherModal()" class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all border border-gray-200">Close</button>`;
+            const closeBtn   = `<button onclick="closeVoucherModal()" class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all border border-gray-200">Close</button>`;
 
             if (!row.budget_received_by) {
                 footerBtns.innerHTML = closeBtn + `
-        <span class="flex items-center gap-2 text-xs text-gray-400 px-4 py-2 font-medium bg-gray-50 rounded-lg border border-gray-200">
-            <i class="fa-solid fa-lock text-gray-300"></i>
-            Waiting for staff to mark as received
-        </span>`;
+<span class="flex items-center gap-2 text-xs text-gray-400 px-4 py-2 font-medium bg-gray-50 rounded-lg border border-gray-200">
+    <i class="fa-solid fa-lock text-gray-300"></i>
+    Waiting for staff to mark as received
+</span>`;
             } else if (!row.voucher_status) {
                 footerBtns.innerHTML = closeBtn + `
-        <button onclick="confirmSubmit()"
-            class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
-            <i class="fa-solid fa-paper-plane mr-1"></i>Submit Voucher
-        </button>`;
+<button onclick="confirmSubmit()"
+    class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
+    <i class="fa-solid fa-paper-plane mr-1"></i>Submit Voucher
+</button>`;
             } else if (row.voucher_status === 'ready_to_release') {
                 footerBtns.innerHTML = closeBtn + `
-        <div class="flex items-center gap-2">
-            <input type="text" id="manual-receiver-name" placeholder="Receiver name (optional)"
-                class="border border-gray-200 rounded px-3 py-1.5 text-xs outline-none focus:border-orange-400 w-44">
-            <input type="date" id="manual-receiver-date"
-                class="border border-gray-200 rounded px-3 py-1.5 text-xs outline-none focus:border-orange-400 w-36">
-            <button onclick="releaseVoucher(${row.voucher_id})"
-                class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all whitespace-nowrap">
-                <i class="fa-solid fa-check mr-1"></i>Release Cash Voucher
-            </button>
-        </div>`;
+<div class="flex items-center gap-2">
+    <input type="text" id="manual-receiver-name" placeholder="Receiver name (optional)"
+        class="border border-gray-200 rounded px-3 py-1.5 text-xs outline-none focus:border-orange-400 w-44">
+    <input type="date" id="manual-receiver-date"
+        class="border border-gray-200 rounded px-3 py-1.5 text-xs outline-none focus:border-orange-400 w-36">
+    <button onclick="releaseVoucher(${row.voucher_id})"
+        class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all whitespace-nowrap">
+        <i class="fa-solid fa-check mr-1"></i>Release Cash Voucher
+    </button>
+</div>`;
             } else {
                 footerBtns.innerHTML = closeBtn + `
-        <span class="text-xs text-gray-400 px-4 py-2 font-medium">
-            ${row.voucher_status === 'released'
-                        ? '<i class="fa-solid fa-check text-green-500 mr-1"></i>Released'
-                        : '<i class="fa-solid fa-clock text-yellow-500 mr-1"></i>Waiting for approval'}
-        </span>`;
+<span class="text-xs text-gray-400 px-4 py-2 font-medium">
+    ${row.voucher_status === 'released'
+        ? '<i class="fa-solid fa-check text-green-500 mr-1"></i>Released'
+        : '<i class="fa-solid fa-clock text-yellow-500 mr-1"></i>Waiting for approval'}
+</span>`;
             }
 
             document.getElementById('voucher-modal').classList.remove('hidden');
@@ -530,23 +943,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
         function confirmSubmit() {
             const payee = document.getElementById('v-payee').value.trim();
-            const address = document.getElementById('v-address').value.trim();
-            const purpose = document.getElementById('v-purpose').value.trim();
-
             if (!payee) {
                 document.getElementById('v-payee').classList.add('border-red-400');
                 return;
             }
             document.getElementById('v-payee').classList.remove('border-red-400');
-
-            // Show title modal first
             document.getElementById('voucher-title-modal').classList.remove('hidden');
         }
 
         function submitWithTitle() {
-            const title = document.getElementById('voucher-title-input').value.trim();
+            const title    = document.getElementById('voucher-title-input').value.trim();
             const secondNo = document.getElementById('voucher-second-no-input').value.trim();
-
             if (!title) {
                 document.getElementById('voucher-title-input').classList.add('border-red-400');
                 return;
@@ -554,7 +961,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             document.getElementById('voucher-title-input').classList.remove('border-red-400');
             document.getElementById('voucher-title-modal').classList.add('hidden');
 
-            const payee = document.getElementById('v-payee').value.trim();
+            const payee   = document.getElementById('v-payee').value.trim();
             const address = document.getElementById('v-address').value.trim();
             const purpose = document.getElementById('v-purpose').value.trim();
 
@@ -576,138 +983,107 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         }
 
         function releaseVoucher(voucherId) {
-    const manualName = document.getElementById('manual-receiver-name')?.value.trim() ?? '';
-    const manualDate = document.getElementById('manual-receiver-date')?.value ?? '';
+            const manualName = document.getElementById('manual-receiver-name')?.value.trim() ?? '';
+            const manualDate = document.getElementById('manual-receiver-date')?.value ?? '';
+            const btn = event.currentTarget;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Releasing...`;
 
-    const btn = event.currentTarget;
-    btn.disabled = true;
-    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Releasing...`;
+            fetch('<?= BASE_URL ?>/releasevoucher', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ voucher_id: voucherId, manual_name: manualName, manual_date: manualDate })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeVoucherModal();
+                        showToast('Cash voucher released!');
+                        allData = [];
+                        fetchVouchers();
+                    } else {
+                        showToast(data.error ?? 'Failed to release.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = `<i class="fa-solid fa-check mr-1"></i>Release Cash Voucher`;
+                    }
+                })
+                .catch(() => {
+                    showToast('Network error. Please try again.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-check mr-1"></i>Release Cash Voucher`;
+                });
+        }
 
-    fetch('<?= BASE_URL ?>/releasevoucher', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ voucher_id: voucherId, manual_name: manualName, manual_date: manualDate })
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                closeVoucherModal();
-                showToast('Cash voucher released!');
-                allData = [];
-                fetchVouchers();
-            } else {
-                showToast(data.error ?? 'Failed to release.', 'error');
-                btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-check mr-1"></i>Release Cash Voucher`;
-            }
-        })
-        .catch(() => {
-            showToast('Network error. Please try again.', 'error');
-            btn.disabled = false;
-            btn.innerHTML = `<i class="fa-solid fa-check mr-1"></i>Release Cash Voucher`;
-        });
-}
+        // ─── Fetch ───────────────────────────────────────────
         function fetchVouchers() {
             fetch('<?= BASE_URL ?>/fetchreceived')
                 .then(res => res.json())
                 .then(data => {
                     allData = data;
-                    renderTable(data);
+                    if (currentView === 'list') {
+                        applyFilters();
+                    } else {
+                        renderCalendar();
+                        buildDatesDropdown();
+                        if (selectedDate) {
+                            const rows = allData.filter(r => r.date_requested?.startsWith(selectedDate));
+                            openDayPanel(selectedDate, rows);
+                        }
+                    }
                     document.getElementById('last-updated').textContent =
                         'Updated ' + new Date().toLocaleTimeString('en-PH');
                 });
         }
 
+        // ─── Toast ───────────────────────────────────────────
         function showToast(message, type = 'success') {
-            const colors = {
-                success: 'bg-green-500',
-                error: 'bg-red-500',
-                info: 'bg-blue-500',
-            };
-            const toast = document.createElement('div');
+            const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500' };
+            const toast  = document.createElement('div');
             toast.className = `fixed bottom-6 right-6 z-[999] flex items-center gap-3 ${colors[type]} text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-lg transition-all duration-300 opacity-0 translate-y-2`;
             toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> ${message}`;
             document.body.appendChild(toast);
-            requestAnimationFrame(() => {
-                toast.classList.remove('opacity-0', 'translate-y-2');
-            });
+            requestAnimationFrame(() => toast.classList.remove('opacity-0', 'translate-y-2'));
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-2');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
 
-        document.getElementById('search-input').addEventListener('input', function () {
-            const q = this.value.toLowerCase();
-            const filtered = allData.filter(row =>
-                row.control_no?.toLowerCase().includes(q) ||
-                row.requestor_name?.toLowerCase().includes(q) ||
-                row.purpose?.toLowerCase().includes(q) ||
-                row.approver_name?.toLowerCase().includes(q) ||
-                row.receiver_name?.toLowerCase().includes(q)
-            );
-            renderTable(filtered);
-        });
-
-        // CSS — isang beses lang
-        const style = document.createElement('style');
-        style.textContent = `
-    @keyframes badgePulse {
-        0%   { transform: scale(1);   opacity: 1; }
-        50%  { transform: scale(1.4); opacity: 0.5; }
-        100% { transform: scale(1);   opacity: 1; }
-    }
-    .highlight-row td:first-child {
-        position: relative;
-    }
-    .highlight-badge {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        background-color: #ef4444;
-        border-radius: 50%;
-        animation: badgePulse 0.8s ease-in-out 6;
-        margin-right: 6px;
-        vertical-align: middle;
-        flex-shrink: 0;
-    }
-`;
-        document.head.appendChild(style);
-
-        // Highlight logic — run after fetchRequests
+        // ─── Highlight ───────────────────────────────────────
         function checkHighlight() {
-            const params = new URLSearchParams(window.location.search);
+            const params      = new URLSearchParams(window.location.search);
             const highlightId = params.get('highlight');
+            const jumpDate    = params.get('date');
             if (!highlightId) return;
 
-            // Ulit-ulitin hanggang lumabas yung row (kasi async ang fetch)
+            if (jumpDate) {
+                setView('calendar');
+                const d = new Date(jumpDate + 'T00:00:00');
+                calYear = d.getFullYear(); calMonth = d.getMonth();
+                renderCalendar();
+                const rows = allData.filter(r => r.date_requested?.startsWith(jumpDate));
+                openDayPanel(jumpDate, rows);
+            }
+
             const interval = setInterval(() => {
                 const row = document.querySelector(`tr[data-id="${highlightId}"]`);
                 if (row) {
                     clearInterval(interval);
                     row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    row.classList.add('highlight-row');
-
-                    // Dagdag badge sa first td
                     const firstTd = row.querySelector('td:first-child');
-                    const badge = document.createElement('span');
+                    const badge   = document.createElement('span');
                     badge.className = 'highlight-badge';
                     firstTd.prepend(badge);
-
-                    // Tanggalin badge after animation
                     setTimeout(() => badge.remove(), 5000);
                 }
             }, 200);
-
-            // Stop after 5 seconds kung hindi pa rin makita
             setTimeout(() => clearInterval(interval), 5000);
         }
 
+        // ─── Init ────────────────────────────────────────────
         fetchVouchers();
         setTimeout(checkHighlight, 500);
         setInterval(fetchVouchers, 5000);
-
-
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') fetchVouchers();
         });

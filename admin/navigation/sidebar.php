@@ -167,7 +167,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
             </a>
         <?php endif; ?>
 
-       <?php if ($role === ROLE_ACCOUNTING && in_array($position, [POSITION_HEAD, POSITION_CUSTODIAN, POSITION_CUSTOASSISTANT])): ?>
+       <?php if ($role === ROLE_ACCOUNTING && in_array($position, [POSITION_HEAD])): ?>
             <a href="<?= BASE_URL ?>/announcementdashboard"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/announcementdashboard') ?>">
                 <i class="fa-solid fa-sign-hanging  w-4 text-center text-sm"></i>

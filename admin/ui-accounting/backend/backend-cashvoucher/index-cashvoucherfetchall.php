@@ -6,13 +6,17 @@ header('Content-Type: application/json');
 
 $result = $conn->query("SELECT b.*,
     n.name as requestor_name,
+    n.email as sender_email,
     v.id as voucher_id,
+    v.control_no as voucher_control_no,
     v.payee as voucher_payee,
     v.address as voucher_address,
     v.status as voucher_status,
     v.title as voucher_title,
     v.second_no as voucher_second_no,
     v.purpose as voucher_purpose,
+    v.manual_receiver_name,
+    v.manual_receiver_date,
     v.prepared_by, v.prepared_at,
     v.certified_by, v.certified_at,
     v.approved_by, v.approved_at,
@@ -22,12 +26,12 @@ $result = $conn->query("SELECT b.*,
     appr.name as approver_name,
     recv.name as receiver_name
     FROM noblebudgetrequest b
-    LEFT JOIN noblerole n ON b.user_id = n.id
+    LEFT JOIN nobleaccount n ON b.user_id = n.id
     LEFT JOIN noblevoucher v ON b.id = v.request_id
     LEFT JOIN noblerole prep ON v.prepared_by = prep.id
     LEFT JOIN noblerole cert ON v.certified_by = cert.id
     LEFT JOIN noblerole appr ON v.approved_by = appr.id
-    LEFT JOIN noblerole recv ON v.received_by = recv.id
+    LEFT JOIN nobleaccount recv ON v.received_by = recv.id
     WHERE v.id IS NOT NULL
     ORDER BY v.created_at DESC");
 

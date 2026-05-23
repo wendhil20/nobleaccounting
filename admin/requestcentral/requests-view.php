@@ -8,10 +8,7 @@
         <h1 class="text-xl font-bold text-gray-800">Budget Requests</h1>
         <p class="text-sm text-gray-400 mt-1">Requests sent to you for approval</p>
     </div>
-    <!-- Month/Year nav -->
     <div class="flex items-center gap-3 flex-wrap">
-
-        <!-- Dates with requests dropdown -->
         <div class="relative" id="dates-dropdown-wrap">
             <button onclick="toggleDatesDropdown(event)"
                 class="flex items-center gap-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition shadow-sm">
@@ -22,15 +19,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
             </button>
-
-            <!-- Dropdown panel -->
             <div id="dates-dropdown"
                 class="hidden absolute left-0 mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
                 <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                     <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Dates with Requests</p>
                     <span id="dates-dropdown-count" class="text-[10px] text-gray-400"></span>
                 </div>
-                <!-- Search -->
                 <div class="px-3 py-2 border-b border-gray-100">
                     <input type="text" id="dates-search" placeholder="Search date..." oninput="filterDatesDropdown()"
                         class="w-full text-xs border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-100 transition">
@@ -38,7 +32,6 @@
                 <ul id="dates-list" class="max-h-64 overflow-y-auto py-1"></ul>
             </div>
         </div>
-
         <button onclick="prevMonth()"
             class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 transition text-gray-500">
             <i class="fa-solid fa-chevron-left text-xs"></i>
@@ -61,16 +54,14 @@
 
 <!-- Calendar Grid -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4">
-    <!-- Day headers -->
     <div class="grid grid-cols-7 border-b border-gray-100">
         <?php foreach (['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $d): ?>
-            <div class="py-2.5 text-center text-[11px] font-bold text-gray-400 uppercase tracking-widest
-            <?= $d === 'Sun' ? 'text-red-400' : ($d === 'Sat' ? 'text-blue-400' : '') ?>">
+            <div
+                class="py-2.5 text-center text-[11px] font-bold text-gray-400 uppercase tracking-widest <?= $d === 'Sun' ? 'text-red-400' : ($d === 'Sat' ? 'text-blue-400' : '') ?>">
                 <?= $d ?>
             </div>
         <?php endforeach; ?>
     </div>
-    <!-- Cells -->
     <div id="calendar-grid" class="grid grid-cols-7"></div>
 </div>
 
@@ -90,8 +81,8 @@
     </div>
 </div>
 
-<!-- Day Detail Panel (hidden by default) -->
-<div id="day-panel" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+<!-- Day Detail Panel -->
+<div id="day-panel" class="hidden bg-white rounded-xl shadow-sm border border-gray-100">
     <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
         <span id="day-panel-title" class="text-sm font-semibold text-gray-700"></span>
         <button onclick="closeDayPanel()" class="text-gray-300 hover:text-gray-500 transition">
@@ -105,13 +96,13 @@
                     <th class="px-5 py-3 text-left">Control No.</th>
                     <th class="px-5 py-3 text-left">Requestor</th>
                     <th class="px-5 py-3 text-left">Purpose</th>
+                    <th class="px-5 py-3 text-left">Category</th>
                     <th class="px-5 py-3 text-left">Items</th>
                     <th class="px-5 py-3 text-left">Status</th>
                     <th class="px-5 py-3 text-left">Action</th>
                 </tr>
             </thead>
-            <tbody id="day-requests-tbody">
-            </tbody>
+            <tbody id="day-requests-tbody"></tbody>
         </table>
     </div>
 </div>
@@ -120,7 +111,6 @@
 <div id="view-modal"
     class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8 overflow-y-auto">
     <div class="bg-white w-full max-w-5xl rounded-sm shadow-xl border border-gray-300 my-auto">
-
         <!-- Header -->
         <div class="grid grid-cols-[1fr_auto] border-b-2 border-gray-800">
             <div class="flex items-center gap-4 px-3 py-3 border-r-2 border-gray-800">
@@ -166,17 +156,22 @@
             </div>
         </div>
 
-        <!-- Requestor + Purpose -->
-        <div class="grid grid-cols-2 border-b-2 border-gray-800">
+        <!-- Requestor + Purpose + Category -->
+        <div class="grid grid-cols-3 border-b-2 border-gray-800">
             <div class="flex items-center gap-2 px-6 py-3 border-r-2 border-gray-800">
                 <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Requestor
                     Name:</span>
                 <p id="view-requestor" class="text-sm text-gray-800"></p>
             </div>
-            <div class="flex items-center gap-2 px-6 py-3">
+            <div class="flex items-center gap-2 px-6 py-3 border-r-2 border-gray-800">
                 <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Purpose of
                     Request:</span>
                 <p id="view-purpose" class="text-sm text-gray-800"></p>
+            </div>
+            <div class="flex items-center gap-2 px-6 py-3">
+                <span
+                    class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Category:</span>
+                <p id="view-category" class="text-sm text-gray-800"></p>
             </div>
         </div>
 
@@ -316,26 +311,22 @@
     let allRequests = [];
     let previousCount = 0;
     let calYear = new Date().getFullYear();
-    let calMonth = new Date().getMonth(); // 0-based
+    let calMonth = new Date().getMonth();
     let selectedDate = null;
     let rejectTargetId = null;
     let pingTargetRequestId = null;
 
     // ─── Calendar ────────────────────────────────────────
-    const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'];
+    const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     function renderCalendar() {
         document.getElementById('cal-label').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
-
         const grid = document.getElementById('calendar-grid');
         grid.innerHTML = '';
-
-        const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+        const firstDay = new Date(calYear, calMonth, 1).getDay();
         const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
         const today = new Date();
 
-        // Group requests by date string "YYYY-MM-DD"
         const byDate = {};
         allRequests.forEach(r => {
             const d = r.date_requested ? r.date_requested.substring(0, 10) : null;
@@ -344,7 +335,6 @@
             byDate[d].push(r);
         });
 
-        // Leading empty cells
         for (let i = 0; i < firstDay; i++) {
             const blank = document.createElement('div');
             blank.className = 'min-h-[90px] bg-gray-50/50 border-b border-r border-gray-100';
@@ -356,10 +346,7 @@
             const dd = String(day).padStart(2, '0');
             const dateStr = `${calYear}-${mm}-${dd}`;
             const requests = byDate[dateStr] ?? [];
-
-            const isToday = (today.getFullYear() === calYear &&
-                today.getMonth() === calMonth &&
-                today.getDate() === day);
+            const isToday = (today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === day);
             const isSelected = selectedDate === dateStr;
             const dayOfWeek = (firstDay + day - 1) % 7;
             const isSun = dayOfWeek === 0;
@@ -372,7 +359,6 @@
                 isSelected ? 'bg-orange-50 ring-2 ring-inset ring-orange-400' : '',
             ].join(' ');
 
-            // Count by status
             const pending = requests.filter(r => r.status === 'pending').length;
             const approved = requests.filter(r => r.status === 'approved').length;
             const rejected = requests.filter(r => r.status === 'rejected').length;
@@ -384,8 +370,7 @@
             ].join('');
 
             const countBadge = requests.length
-                ? `<span class="text-[10px] font-bold text-orange-500">${requests.length} req</span>`
-                : '';
+                ? `<span class="text-[10px] font-bold text-orange-500">${requests.length} req</span>` : '';
 
             cell.innerHTML = `
                 <div class="flex items-start justify-between mb-1">
@@ -397,20 +382,16 @@
                 <div class="mt-1.5 space-y-0.5">
                     ${requests.slice(0, 2).map(r => `
                         <div class="text-[9px] truncate px-1.5 py-0.5 rounded font-medium
-                            ${r.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                    r.status === 'approved' ? 'bg-green-100 text-green-700' :
-                        'bg-red-100 text-red-700'}">
+                            ${r.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : r.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
                             ${r.requestor_name}
                         </div>`).join('')}
                     ${requests.length > 2 ? `<div class="text-[9px] text-gray-400 px-1">+${requests.length - 2} more</div>` : ''}
-                </div>` : ''}
-            `;
+                </div>` : ''}`;
 
             cell.onclick = () => openDayPanel(dateStr, requests);
             grid.appendChild(cell);
         }
 
-        // Trailing empty cells to complete last row
         const total = firstDay + daysInMonth;
         const trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
         for (let i = 0; i < trailing; i++) {
@@ -423,33 +404,23 @@
     function prevMonth() {
         calMonth--;
         if (calMonth < 0) { calMonth = 11; calYear--; }
-        selectedDate = null;
-        closeDayPanel();
-        renderCalendar();
+        selectedDate = null; closeDayPanel(); renderCalendar();
     }
-
     function nextMonth() {
         calMonth++;
         if (calMonth > 11) { calMonth = 0; calYear++; }
-        selectedDate = null;
-        closeDayPanel();
-        renderCalendar();
+        selectedDate = null; closeDayPanel(); renderCalendar();
     }
-
     function goToday() {
         const now = new Date();
-        calYear = now.getFullYear();
-        calMonth = now.getMonth();
-        selectedDate = null;
-        closeDayPanel();
-        renderCalendar();
+        calYear = now.getFullYear(); calMonth = now.getMonth();
+        selectedDate = null; closeDayPanel(); renderCalendar();
     }
 
     // ─── Day Panel ───────────────────────────────────────
     function openDayPanel(dateStr, requests) {
         selectedDate = dateStr;
-        renderCalendar(); // re-render to show selection ring
-
+        renderCalendar();
         const panel = document.getElementById('day-panel');
         const title = document.getElementById('day-panel-title');
         const tbody = document.getElementById('day-requests-tbody');
@@ -458,7 +429,7 @@
         title.textContent = d.toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
         if (!requests.length) {
-            tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-8 text-center text-gray-400 text-sm">No requests on this day.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-gray-400 text-sm">No requests on this day.</td></tr>`;
         } else {
             tbody.innerHTML = requests.map(row => {
                 const isApproved = row.status === 'approved';
@@ -475,19 +446,18 @@
                         <p class="text-[10px] text-gray-400">${row.sender_email ?? ''}</p>
                     </td>
                     <td class="px-5 py-3 text-gray-600">${row.purpose}</td>
+                    <td class="px-5 py-3">${categoryBadge(row.request_category, row.request_reference)}</td>
                     <td class="px-5 py-3 text-xs text-gray-500">${row.items?.filter(i => i.description?.trim()).length ?? 0} item(s)</td>
-               <td class="px-5 py-3">
-    <div class="flex items-center gap-1.5 flex-wrap">
-        ${statusBadge(row.status)}
-        ${(row.attachment_status ?? 'attached') === 'follow_up'
+                    <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            ${statusBadge(row.status)}
+                            ${(row.attachment_status ?? 'attached') === 'follow_up'
                         ? `<span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-600 text-[9px] font-semibold px-1.5 py-0.5 rounded-full border border-yellow-200 whitespace-nowrap">
-                <i class="fa-solid fa-clock text-[8px]"></i> Attchmnt Pending
-               </span>`
-                        : ''
-                    }
-    </div>
-</td>
-<td class="px-5 py-3">${actionButtons(row.id, row.status, row)}</td>
+                                    <i class="fa-solid fa-clock text-[8px]"></i> Attchmnt Pending
+                                   </span>` : ''}
+                        </div>
+                    </td>
+                    <td class="px-5 py-3">${actionButtons(row.id, row.status, row)}</td>
                 </tr>`;
             }).join('');
         }
@@ -503,6 +473,8 @@
     }
 
     // ─── Fetch ───────────────────────────────────────────
+    let _highlightDone = false;
+
     function fetchRequests() {
         fetch('<?= BASE_URL ?>/fetchrequests')
             .then(res => res.json())
@@ -510,18 +482,14 @@
                 if (data.length === previousCount && previousCount !== 0) return;
                 previousCount = data.length;
                 allRequests = data;
-
                 renderCalendar();
                 buildDatesDropdown();
-
-                // Refresh day panel if open
                 if (selectedDate) {
                     const filtered = allRequests.filter(r => r.date_requested?.startsWith(selectedDate));
                     openDayPanel(selectedDate, filtered);
                 }
-
-                document.getElementById('last-updated').textContent =
-                    'Updated ' + new Date().toLocaleTimeString('en-PH');
+                document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH');
+                if (!_highlightDone) { _highlightDone = true; checkHighlight(); }
             })
             .catch(err => console.error('Fetch error:', err));
     }
@@ -536,8 +504,34 @@
         return `<span class="${map[status] ?? 'bg-gray-100 text-gray-500'} text-[10px] font-semibold px-2 py-1 rounded-full uppercase tracking-wide">${status}</span>`;
     }
 
+    function categoryBadge(category, reference) {
+        if (!category) return '<span class="text-gray-300 text-xs">—</span>';
+        const map = {
+            project: { label: 'Project', icon: 'fa-helmet-safety', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+            client: { label: 'Client', icon: 'fa-user-tie', color: 'bg-purple-100 text-purple-700 border-purple-200' },
+            nhcc: { label: 'NHCC', icon: 'fa-building', color: 'bg-orange-100 text-orange-700 border-orange-200' },
+        };
+        const cfg = map[category] ?? { label: category, icon: 'fa-tag', color: 'bg-gray-100 text-gray-600 border-gray-200' };
+
+        if (!reference) {
+            return `<span class="inline-flex items-center gap-1 border rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.color}">
+                        <i class="fa-solid ${cfg.icon} text-[9px]"></i> ${cfg.label}
+                    </span>`;
+        }
+
+        const safeRef = reference.replace(/'/g, "\\'").replace(/`/g, '\\`');
+        return `<div class="relative inline-block"
+            onmouseenter="showCatTooltip(event, '${cfg.label}', '${safeRef}')"
+            onmouseleave="hideCatTooltip()">
+            <span class="inline-flex items-center gap-1 border rounded-full px-2 py-0.5 text-[10px] font-semibold cursor-default ${cfg.color}">
+                <i class="fa-solid ${cfg.icon} text-[9px]"></i> ${cfg.label}
+                <i class="fa-solid fa-circle-info text-[8px] opacity-50"></i>
+            </span>
+        </div>`;
+    }
+
     function actionButtons(id, status, row) {
-        const viewBtn = `<button onclick='viewRequest(${JSON.stringify(row)})'
+        const viewBtn = `<button onclick='viewRequest(${JSON.stringify(row).replace(/'/g, "\\'")})'
             class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-[10px] font-semibold px-3 py-1 rounded-full transition-all">
             <i class="fa-solid fa-eye mr-1"></i>View
         </button>`;
@@ -558,7 +552,6 @@
                 <i class="fa-solid fa-xmark mr-1"></i>Reject
             </button>
         </div>`;
-
         if (status === 'approved') return `<div class="flex items-center gap-2">${viewBtn}${pingBtn}</div>`;
         return viewBtn;
     }
@@ -631,13 +624,13 @@
             .then(staff => {
                 document.getElementById('ping-staff-list').innerHTML = staff.length
                     ? staff.map(s => `
-                    <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
-                        <input type="checkbox" value="${s.id}" class="ping-staff-check w-4 h-4 accent-blue-500">
-                        <div>
-                            <p class="text-sm font-medium text-gray-800">${s.name}</p>
-                            <p class="text-[10px] text-gray-400">${s.email ?? ''}</p>
-                        </div>
-                    </label>`).join('')
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" value="${s.id}" class="ping-staff-check w-4 h-4 accent-blue-500">
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">${s.name}</p>
+                                <p class="text-[10px] text-gray-400">${s.email ?? ''}</p>
+                            </div>
+                        </label>`).join('')
                     : '<p class="text-xs text-gray-400">No staff found.</p>';
             });
     }
@@ -667,6 +660,7 @@
         document.getElementById('view-date').textContent = row.date_requested;
         document.getElementById('view-requestor').textContent = row.requestor_name;
         document.getElementById('view-purpose').textContent = row.purpose;
+        document.getElementById('view-category').innerHTML = categoryBadge(row.request_category, row.request_reference);
 
         const items = row.items ?? [];
         let total = 0, rowNum = 0;
@@ -700,7 +694,6 @@
         try { const raw = row.attachments; attachments = typeof raw === 'string' ? JSON.parse(raw) : (raw ?? []); } catch (e) { }
         const attachSec = document.getElementById('view-attachments');
 
-        // ── attachment_status badge ──
         const oldBadge = document.getElementById('view-attachment-status-badge');
         if (oldBadge) oldBadge.remove();
 
@@ -708,34 +701,29 @@
             const badge = document.createElement('div');
             badge.id = 'view-attachment-status-badge';
             badge.className = 'flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 mb-2';
-            badge.innerHTML = `
-        <i class="fa-solid fa-clock text-yellow-500 text-xs"></i>
-        <span class="text-xs font-semibold text-yellow-700">Attachment pending — requestor will follow up</span>
-    `;
+            badge.innerHTML = `<i class="fa-solid fa-clock text-yellow-500 text-xs"></i>
+                <span class="text-xs font-semibold text-yellow-700">Attachment pending — requestor will follow up</span>`;
             attachSec.parentElement.prepend(badge);
         }
+
         if (attachments.length) {
             attachSec.classList.remove('hidden');
             document.getElementById('view-attachments-grid').innerHTML = attachments.map(path => {
                 const isPdf = path.toLowerCase().endsWith('.pdf');
                 const fullUrl = `<?= BASE_URL ?>/${path}`;
-
                 if (isPdf) {
-                    return `
-        <a href="${fullUrl}" target="_blank"
-            class="relative flex flex-col items-center justify-center w-20 h-20 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all bg-red-50 cursor-pointer gap-1">
-            <i class="fa-solid fa-file-pdf text-red-500 text-2xl"></i>
-            <span class="text-[9px] text-red-400 font-semibold uppercase tracking-wide">PDF</span>
-        </a>`;
+                    return `<a href="${fullUrl}" target="_blank"
+                        class="relative flex flex-col items-center justify-center w-20 h-20 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all bg-red-50 cursor-pointer gap-1">
+                        <i class="fa-solid fa-file-pdf text-red-500 text-2xl"></i>
+                        <span class="text-[9px] text-red-400 font-semibold uppercase tracking-wide">PDF</span>
+                    </a>`;
                 }
-
-                return `
-    <div class="relative group/thumb cursor-pointer" onclick="openLightbox('${fullUrl}')">
-        <img src="${fullUrl}" class="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all">
-        <div class="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/20 rounded-lg transition-all flex items-center justify-center">
-            <i class="fa-solid fa-magnifying-glass text-white opacity-0 group-hover/thumb:opacity-100 transition-all text-xs"></i>
-        </div>
-    </div>`;
+                return `<div class="relative group/thumb cursor-pointer" onclick="openLightbox('${fullUrl}')">
+                    <img src="${fullUrl}" class="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:scale-105 transition-all">
+                    <div class="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/20 rounded-lg transition-all flex items-center justify-center">
+                        <i class="fa-solid fa-magnifying-glass text-white opacity-0 group-hover/thumb:opacity-100 transition-all text-xs"></i>
+                    </div>
+                </div>`;
             }).join('');
         } else {
             attachSec.classList.add('hidden');
@@ -863,14 +851,11 @@
             byDate[d][r.status] = (byDate[d][r.status] || 0) + 1;
             byDate[d].total++;
         });
-
         allDatesCache = Object.entries(byDate)
             .sort((a, b) => b[0].localeCompare(a[0]))
             .map(([date, counts]) => ({ date, ...counts }));
-
         document.getElementById('dates-dropdown-count').textContent =
             allDatesCache.length + ' date' + (allDatesCache.length !== 1 ? 's' : '');
-
         renderDatesList(allDatesCache);
     }
 
@@ -924,65 +909,42 @@
     function jumpToDate(dateStr) {
         document.getElementById('dates-dropdown').classList.add('hidden');
         const d = new Date(dateStr + 'T00:00:00');
-        calYear = d.getFullYear();
-        calMonth = d.getMonth();
+        calYear = d.getFullYear(); calMonth = d.getMonth();
         renderCalendar();
         const requests = allRequests.filter(r => r.date_requested?.startsWith(dateStr));
         openDayPanel(dateStr, requests);
         document.getElementById('calendar-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // Close dropdown on outside click
     document.addEventListener('click', () => {
         document.getElementById('dates-dropdown').classList.add('hidden');
     });
 
-    // ─── Highlight (from notification redirect) ──────────
+    // ─── Highlight ───────────────────────────────────────
     const _highlightStyle = document.createElement('style');
     _highlightStyle.textContent = `
-        @keyframes badgePulse {
-            0%   { transform: scale(1);   opacity: 1; }
-            50%  { transform: scale(1.4); opacity: 0.5; }
-            100% { transform: scale(1);   opacity: 1; }
-        }
-        .highlight-badge {
-            display: inline-block;
-            width: 10px; height: 10px;
-            background-color: #ef4444;
-            border-radius: 50%;
-            animation: badgePulse 0.8s ease-in-out 6;
-            margin-right: 6px;
-            vertical-align: middle;
-            flex-shrink: 0;
-        }
+        @keyframes badgePulse { 0%{transform:scale(1);opacity:1;} 50%{transform:scale(1.4);opacity:0.5;} 100%{transform:scale(1);opacity:1;} }
+        .highlight-badge { display:inline-block; width:10px; height:10px; background-color:#ef4444; border-radius:50%; animation:badgePulse 0.8s ease-in-out 6; margin-right:6px; vertical-align:middle; flex-shrink:0; }
     `;
     document.head.appendChild(_highlightStyle);
 
     function checkHighlight() {
         const params = new URLSearchParams(window.location.search);
         const highlightId = params.get('highlight');
-        const jumpDate = params.get('date'); // format: YYYY-MM-DD
-
+        const jumpDate = params.get('date');
         if (!highlightId) return;
-
-        // Jump calendar to the correct month/year and open day panel
         if (jumpDate) {
             const d = new Date(jumpDate + 'T00:00:00');
-            calYear = d.getFullYear();
-            calMonth = d.getMonth();
+            calYear = d.getFullYear(); calMonth = d.getMonth();
             renderCalendar();
-
             const requests = allRequests.filter(r => r.date_requested?.startsWith(jumpDate));
             openDayPanel(jumpDate, requests);
         }
-
-        // Poll until the row appears in the day panel, then highlight it
         const interval = setInterval(() => {
             const row = document.querySelector(`tr[data-id="${highlightId}"]`);
             if (row) {
                 clearInterval(interval);
                 row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
                 const firstTd = row.querySelector('td:first-child');
                 const badge = document.createElement('span');
                 badge.className = 'highlight-badge';
@@ -993,43 +955,51 @@
         setTimeout(() => clearInterval(interval), 5000);
     }
 
-    // ─── Init ────────────────────────────────────────────
-    fetchRequests();
+    // ─── Category Tooltip ────────────────────────────────
+    (function () {
+        const tip = document.createElement('div');
+        tip.id = 'cat-tooltip';
+        tip.className = 'fixed z-[9999] pointer-events-none hidden';
+        tip.innerHTML = `
+            <div id="cat-tooltip-box" class="bg-gray-800 text-white text-xs font-medium px-3 py-2 rounded-lg shadow-lg max-w-[280px] break-words">
+                <span id="cat-tooltip-label" class="text-gray-400 text-[10px] block mb-0.5 uppercase tracking-wider"></span>
+                <span id="cat-tooltip-ref"></span>
+            </div>
+            <div class="w-2 h-2 bg-gray-800 rotate-45 mx-auto -mt-1"></div>`;
+        document.body.appendChild(tip);
+    })();
 
-    // Run checkHighlight after first fetch completes
-    // We hook into fetchRequests via a one-time flag
-    let _highlightDone = false;
-    const _origFetch = fetchRequests;
-    function fetchRequests() {
-        fetch('<?= BASE_URL ?>/fetchrequests')
-            .then(res => res.json())
-            .then(data => {
-                if (data.length === previousCount && previousCount !== 0) return;
-                previousCount = data.length;
-                allRequests = data;
+    function showCatTooltip(e, label, reference) {
+    const tip = document.getElementById('cat-tooltip');
+    document.getElementById('cat-tooltip-label').textContent = label;
+    document.getElementById('cat-tooltip-ref').textContent = reference;
+    
+    // Show but invisible first para ma-measure ang actual size
+    tip.style.visibility = 'hidden';
+    tip.classList.remove('hidden');
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const tipW = tip.offsetWidth;   // actual width ngayon
+    const tipH = tip.offsetHeight;  // actual height din
+    
+    let left = rect.left + (rect.width / 2) - (tipW / 2);
+    left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
+    
+    // Kung masyado malapit sa taas, ipakita sa baba
+    let top = rect.top - tipH - 8;
+    if (top < 8) top = rect.bottom + 8;
+    
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+    tip.style.visibility = 'visible';
+}
 
-                renderCalendar();
-                buildDatesDropdown();
-
-                if (selectedDate) {
-                    const filtered = allRequests.filter(r => r.date_requested?.startsWith(selectedDate));
-                    openDayPanel(selectedDate, filtered);
-                }
-
-                document.getElementById('last-updated').textContent =
-                    'Updated ' + new Date().toLocaleTimeString('en-PH');
-
-                // Run highlight once after first successful load
-                if (!_highlightDone) {
-                    _highlightDone = true;
-                    checkHighlight();
-                }
-            })
-            .catch(err => console.error('Fetch error:', err));
+    function hideCatTooltip() {
+        document.getElementById('cat-tooltip').classList.add('hidden');
     }
 
+    // ─── Init ────────────────────────────────────────────
     fetchRequests();
-
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') { previousCount = 0; fetchRequests(); }
     });

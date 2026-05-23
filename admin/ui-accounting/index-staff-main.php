@@ -122,6 +122,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             <th class="px-5 py-3 text-left">Purpose</th>
                             <th class="px-5 py-3 text-left">Total</th>
                             <th class="px-5 py-3 text-left">Approved By</th>
+                            <th class="px-5 py-3 text-left">Category</th>
                             <th class="px-5 py-3 text-left">Status</th>
                             <th class="px-5 py-3 text-left">Action</th>
                         </tr>
@@ -262,6 +263,15 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             <i class="fa-solid fa-xmark"></i>
         </button>
         <img id="lightbox-img" src="" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl">
+    </div>
+
+    <div id="cat-tooltip" class="fixed z-[9999] pointer-events-none hidden" style="visibility:hidden">
+        <div id="cat-tooltip-box"
+            class="bg-gray-800 text-white text-xs font-medium px-3 py-2 rounded-lg shadow-lg max-w-[220px] break-words leading-relaxed">
+            <span id="cat-tooltip-label" class="text-gray-400 text-[10px] block mb-0.5 uppercase tracking-wider"></span>
+            <span id="cat-tooltip-ref"></span>
+        </div>
+        <div class="w-2 h-2 bg-gray-800 rotate-45 mx-auto -mt-1"></div>
     </div>
 
     <script>
@@ -461,6 +471,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             + ' ' + new Date(row.approved_at.replace(' ', 'T')).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
                             : ''}</p>
                         </td>
+                        <td class="px-5 py-3">${categoryBadge(row.request_category, row.request_reference)}</td>
                         <td class="px-5 py-3">${statusBadgeHtml}</td>
                         <td class="px-5 py-3">${actionHtml}</td>
                     </tr>`;
@@ -477,7 +488,52 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             renderCalendar();
         }
 
-        // ─── Fetch ───────────────────────────────────────────
+        // Dagdagan sa itaas ng fetchApproved function
+        function categoryBadge(category, reference) {
+            if (!category) return '<span class="text-gray-300 text-xs">—</span>';
+            const map = {
+                project: { label: 'Project', icon: 'fa-helmet-safety', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+                client: { label: 'Client', icon: 'fa-user-tie', color: 'bg-purple-100 text-purple-700 border-purple-200' },
+                nhcc: { label: 'NHCC', icon: 'fa-building', color: 'bg-orange-100 text-orange-700 border-orange-200' },
+            };
+            const cfg = map[category] ?? { label: category, icon: 'fa-tag', color: 'bg-gray-100 text-gray-600 border-gray-200' };
+            if (!reference) {
+                return `<span class="inline-flex items-center gap-1 border rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.color}">
+                    <i class="fa-solid ${cfg.icon} text-[9px]"></i> ${cfg.label}
+                </span>`;
+            }
+            const safeRef = reference.replace(/'/g, "\\'").replace(/`/g, '\\`');
+            return `<div class="relative inline-block"
+        onmouseenter="showCatTooltip(event, '${cfg.label}', '${safeRef}')"
+        onmouseleave="hideCatTooltip()">
+        <span class="inline-flex items-center gap-1 border rounded-full px-2 py-0.5 text-[10px] font-semibold cursor-default ${cfg.color}">
+            <i class="fa-solid ${cfg.icon} text-[9px]"></i> ${cfg.label}
+            <i class="fa-solid fa-circle-info text-[8px] opacity-50"></i>
+        </span>
+    </div>`;
+        }
+
+        function showCatTooltip(e, label, reference) {
+            const tip = document.getElementById('cat-tooltip');
+            document.getElementById('cat-tooltip-label').textContent = label;
+            document.getElementById('cat-tooltip-ref').textContent = reference;
+            tip.style.visibility = 'hidden';
+            tip.classList.remove('hidden');
+            const rect = e.currentTarget.getBoundingClientRect();
+            const tipW = tip.offsetWidth;
+            const tipH = tip.offsetHeight;
+            let left = rect.left + (rect.width / 2) - (tipW / 2);
+            left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
+            let top = rect.top - tipH - 8;
+            if (top < 8) top = rect.bottom + 8;
+            tip.style.left = left + 'px';
+            tip.style.top = top + 'px';
+            tip.style.visibility = 'visible';
+        }
+
+        function hideCatTooltip() {
+            document.getElementById('cat-tooltip').classList.add('hidden');
+        }
         // ─── Fetch ───────────────────────────────────────────
         function fetchApproved() {
             fetch('<?= BASE_URL ?>/fetchapproved')
@@ -603,7 +659,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         <i class="fa-solid fa-clock text-yellow-500 text-xs"></i>
         <span class="text-xs font-semibold text-yellow-700">Attachment pending — requestor will follow up</span>
     `;
-               document.getElementById('view-attachments').before(badge);
+                document.getElementById('view-attachments').before(badge);
             }
             if (attachments.length) {
                 attachSection.classList.remove('hidden');

@@ -6,8 +6,9 @@ include ROOT_PATH . '/admin/authentication/index-authguard.php';
 
 header('Content-Type: application/json');
 
-// Lahat ng received na requests
 $result = $conn->query("SELECT b.*, 
+    b.request_category,
+    b.request_reference,
     n.name as sender_name, 
     n.email as sender_email,
     r.name as approver_name,
@@ -22,7 +23,7 @@ $result = $conn->query("SELECT b.*,
 $data = [];
 while ($row = $result->fetch_assoc()) {
     $row['items'] = json_decode($row['items'], true);
-    $row['attachments'] = json_decode($row['attachments'] ?? '[]', true); // ← dagdag ito
+    $row['attachments'] = json_decode($row['attachments'] ?? '[]', true);
     $data[] = $row;
 }
 

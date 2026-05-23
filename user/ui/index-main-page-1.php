@@ -143,21 +143,26 @@ $today = date('Y-m-d');
                         <i class="fa-solid fa-plus text-[10px]"></i> Add Item
                     </button>
                     <div class="flex items-center gap-3">
-    <!-- Follow up toggle -->
-    <label class="flex items-center gap-2 cursor-pointer select-none">
-        <div class="relative">
-            <input type="checkbox" id="d-follow-up-toggle" class="sr-only peer">
-            <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-orange-500 transition-colors"></div>
-            <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-all peer-checked:translate-x-4"></div>
-        </div>
-        <span class="text-xs font-semibold text-gray-500 peer-checked:text-orange-500" id="d-follow-up-label">Follow up attachment</span>
-    </label>
-    <span class="text-[10px] text-gray-400 font-mono">20260425-BRF-v1</span>
-    <button onclick="dOpenSubmitModal()"
-        class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 active:scale-95 text-white text-xs font-semibold px-4 py-2 rounded transition-all">
-        <i class="fa-solid fa-paper-plane text-[10px]"></i> Submit Request
-    </button>
-</div>
+                        <!-- Follow up toggle -->
+                        <label class="flex items-center gap-2 cursor-pointer select-none">
+                            <div class="relative">
+                                <input type="checkbox" id="d-follow-up-toggle" class="sr-only peer">
+                                <div
+                                    class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-orange-500 transition-colors">
+                                </div>
+                                <div
+                                    class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-all peer-checked:translate-x-4">
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold text-gray-500 peer-checked:text-orange-500"
+                                id="d-follow-up-label">Follow up attachment</span>
+                        </label>
+                        <span class="text-[10px] text-gray-400 font-mono">20260425-BRF-v1</span>
+                        <button onclick="dOpenSubmitModal()"
+                            class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 active:scale-95 text-white text-xs font-semibold px-4 py-2 rounded transition-all">
+                            <i class="fa-solid fa-paper-plane text-[10px]"></i> Submit Request
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Attachments -->
@@ -218,7 +223,7 @@ $today = date('Y-m-d');
             </div>
             <div class="px-6 py-5 space-y-4">
                 <p class="text-sm text-gray-500">Select the head you want to send this request to:</p>
-                <div id="d-heads-list" class="space-y-2 max-h-60 overflow-y-auto">
+                <div id="d-heads-list" class="space-y-2 max-h-48 overflow-y-auto">
                     <div class="text-center text-gray-400 text-sm py-4"><i class="fa-solid fa-spinner fa-spin mr-2"></i>
                         Loading...</div>
                 </div>
@@ -227,6 +232,39 @@ $today = date('Y-m-d');
                     <p class="text-xs text-orange-600 font-semibold uppercase tracking-wider mb-1">Sending to:</p>
                     <p id="d-selected-head-name" class="text-sm font-bold text-gray-800"></p>
                     <p id="d-selected-head-role" class="text-[10px] text-gray-500 uppercase tracking-wide"></p>
+                </div>
+
+                <!-- Category selector -->
+                <div class="border-t border-gray-100 pt-4">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Request Category</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div onclick="dSelectCategory('project', this)"
+                            class="d-cat-card flex flex-col items-center gap-1 px-2 py-3 border-2 border-transparent rounded-xl cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-all text-center">
+                            <i class="fa-solid fa-helmet-safety text-gray-300 text-lg d-cat-icon"></i>
+                            <span class="text-xs font-semibold text-gray-600">Project</span>
+                            <span class="text-[9px] text-gray-400">Tied to a project</span>
+                        </div>
+                        <div onclick="dSelectCategory('client', this)"
+                            class="d-cat-card flex flex-col items-center gap-1 px-2 py-3 border-2 border-transparent rounded-xl cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-all text-center">
+                            <i class="fa-solid fa-user-tie text-gray-300 text-lg d-cat-icon"></i>
+                            <span class="text-xs font-semibold text-gray-600">Client</span>
+                            <span class="text-[9px] text-gray-400">Tied to a client</span>
+                        </div>
+                        <div onclick="dSelectCategory('nhcc', this)"
+                            class="d-cat-card flex flex-col items-center gap-1 px-2 py-3 border-2 border-transparent rounded-xl cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-all text-center">
+                            <i class="fa-solid fa-building text-gray-300 text-lg d-cat-icon"></i>
+                            <span class="text-xs font-semibold text-gray-600">NHCC</span>
+                            <span class="text-[9px] text-gray-400">Internal use</span>
+                        </div>
+                    </div>
+                    <!-- Reference input (slides in for project/client) -->
+                    <div id="d-category-ref-section" class="hidden mt-3">
+                        <label id="d-category-ref-label"
+                            class="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Project
+                            name</label>
+                        <input type="text" id="d-category-ref-input" placeholder="Enter project name..."
+                            class="w-full border-b-2 border-gray-300 outline-none text-sm py-1.5 bg-transparent focus:border-orange-500 transition-colors">
+                    </div>
                 </div>
             </div>
             <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
@@ -332,17 +370,22 @@ $today = date('Y-m-d');
                         <i class="fa-solid fa-paperclip mr-1"></i> Attach Proof / Images
                     </p>
                     <!-- Follow up toggle (mobile) -->
-<label class="flex items-center gap-3 cursor-pointer select-none mb-3 p-3 bg-orange-50 border border-orange-200 rounded-xl">
-    <div class="relative shrink-0">
-        <input type="checkbox" id="m-follow-up-toggle" class="sr-only peer">
-        <div class="w-10 h-6 bg-gray-200 rounded-full peer peer-checked:bg-orange-500 transition-colors"></div>
-        <div class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-all peer-checked:translate-x-4"></div>
-    </div>
-    <div>
-        <p class="text-sm font-semibold text-gray-700">Follow up attachment</p>
-        <p class="text-[10px] text-gray-400">I'll send the proof later</p>
-    </div>
-</label>
+                    <label
+                        class="flex items-center gap-3 cursor-pointer select-none mb-3 p-3 bg-orange-50 border border-orange-200 rounded-xl">
+                        <div class="relative shrink-0">
+                            <input type="checkbox" id="m-follow-up-toggle" class="sr-only peer">
+                            <div
+                                class="w-10 h-6 bg-gray-200 rounded-full peer peer-checked:bg-orange-500 transition-colors">
+                            </div>
+                            <div
+                                class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-all peer-checked:translate-x-4">
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-700">Follow up attachment</p>
+                            <p class="text-[10px] text-gray-400">I'll send the proof later</p>
+                        </div>
+                    </label>
                     <div id="m-drop-zone"
                         class="flex flex-col items-center justify-center w-full py-10 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-all">
                         <i class="fa-solid fa-cloud-arrow-up text-3xl text-orange-300 mb-2"></i>
@@ -358,6 +401,37 @@ $today = date('Y-m-d');
 
             <!-- ── Step 4: Submit ── -->
             <div id="m-step-4" class="hidden p-4 space-y-3">
+                <!-- Category selector (mobile) -->
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Request Category</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div onclick="mSelectCategory('project', this)"
+                            class="m-cat-card flex flex-col items-center gap-1 px-2 py-3 border-2 border-transparent rounded-xl cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-all text-center">
+                            <i class="fa-solid fa-helmet-safety text-gray-300 text-xl m-cat-icon"></i>
+                            <span class="text-xs font-semibold text-gray-600">Project</span>
+                            <span class="text-[9px] text-gray-400">Tied to a project</span>
+                        </div>
+                        <div onclick="mSelectCategory('client', this)"
+                            class="m-cat-card flex flex-col items-center gap-1 px-2 py-3 border-2 border-transparent rounded-xl cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-all text-center">
+                            <i class="fa-solid fa-user-tie text-gray-300 text-xl m-cat-icon"></i>
+                            <span class="text-xs font-semibold text-gray-600">Client</span>
+                            <span class="text-[9px] text-gray-400">Tied to a client</span>
+                        </div>
+                        <div onclick="mSelectCategory('nhcc', this)"
+                            class="m-cat-card flex flex-col items-center gap-1 px-2 py-3 border-2 border-transparent rounded-xl cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-all text-center">
+                            <i class="fa-solid fa-building text-gray-300 text-xl m-cat-icon"></i>
+                            <span class="text-xs font-semibold text-gray-600">NHCC</span>
+                            <span class="text-[9px] text-gray-400">Internal use</span>
+                        </div>
+                    </div>
+                    <div id="m-category-ref-section" class="hidden mt-3">
+                        <label id="m-category-ref-label"
+                            class="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Project
+                            name</label>
+                        <input type="text" id="m-category-ref-input" placeholder="Enter project name..."
+                            class="w-full border-b-2 border-gray-300 outline-none text-sm py-1.5 bg-transparent focus:border-orange-500 transition-colors">
+                    </div>
+                </div>
                 <!-- Summary card -->
                 <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 space-y-3">
                     <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Summary</p>
@@ -428,6 +502,63 @@ $today = date('Y-m-d');
         // ═══════════════════════════════════════════
         let mCurrentStep = 1;
         const mTotalSteps = 4;
+
+        // ── Category selector (shared) ───────────────────────
+        let dSelectedCategory = null;
+        let mSelectedCategory = null;
+
+        function dSelectCategory(cat, el) {
+            dSelectedCategory = cat;
+            document.querySelectorAll('.d-cat-card').forEach(c => {
+                c.classList.remove('border-orange-500', 'bg-orange-50');
+                c.classList.add('border-transparent');
+                c.querySelector('.d-cat-icon').classList.replace('text-orange-500', 'text-gray-300');
+            });
+            el.classList.add('border-orange-500', 'bg-orange-50');
+            el.classList.remove('border-transparent');
+            el.querySelector('.d-cat-icon').classList.replace('text-gray-300', 'text-orange-500');
+            _updateCatRefSection('d-category-ref-section', 'd-category-ref-label', 'd-category-ref-input', cat);
+            _updateDSubmitBtn();
+        }
+
+        function mSelectCategory(cat, el) {
+            mSelectedCategory = cat;
+            document.querySelectorAll('.m-cat-card').forEach(c => {
+                c.classList.remove('border-orange-500', 'bg-orange-50');
+                c.classList.add('border-transparent');
+                c.querySelector('.m-cat-icon').classList.replace('text-orange-500', 'text-gray-300');
+            });
+            el.classList.add('border-orange-500', 'bg-orange-50');
+            el.classList.remove('border-transparent');
+            el.querySelector('.m-cat-icon').classList.replace('text-gray-300', 'text-orange-500');
+            _updateCatRefSection('m-category-ref-section', 'm-category-ref-label', 'm-category-ref-input', cat);
+        }
+
+        function _updateCatRefSection(sectionId, labelId, inputId, cat) {
+            const section = document.getElementById(sectionId);
+            const label = document.getElementById(labelId);
+            const input = document.getElementById(inputId);
+            if (cat === 'nhcc') {
+                section.classList.add('hidden');
+                input.value = '';
+            } else {
+                section.classList.remove('hidden');
+                if (cat === 'project') {
+                    label.textContent = 'Project name';
+                    input.placeholder = 'Enter project name...';
+                } else {
+                    label.textContent = 'Client name';
+                    input.placeholder = 'Enter client name...';
+                }
+                setTimeout(() => input.focus(), 50);
+            }
+        }
+
+        // Re-enable submit button only when both head + category are selected
+        function _updateDSubmitBtn() {
+            const btn = document.getElementById('d-confirm-submit-btn');
+            btn.disabled = !(dSelectedHeadId && dSelectedCategory);
+        }
 
         const mStepTitles = [
             '', // index 0 unused
@@ -502,9 +633,9 @@ $today = date('Y-m-d');
 
             // Validate step 3 (attachments required)
             if (mCurrentStep === 3 && attachmentFiles.length === 0 && !document.getElementById('m-follow-up-toggle').checked) {
-    mShowToast('Please attach at least one file, or toggle "Follow up attachment".', 'error');
-    return;
-}
+                mShowToast('Please attach at least one file, or toggle "Follow up attachment".', 'error');
+                return;
+            }
 
             // Last step = submit
             if (mCurrentStep === mTotalSteps) {
@@ -730,10 +861,19 @@ $today = date('Y-m-d');
                 return;
             }
 
+            // ── Idagdag ito ──
+            if (!mSelectedCategory) {
+                mShowToast('Please select a request category.', 'error');
+                return;
+            }
+            if (mSelectedCategory !== 'nhcc' && !document.getElementById('m-category-ref-input').value.trim()) {
+                mShowToast('Please enter the project or client name.', 'error');
+                return;
+            }
+
             const name = document.getElementById('m-requestor-name').value.trim();
             const purpose = document.getElementById('m-purpose').value.trim();
 
-            // Collect items from cards
             const items = [];
             document.querySelectorAll('#m-item-cards [data-card]').forEach(card => {
                 const inputs = card.querySelectorAll('input');
@@ -762,7 +902,12 @@ $today = date('Y-m-d');
                     date_requested: dateRequested,
                     sent_to: mSelectedHeadId,
                     items: items,
-                    attachments: attachmentFiles.map(f => ({ name: f.name, data: f.webpBase64 }))
+                    attachments: attachmentFiles.map(f => ({ name: f.name, data: f.webpBase64 })),
+                    attachment_status: document.getElementById('m-follow-up-toggle').checked ? 'follow_up' : 'attached',
+                    request_category: mSelectedCategory,
+                    request_reference: mSelectedCategory !== 'nhcc'
+                        ? document.getElementById('m-category-ref-input').value.trim()
+                        : null
                 })
             })
                 .then(res => res.json())
@@ -894,6 +1039,12 @@ $today = date('Y-m-d');
         function dOpenSubmitModal() {
             document.getElementById('d-submit-modal').classList.remove('hidden');
             dSelectedHeadId = null;
+            dSelectedCategory = null;
+            document.querySelectorAll('.d-cat-card').forEach(c => {
+                c.classList.remove('border-orange-500', 'bg-orange-50');
+                c.classList.add('border-transparent');
+            });
+            document.getElementById('d-category-ref-section').classList.add('hidden');
             document.getElementById('d-confirm-submit-btn').disabled = true;
             document.getElementById('d-selected-head-display').classList.add('hidden');
             dLoadHeads();
@@ -934,25 +1085,49 @@ $today = date('Y-m-d');
             document.getElementById('d-selected-head-name').textContent = name;
             document.getElementById('d-selected-head-role').textContent = role;
             document.getElementById('d-selected-head-display').classList.remove('hidden');
-            document.getElementById('d-confirm-submit-btn').disabled = false;
+            _updateDSubmitBtn();
         }
 
         function dConfirmSubmit() {
             if (!dSelectedHeadId) return;
-            const isFollowUp = document.getElementById('d-follow-up-toggle').checked;
-if (!isFollowUp && attachmentFiles.length === 0) {
-    const n = document.createElement('div');
-    n.className = 'fixed bottom-5 right-5 z-50 bg-red-500 text-white text-sm font-semibold px-5 py-3 rounded-lg shadow-lg flex items-center gap-2';
-    n.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Please attach at least one proof, or toggle "Follow up attachment".';
-    document.body.appendChild(n);
-    setTimeout(() => n.remove(), 3000);
-    return;
-}
 
+            // ── Attachment check ──
+            const isFollowUp = document.getElementById('d-follow-up-toggle').checked;
+            if (!isFollowUp && attachmentFiles.length === 0) {
+                const n = document.createElement('div');
+                n.className = 'fixed bottom-5 right-5 z-50 bg-red-500 text-white text-sm font-semibold px-5 py-3 rounded-lg shadow-lg flex items-center gap-2';
+                n.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Please attach at least one proof, or toggle "Follow up attachment".';
+                document.body.appendChild(n);
+                setTimeout(() => n.remove(), 3000);
+                return;
+            }
+
+            // ── Category check ──
+            if (!dSelectedCategory) {
+                const n = document.createElement('div');
+                n.className = 'fixed bottom-5 right-5 z-50 bg-red-500 text-white text-sm font-semibold px-5 py-3 rounded-lg shadow-lg flex items-center gap-2';
+                n.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Please select a request category.';
+                document.body.appendChild(n);
+                setTimeout(() => n.remove(), 3000);
+                return;
+            }
+
+            // ── Reference name check (only for project/client) ──
+            if (dSelectedCategory !== 'nhcc' && !document.getElementById('d-category-ref-input').value.trim()) {
+                const n = document.createElement('div');
+                n.className = 'fixed bottom-5 right-5 z-50 bg-red-500 text-white text-sm font-semibold px-5 py-3 rounded-lg shadow-lg flex items-center gap-2';
+                n.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Please enter the project or client name.';
+                document.body.appendChild(n);
+                setTimeout(() => n.remove(), 3000);
+                return;
+            }
+
+            // ── Basic field check ──
             const requestorName = document.getElementById('d-requestor-name').value;
             const purpose = document.getElementById('d-purpose').value;
             if (!requestorName || !purpose) { alert('Please fill in Requestor Name and Purpose.'); return; }
 
+            // ── Collect items ──
             const items = [];
             document.querySelectorAll('#d-item-rows tr').forEach(tr => {
                 const inputs = tr.querySelectorAll('input');
@@ -975,15 +1150,19 @@ if (!isFollowUp && attachmentFiles.length === 0) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-    control_no: controlNo,
-    requestor_name: requestorName,
-    purpose: purpose,
-    date_requested: dateRequested,
-    sent_to: dSelectedHeadId,
-    items: items,
-    attachments: attachmentFiles.map(f => ({ name: f.name, data: f.webpBase64 })),
-    attachment_status: document.getElementById('d-follow-up-toggle').checked ? 'follow_up' : 'attached'  // ← dagdag
-})
+                    control_no: controlNo,
+                    requestor_name: requestorName,
+                    purpose: purpose,
+                    date_requested: dateRequested,
+                    sent_to: dSelectedHeadId,
+                    items: items,
+                    attachments: attachmentFiles.map(f => ({ name: f.name, data: f.webpBase64 })),
+                    attachment_status: isFollowUp ? 'follow_up' : 'attached',
+                    request_category: dSelectedCategory,
+                    request_reference: dSelectedCategory !== 'nhcc'
+                        ? document.getElementById('d-category-ref-input').value.trim()
+                        : null
+                })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -993,7 +1172,7 @@ if (!isFollowUp && attachmentFiles.length === 0) {
                         n.className = 'fixed top-5 right-5 z-50 bg-green-500 text-white text-sm font-semibold px-5 py-3 rounded-lg shadow-lg flex items-center gap-2';
                         n.innerHTML = '<i class="fa-solid fa-check"></i> Request submitted successfully!';
                         document.body.appendChild(n);
-                        setTimeout(() => n.remove(), 3000);
+                        setTimeout(() => window.location.reload(), 1500); // ← dagdag ito
                     } else {
                         alert('Failed: ' + data.error);
                         btn.disabled = false;

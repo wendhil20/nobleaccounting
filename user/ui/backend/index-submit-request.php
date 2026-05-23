@@ -81,16 +81,28 @@ if (!in_array($attachment_status, ['attached', 'follow_up'])) {
     $attachment_status = 'attached';
 }
 
-// Kung follow_up, hindi required ang attachments
+$request_category  = trim($body['request_category'] ?? '');
+$request_reference = trim($body['request_reference'] ?? '');
+
+// Validate category
+if (!in_array($request_category, ['project', 'client', 'nhcc'])) {
+    $request_category = null;
+}
+
+// Reference only needed for project/client
+if ($request_category === 'nhcc' || $request_category === null) {
+    $request_reference = null;
+}
+
 if (!$control_no || !$requestor_name || !$purpose || !$sent_to || !$user_id) {
     echo json_encode(['success' => false, 'error' => 'Missing fields']);
     exit;
 }
 
 $stmt = $conn->prepare("INSERT INTO noblebudgetrequest 
-    (control_no, user_id, requestor_name, purpose, date_requested, sent_to, items, attachments, attachment_status) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("sisssisss",
+    (control_no, user_id, requestor_name, purpose, date_requested, sent_to, items, attachments, attachment_status, request_category, request_reference) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("sisssisssss",
     $control_no,
     $user_id,
     $requestor_name,
@@ -99,7 +111,9 @@ $stmt->bind_param("sisssisss",
     $sent_to,
     $items,
     $attachmentsJson,
-    $attachment_status
+    $attachment_status,
+    $request_category,
+    $request_reference
 );
 
 $result = $stmt->execute();
