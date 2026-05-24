@@ -118,6 +118,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                                     <th class="px-5 py-3 text-left">Budget Request No.</th>
                                     <th class="px-5 py-3 text-left">Payee</th>
                                     <th class="px-5 py-3 text-left">Payment For</th>
+                                    <th class="px-5 py-3 text-left">Category</th>
                                     <th class="px-5 py-3 text-left">Date</th>
                                     <th class="px-5 py-3 text-left">Total Amount</th>
                                     <th class="px-5 py-3 text-left">Approved By</th>
