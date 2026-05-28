@@ -47,8 +47,8 @@ $today = date('Y-m-d');
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- DESKTOP FORM (hidden on mobile)                    -->
     <!-- ═══════════════════════════════════════════════════ -->
-    <div class="hidden md:flex items-center justify-center px-4 py-12 relative z-10 min-h-screen">
-        <div class="max-w-5xl w-full mx-auto">
+    <div class="hidden md:flex items-center justify-center px-4 py-4 relative z-10 min-h-screen">
+        <div class="max-w-5xl w-full mx-auto max-h-[calc(100vh-80px)] overflow-y-auto rounded-sm">
             <div class="bg-white border border-gray-300 shadow-md rounded-sm overflow-hidden">
 
                 <!-- Header -->
@@ -110,7 +110,7 @@ $today = date('Y-m-d');
                 </div>
 
                 <!-- Table -->
-                <div class="overflow-x-auto max-h-[220px] overflow-y-auto">
+                <div class="overflow-x-auto max-h-[160px] overflow-y-auto">
                     <table class="w-full text-sm border-collapse">
                         <thead>
                             <tr class="bg-orange-500 text-white text-[11px] font-bold uppercase tracking-wider">
@@ -189,7 +189,7 @@ $today = date('Y-m-d');
 
                 <!-- Signatures -->
                 <div class="grid grid-cols-2 border-t-2 border-gray-800">
-                    <div class="px-8 py-5 border-r-2 border-gray-800">
+                    <div class="px-8 py-3 border-r-2 border-gray-800">
                         <div class="flex items-center gap-2 mb-4">
                             <i class="fa-regular fa-circle-user text-gray-400 text-lg"></i>
                             <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600">Approved
