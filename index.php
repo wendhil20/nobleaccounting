@@ -151,6 +151,7 @@ $adminRoutes = [
     'fetchsignatures',
     'setactivesignature',
     'deletesignature',
+    'updatesignature',
 
 
 ];
@@ -285,6 +286,7 @@ $routes = [
     'fetchsignatures'                  => 'admin/navigation/settings/backend/backend-signatured/fetch-signatures.php',
     'setactivesignature'               => 'admin/navigation/settings/backend/backend-signatured/set-active-signature.php',
     'deletesignature'                  => 'admin/navigation/settings/backend/backend-signatured/delete-signature.php',
+    'updatesignature'                  => 'admin/navigation/settings/backend/backend-signatured/update-signature.php',
 ];
 
 

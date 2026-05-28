@@ -222,11 +222,24 @@
     </div>
 </div>
 
+<!-- idagdag ito kahit saan sa labas ng main, e.g. bago mag-close ng </main> -->
+<input type="file" id="update-sig-input" accept="image/png" class="hidden" onchange="handleUpdateFile(this.files[0])">
+
 </main>
+
+
 
 <script>
 
 // ─── SAVED SIGNATURES LIST ───────────────────────────────────────
+function loadSignatures() {
+    fetch('<?= BASE_URL ?>/fetchsignatures')
+        .then(res => res.json())
+        .then(renderSignatures);
+}
+// ─── SAVED SIGNATURES LIST ───────────────────────────────────────
+let _updateTargetId = null;
+
 function loadSignatures() {
     fetch('<?= BASE_URL ?>/fetchsignatures')
         .then(res => res.json())
@@ -270,6 +283,12 @@ function renderSignatures(sigs) {
                         Set as Active
                        </button>` 
                     : ''}
+                <!-- UPDATE BUTTON -->
+                <button onclick="updateSig(${s.id})"
+                    title="Replace with new image"
+                    class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all">
+                    <i class="fa-solid fa-arrow-up-from-bracket text-[10px] mr-1"></i>Update
+                </button>
                 <button onclick="deleteSig(${s.id})"
                     class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-all">
                     <i class="fa-solid fa-trash text-[10px]"></i>
@@ -277,6 +296,58 @@ function renderSignatures(sigs) {
             </div>
         </div>
     `).join('');
+}
+
+function updateSig(id) {
+    _updateTargetId = id;
+    const input = document.getElementById('update-sig-input');
+    input.value = ''; // reset para laging mag-trigger ng change
+    input.click();
+}
+
+function handleUpdateFile(file) {
+    if (!file || !_updateTargetId) return;
+    if (file.type !== 'image/png') { alert('PNG lang ang accepted.'); return; }
+    if (file.size > 10 * 1024 * 1024) { alert('File too large. Max 10 MB.'); return; }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // I-convert sa WebP gamit ang canvas
+            const c = document.createElement('canvas');
+            c.width  = img.width;
+            c.height = img.height;
+            const x = c.getContext('2d');
+            x.clearRect(0, 0, c.width, c.height);
+            x.drawImage(img, 0, 0);
+
+            c.toBlob(blob => {
+                if (!blob) { alert('WebP conversion failed.'); return; }
+                const formData = new FormData();
+                formData.append('signature', blob, 'signature.webp');
+                formData.append('id', _updateTargetId);
+
+                fetch('<?= BASE_URL ?>/updatesignature', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        loadSignatures();
+                    } else {
+                        alert(data.message || 'Update failed. Please try again.');
+                    }
+                })
+                .catch(() => alert('An error occurred. Please try again.'));
+
+                _updateTargetId = null;
+            }, 'image/webp', 0.92); // 0.92 quality — pwede mong baguhin
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
 }
 
 function setActive(id) {
