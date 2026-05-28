@@ -1,5 +1,5 @@
 <?php
-
+// index-cashvoucherfetchall.php
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
 header('Content-Type: application/json');
@@ -17,6 +17,7 @@ $result = $conn->query("SELECT b.*,
     v.purpose as voucher_purpose,
     v.manual_receiver_name,
     v.manual_receiver_date,
+    v.certified_signature,
     v.prepared_by, v.prepared_at,
     v.certified_by, v.certified_at,
     v.approved_by, v.approved_at,
@@ -24,7 +25,9 @@ $result = $conn->query("SELECT b.*,
     prep.name as prepared_name,
     cert.name as certified_name,
     appr.name as approver_name,
-    recv.name as receiver_name
+    recv.name as receiver_name,
+    v.prepared_signature,
+    v.approved_signature as approver_signature
     FROM noblebudgetrequest b
     LEFT JOIN nobleaccount n ON b.user_id = n.id
     LEFT JOIN noblevoucher v ON b.id = v.request_id

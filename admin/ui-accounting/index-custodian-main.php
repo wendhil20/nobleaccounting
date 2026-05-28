@@ -38,18 +38,21 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             class="flex items-center gap-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition shadow-sm">
                             <i class="fa-solid fa-calendar-days text-orange-400"></i>
                             Dates with Vouchers
-                            <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
                         <div id="dates-dropdown"
                             class="hidden absolute left-0 mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
                             <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Dates with Vouchers</p>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Dates with Vouchers
+                                </p>
                                 <span id="dates-dropdown-count" class="text-[10px] text-gray-400"></span>
                             </div>
                             <div class="px-3 py-2 border-b border-gray-100">
-                                <input type="text" id="dates-search" placeholder="Search date..." oninput="filterDatesDropdown()"
+                                <input type="text" id="dates-search" placeholder="Search date..."
+                                    oninput="filterDatesDropdown()"
                                     class="w-full text-xs border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-orange-400 transition">
                             </div>
                             <ul id="dates-list" class="max-h-64 overflow-y-auto py-1"></ul>
@@ -80,7 +83,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         <option value="nhcc">NHCC</option>
                     </select>
                     <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <i
+                            class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                         <input type="text" id="search-input" placeholder="Search..."
                             class="pl-8 pr-4 py-1.5 text-xs border border-gray-200 rounded-full outline-none focus:border-amber-400 transition-all w-48">
                     </div>
@@ -147,7 +151,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4">
                 <div class="grid grid-cols-7 border-b border-gray-100">
                     <?php foreach (['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $d): ?>
-                        <div class="py-2.5 text-center text-[11px] font-bold text-gray-400 uppercase tracking-widest <?= $d === 'Sun' ? 'text-red-400' : ($d === 'Sat' ? 'text-blue-400' : '') ?>">
+                        <div
+                            class="py-2.5 text-center text-[11px] font-bold text-gray-400 uppercase tracking-widest <?= $d === 'Sun' ? 'text-red-400' : ($d === 'Sat' ? 'text-blue-400' : '') ?>">
                             <?= $d ?>
                         </div>
                     <?php endforeach; ?>
@@ -213,8 +218,10 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         <img src="<?= BASE_URL ?>/icon/logo.png" alt="Logo" class="w-12 h-12 object-contain">
                         <div>
                             <p class="font-bold text-sm uppercase">Noblehome Construction Corporation</p>
-                            <p class="text-[10px] text-gray-500">1181 MC Premiere Bldg., EDSA Bldg., EDSA Balintawak Quezon City</p>
-                            <p class="text-[10px] text-gray-500">noblehomeconsl.ph@gmail.com | Tel. No. 02-88221295 | Cell. No. 0968-591-6544</p>
+                            <p class="text-[10px] text-gray-500">1181 MC Premiere Bldg., EDSA Bldg., EDSA Balintawak
+                                Quezon City</p>
+                            <p class="text-[10px] text-gray-500">noblehomeconsl.ph@gmail.com | Tel. No. 02-88221295 |
+                                Cell. No. 0968-591-6544</p>
                         </div>
                     </div>
                     <div></div>
@@ -222,12 +229,19 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         <p class="font-bold text-lg uppercase tracking-widest text-gray-800">Cash Voucher</p>
                         <p id="v-title" class="text-[10px] text-gray-500 uppercase tracking-wider mb-1"></p>
                         <div class="grid grid-cols-2 mt-1">
-                            <div class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider text-center border-r border-orange-400">Voucher No.</div>
-                            <div class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider text-center">Date:</div>
+                            <div
+                                class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider text-center border-r border-orange-400">
+                                Voucher No.</div>
+                            <div
+                                class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider text-center">
+                                Date:</div>
                         </div>
                         <div class="grid grid-cols-2">
-                            <div id="v-control-no" class="border border-gray-300 text-xs font-mono px-3 py-1 text-center bg-gray-50 border-r-0"></div>
-                            <div id="v-date" class="border border-gray-300 text-xs font-mono px-3 py-1 text-center bg-gray-50"></div>
+                            <div id="v-control-no"
+                                class="border border-gray-300 text-xs font-mono px-3 py-1 text-center bg-gray-50 border-r-0">
+                            </div>
+                            <div id="v-date"
+                                class="border border-gray-300 text-xs font-mono px-3 py-1 text-center bg-gray-50"></div>
                         </div>
                     </div>
                 </div>
@@ -236,26 +250,36 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 <div class="px-6 py-3 border-b border-gray-300 space-y-2">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Payee</span>
+                            <span
+                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Payee</span>
                             <span class="text-gray-400 mr-2">:</span>
-                            <input id="v-payee" class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent" />
+                            <input id="v-payee"
+                                class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent" />
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Payment For</span>
+                            <span
+                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Payment
+                                For</span>
                             <span class="text-gray-400">:</span>
-                            <input id="v-purpose" class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent ml-2" />
+                            <input id="v-purpose"
+                                class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent ml-2" />
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Address</span>
+                            <span
+                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Address</span>
                             <span class="text-gray-400 mr-2">:</span>
-                            <input id="v-address" class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent" />
+                            <input id="v-address"
+                                class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent" />
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Amount in Words</span>
+                            <span
+                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Amount
+                                in Words</span>
                             <span class="text-gray-400">:</span>
-                            <input id="v-amount-words" readonly class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent italic text-gray-700 ml-2" />
+                            <input id="v-amount-words" readonly
+                                class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent italic text-gray-700 ml-2" />
                         </div>
                     </div>
                 </div>
@@ -265,9 +289,15 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <table class="w-full text-sm border-collapse">
                         <thead>
                             <tr class="bg-orange-500 text-white">
-                                <th class="w-12 px-3 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-wider">No.</th>
-                                <th class="px-4 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-widest">P A R T I C U L A R S</th>
-                                <th class="w-36 px-4 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-wider">Amount (P)</th>
+                                <th
+                                    class="w-12 px-3 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-wider">
+                                    No.</th>
+                                <th
+                                    class="px-4 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-widest">
+                                    P A R T I C U L A R S</th>
+                                <th
+                                    class="w-36 px-4 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-wider">
+                                    Amount (P)</th>
                             </tr>
                         </thead>
                         <tbody id="v-items-tbody"></tbody>
@@ -276,11 +306,15 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                                 <td colspan="3" class="border border-gray-300 p-0">
                                     <div class="flex items-center justify-between px-4 py-2">
                                         <div>
-                                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Payment Method No:</span>
+                                            <span
+                                                class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Payment
+                                                Method No:</span>
                                             <span id="v-second-no" class="font-mono text-xs ml-2 text-gray-700"></span>
                                         </div>
                                         <div class="flex items-center gap-4">
-                                            <span class="font-bold text-xs uppercase tracking-widest text-gray-700">Total Amount:</span>
+                                            <span
+                                                class="font-bold text-xs uppercase tracking-widest text-gray-700">Total
+                                                Amount:</span>
                                             <span id="v-total" class="font-bold font-mono text-sm"></span>
                                         </div>
                                     </div>
@@ -292,27 +326,43 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
                 <!-- Signatures -->
                 <div class="grid grid-cols-4 border-t-2 border-orange-400">
-                    <div class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">Prepared By</div>
-                    <div class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">Certified Thru Correct</div>
-                    <div class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">Approved By</div>
-                    <div class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5">Received By</div>
+                    <div
+                        class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">
+                        Prepared By</div>
+                    <div
+                        class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">
+                        Certified Thru Correct</div>
+                    <div
+                        class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">
+                        Approved By</div>
+                    <div
+                        class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5">
+                        Received By</div>
                 </div>
                 <div class="grid grid-cols-4 border-b border-gray-200">
                     <div class="px-4 py-4 border-r border-gray-200">
-                        <p class="text-[10px] text-gray-500">Name: <span id="v-prepared" class="text-gray-800 font-semibold text-xs"></span></p>
-                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-prepared-at" class="text-gray-600 text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500">Name: <span id="v-prepared"
+                                class="text-gray-800 font-semibold text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-prepared-at"
+                                class="text-gray-600 text-xs"></span></p>
                     </div>
                     <div class="px-4 py-4 border-r border-gray-200">
-                        <p class="text-[10px] text-gray-500">Name: <span id="v-certified" class="text-gray-800 font-semibold text-xs"></span></p>
-                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-certified-at" class="text-gray-600 text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500">Name: <span id="v-certified"
+                                class="text-gray-800 font-semibold text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-certified-at"
+                                class="text-gray-600 text-xs"></span></p>
                     </div>
                     <div class="px-4 py-4 border-r border-gray-200">
-                        <p class="text-[10px] text-gray-500">Name: <span id="v-approver" class="text-gray-800 font-semibold text-xs"></span></p>
-                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-approved-at" class="text-gray-600 text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500">Name: <span id="v-approver"
+                                class="text-gray-800 font-semibold text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-approved-at"
+                                class="text-gray-600 text-xs"></span></p>
                     </div>
                     <div class="px-4 py-4">
-                        <p class="text-[10px] text-gray-500">Name: <span id="v-receiver" class="text-gray-800 font-semibold text-xs"></span></p>
-                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-received-at" class="text-gray-600 text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500">Name: <span id="v-receiver"
+                                class="text-gray-800 font-semibold text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-received-at"
+                                class="text-gray-600 text-xs"></span></p>
                     </div>
                 </div>
 
@@ -325,7 +375,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         </div>
 
         <!-- Title Modal -->
-        <div id="voucher-title-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
+        <div id="voucher-title-modal"
+            class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
             <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                     <div class="flex items-center gap-2">
@@ -341,12 +392,14 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </div>
                 <div class="px-6 py-5 space-y-4">
                     <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Voucher Title <span class="text-red-400">*</span></label>
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Voucher Title <span
+                                class="text-red-400">*</span></label>
                         <input type="text" id="voucher-title-input" placeholder="e.g. Materials for Site A — May 2026"
                             class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-orange-400 transition-all">
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Second No. <span class="text-gray-300">(optional)</span></label>
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Second No. <span
+                                class="text-gray-300">(optional)</span></label>
                         <input type="text" id="voucher-second-no-input" placeholder="e.g. 9808971"
                             class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-orange-400 transition-all">
                     </div>
@@ -364,8 +417,10 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
         <!-- Category Tooltip -->
         <div id="cat-tooltip" class="fixed z-[9999] pointer-events-none hidden" style="visibility:hidden">
-            <div class="bg-gray-800 text-white text-xs font-medium px-3 py-2 rounded-lg shadow-lg max-w-[220px] break-words leading-relaxed">
-                <span id="cat-tooltip-label" class="text-gray-400 text-[10px] block mb-0.5 uppercase tracking-wider"></span>
+            <div
+                class="bg-gray-800 text-white text-xs font-medium px-3 py-2 rounded-lg shadow-lg max-w-[220px] break-words leading-relaxed">
+                <span id="cat-tooltip-label"
+                    class="text-gray-400 text-[10px] block mb-0.5 uppercase tracking-wider"></span>
                 <span id="cat-tooltip-ref"></span>
             </div>
             <div class="w-2 h-2 bg-gray-800 rotate-45 mx-auto -mt-1"></div>
@@ -374,19 +429,44 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
     </main>
 
     <style>
-        .scrollbar-thin::-webkit-scrollbar { width: 4px; }
-        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-        .scrollbar-thin::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 999px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
 
         @keyframes badgePulse {
-            0%   { transform: scale(1);   opacity: 1; }
-            50%  { transform: scale(1.4); opacity: 0.5; }
-            100% { transform: scale(1);   opacity: 1; }
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.4);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
+
         .highlight-badge {
             display: inline-block;
-            width: 10px; height: 10px;
+            width: 10px;
+            height: 10px;
             background-color: #ef4444;
             border-radius: 50%;
             animation: badgePulse 0.8s ease-in-out 6;
@@ -406,17 +486,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         let selectedDate = null;
         let allDatesCache = [];
 
-        const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
         // ─── View Toggle ─────────────────────────────────────
         function setView(view) {
             currentView = view;
 
-            const listEl      = document.getElementById('view-list');
-            const calEl       = document.getElementById('view-calendar');
-            const listCtrl    = document.getElementById('list-controls');
-            const calCtrl     = document.getElementById('cal-controls');
-            const btnList     = document.getElementById('btn-list');
+            const listEl = document.getElementById('view-list');
+            const calEl = document.getElementById('view-calendar');
+            const listCtrl = document.getElementById('list-controls');
+            const calCtrl = document.getElementById('cal-controls');
+            const btnList = document.getElementById('btn-list');
             const btnCalendar = document.getElementById('btn-calendar');
 
             if (view === 'list') {
@@ -425,7 +505,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 listCtrl.classList.remove('hidden');
                 calCtrl.classList.add('hidden');
                 calCtrl.classList.remove('flex');
-                btnList.className     = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all bg-orange-500 text-white';
+                btnList.className = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all bg-orange-500 text-white';
                 btnCalendar.className = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all text-gray-500 hover:bg-gray-50';
                 applyFilters();
             } else {
@@ -435,29 +515,29 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 calCtrl.classList.remove('hidden');
                 calCtrl.classList.add('flex');
                 btnCalendar.className = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all bg-orange-500 text-white';
-                btnList.className     = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all text-gray-500 hover:bg-gray-50';
+                btnList.className = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all text-gray-500 hover:bg-gray-50';
                 renderCalendar();
             }
         }
 
         // ─── Helpers ─────────────────────────────────────────
         function numberToWords(amount) {
-            const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
-            const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+            const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
             if (amount === 0) return 'Zero Pesos Only';
             function convertHundreds(n) {
                 let r = '';
-                if (n >= 100) { r += ones[Math.floor(n/100)] + ' Hundred '; n %= 100; }
-                if (n >= 20)  { r += tens[Math.floor(n/10)] + ' '; n %= 10; }
-                if (n > 0)    { r += ones[n] + ' '; }
+                if (n >= 100) { r += ones[Math.floor(n / 100)] + ' Hundred '; n %= 100; }
+                if (n >= 20) { r += tens[Math.floor(n / 10)] + ' '; n %= 10; }
+                if (n > 0) { r += ones[n] + ' '; }
                 return r;
             }
             let intPart = Math.floor(amount);
             let decPart = Math.round((amount - intPart) * 100);
             let result = '';
-            if (intPart >= 1000000) { result += convertHundreds(Math.floor(intPart/1000000)) + 'Million '; intPart %= 1000000; }
-            if (intPart >= 1000)    { result += convertHundreds(Math.floor(intPart/1000)) + 'Thousand '; intPart %= 1000; }
-            if (intPart > 0)        { result += convertHundreds(intPart); }
+            if (intPart >= 1000000) { result += convertHundreds(Math.floor(intPart / 1000000)) + 'Million '; intPart %= 1000000; }
+            if (intPart >= 1000) { result += convertHundreds(Math.floor(intPart / 1000)) + 'Thousand '; intPart %= 1000; }
+            if (intPart > 0) { result += convertHundreds(intPart); }
             result += 'Pesos';
             if (decPart > 0) result += ' and ' + decPart + '/100';
             return result.trim() + ' Only';
@@ -465,14 +545,14 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
         function statusBadge(status) {
             const map = {
-                'voucher_approval':  'bg-yellow-100 text-yellow-700',
-                'ready_to_release':  'bg-blue-100 text-blue-700',
-                'released':          'bg-green-100 text-green-700',
+                'voucher_approval': 'bg-yellow-100 text-yellow-700',
+                'ready_to_release': 'bg-blue-100 text-blue-700',
+                'released': 'bg-green-100 text-green-700',
             };
             const label = {
                 'voucher_approval': 'For Approval',
                 'ready_to_release': 'Ready to Release',
-                'released':         'Released',
+                'released': 'Released',
             };
             const cls = map[status] ?? 'bg-gray-100 text-gray-500';
             const lbl = label[status] ?? status;
@@ -483,8 +563,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             if (!category) return '<span class="text-gray-300 text-xs">—</span>';
             const map = {
                 project: { label: 'Project', icon: 'fa-helmet-safety', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-                client:  { label: 'Client',  icon: 'fa-user-tie',      color: 'bg-purple-100 text-purple-700 border-purple-200' },
-                nhcc:    { label: 'NHCC',    icon: 'fa-building',      color: 'bg-orange-100 text-orange-700 border-orange-200' },
+                client: { label: 'Client', icon: 'fa-user-tie', color: 'bg-purple-100 text-purple-700 border-purple-200' },
+                nhcc: { label: 'NHCC', icon: 'fa-building', color: 'bg-orange-100 text-orange-700 border-orange-200' },
             };
             const cfg = map[category] ?? { label: category, icon: 'fa-tag', color: 'bg-gray-100 text-gray-600 border-gray-200' };
             if (!reference) {
@@ -514,7 +594,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         function showCatTooltip(e, label, reference) {
             const tip = document.getElementById('cat-tooltip');
             document.getElementById('cat-tooltip-label').textContent = label;
-            document.getElementById('cat-tooltip-ref').textContent   = reference;
+            document.getElementById('cat-tooltip-ref').textContent = reference;
             tip.style.visibility = 'hidden';
             tip.classList.remove('hidden');
             const rect = e.currentTarget.getBoundingClientRect();
@@ -524,7 +604,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             let top = rect.top - tipH - 8;
             if (top < 8) top = rect.bottom + 8;
             tip.style.left = left + 'px';
-            tip.style.top  = top  + 'px';
+            tip.style.top = top + 'px';
             tip.style.visibility = 'visible';
         }
         function hideCatTooltip() { document.getElementById('cat-tooltip').classList.add('hidden'); }
@@ -537,11 +617,11 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 return;
             }
             tbody.innerHTML = data.map(row => {
-                const items   = row.items ?? [];
-                const total   = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+                const items = row.items ?? [];
+                const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
                 const isComplete = row.approver_name && (row.receiver_name || row.manual_receiver_name) && row.voucher_status === 'released';
-                const isPending  = !row.approver_name || (!row.receiver_name && !row.manual_receiver_name);
-                const rowClass   = isComplete ? 'bg-green-50 hover:bg-green-100' : isPending ? 'bg-red-100 hover:bg-red-200' : 'hover:bg-gray-50';
+                const isPending = !row.approver_name || (!row.receiver_name && !row.manual_receiver_name);
+                const rowClass = isComplete ? 'bg-green-50 hover:bg-green-100' : isPending ? 'bg-red-100 hover:bg-red-200' : 'hover:bg-gray-50';
 
                 return `
 <tr data-id="${row.id}" class="border-t border-gray-100 transition-colors ${rowClass}">
@@ -571,17 +651,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         }
 
         function applyFilters() {
-            const q   = document.getElementById('search-input').value.toLowerCase();
+            const q = document.getElementById('search-input').value.toLowerCase();
             const cat = document.getElementById('category-filter').value;
             const filtered = allData.filter(row => {
                 const matchSearch =
                     row.voucher_control_no?.toLowerCase().includes(q) ||
-                    row.budget_control_no?.toLowerCase().includes(q)  ||
-                    row.voucher_payee?.toLowerCase().includes(q)       ||
-                    row.requestor_name?.toLowerCase().includes(q)      ||
-                    row.purpose?.toLowerCase().includes(q)             ||
-                    row.approver_name?.toLowerCase().includes(q)       ||
-                    row.receiver_name?.toLowerCase().includes(q)       ||
+                    row.budget_control_no?.toLowerCase().includes(q) ||
+                    row.voucher_payee?.toLowerCase().includes(q) ||
+                    row.requestor_name?.toLowerCase().includes(q) ||
+                    row.purpose?.toLowerCase().includes(q) ||
+                    row.approver_name?.toLowerCase().includes(q) ||
+                    row.receiver_name?.toLowerCase().includes(q) ||
                     row.request_reference?.toLowerCase().includes(q);
                 const matchCategory = !cat || row.request_category === cat;
                 return matchSearch && matchCategory;
@@ -597,18 +677,18 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             const map = {
                 'voucher_approval': 'bg-yellow-400',
                 'ready_to_release': 'bg-blue-400',
-                'released':         'bg-green-400',
+                'released': 'bg-green-400',
             };
             return map[status] ?? 'bg-gray-300';
         }
 
         function renderCalendar() {
             document.getElementById('cal-label').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
-            const grid    = document.getElementById('calendar-grid');
+            const grid = document.getElementById('calendar-grid');
             grid.innerHTML = '';
-            const firstDay    = new Date(calYear, calMonth, 1).getDay();
+            const firstDay = new Date(calYear, calMonth, 1).getDay();
             const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-            const today       = new Date();
+            const today = new Date();
 
             // Group by date
             const byDate = {};
@@ -627,13 +707,13 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
-                const mm      = String(calMonth + 1).padStart(2, '0');
-                const dd      = String(day).padStart(2, '0');
+                const mm = String(calMonth + 1).padStart(2, '0');
+                const dd = String(day).padStart(2, '0');
                 const dateStr = `${calYear}-${mm}-${dd}`;
-                const rows    = byDate[dateStr] ?? [];
-                const isToday    = (today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === day);
+                const rows = byDate[dateStr] ?? [];
+                const isToday = (today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === day);
                 const isSelected = selectedDate === dateStr;
-                const dayOfWeek  = (firstDay + day - 1) % 7;
+                const dayOfWeek = (firstDay + day - 1) % 7;
 
                 const cell = document.createElement('div');
                 cell.className = [
@@ -655,8 +735,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 cell.innerHTML = `
                     <div class="flex items-start justify-between mb-1">
                         <span class="text-xs font-semibold ${isToday
-                            ? 'w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center'
-                            : dayOfWeek === 0 ? 'text-red-400' : dayOfWeek === 6 ? 'text-blue-400' : 'text-gray-500'}">${day}</span>
+                        ? 'w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center'
+                        : dayOfWeek === 0 ? 'text-red-400' : dayOfWeek === 6 ? 'text-blue-400' : 'text-gray-500'}">${day}</span>
                         ${countBadge}
                     </div>
                     ${rows.length ? `
@@ -666,8 +746,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             <div class="text-[9px] truncate px-1.5 py-0.5 rounded font-medium
                                 ${r.voucher_status === 'released' ? 'bg-green-100 text-green-700'
                                 : r.voucher_status === 'ready_to_release' ? 'bg-blue-100 text-blue-700'
-                                : r.voucher_status === 'voucher_approval' ? 'bg-yellow-100 text-yellow-700'
-                                : 'bg-gray-100 text-gray-500'}">
+                                    : r.voucher_status === 'voucher_approval' ? 'bg-yellow-100 text-yellow-700'
+                                        : 'bg-gray-100 text-gray-500'}">
                                 ${r.voucher_payee || r.purpose || '—'}
                             </div>`).join('')}
                         ${rows.length > 2 ? `<div class="text-[9px] text-gray-400 px-1">+${rows.length - 2} more</div>` : ''}
@@ -678,7 +758,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             }
 
             // Trailing blank cells
-            const total    = firstDay + daysInMonth;
+            const total = firstDay + daysInMonth;
             const trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
             for (let i = 0; i < trailing; i++) {
                 const blank = document.createElement('div');
@@ -722,7 +802,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     const items = row.items ?? [];
                     const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
                     const isComplete = row.voucher_status === 'released';
-                    const rowClass   = isComplete ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50';
+                    const rowClass = isComplete ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50';
 
                     return `
 <tr data-id="${row.id}" class="border-t border-gray-100 transition-colors ${rowClass}">
@@ -783,13 +863,13 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 return;
             }
             ul.innerHTML = dates.map(({ date, voucher_approval, ready_to_release, released, none, total }) => {
-                const d     = new Date(date + 'T00:00:00');
+                const d = new Date(date + 'T00:00:00');
                 const label = d.toLocaleDateString('en-PH', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
-                const dots  = [
+                const dots = [
                     voucher_approval ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-yellow-400"></span>` : '',
-                    ready_to_release ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span>`   : '',
-                    released         ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400"></span>`  : '',
-                    none             ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-gray-300"></span>`   : '',
+                    ready_to_release ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span>` : '',
+                    released ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400"></span>` : '',
+                    none ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-gray-300"></span>` : '',
                 ].join('');
                 return `
 <li class="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-orange-50 cursor-pointer transition group"
@@ -844,33 +924,62 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             const items = row.items ?? [];
             const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
 
-            document.getElementById('v-control-no').textContent  = row.control_no;
-            document.getElementById('v-date').textContent        = row.date_requested;
-            document.getElementById('v-second-no').textContent   = row.voucher_second_no ?? '—';
-            document.getElementById('v-title').textContent       = row.voucher_title ?? '';
-            document.getElementById('v-payee').value             = row.voucher_payee ?? '';
-            document.getElementById('v-address').value          = row.voucher_address ?? '';
-            document.getElementById('v-purpose').value          = row.voucher_purpose ?? '';
-            document.getElementById('v-amount-words').value     = numberToWords(total);
-            document.getElementById('v-total').textContent      = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+            document.getElementById('v-control-no').textContent = row.control_no;
+            document.getElementById('v-date').textContent = row.date_requested;
+            document.getElementById('v-second-no').textContent = row.voucher_second_no ?? '—';
+            document.getElementById('v-title').textContent = row.voucher_title ?? '';
+            document.getElementById('v-payee').value = row.voucher_payee ?? '';
+            document.getElementById('v-address').value = row.voucher_address ?? '';
+            document.getElementById('v-purpose').value = row.voucher_purpose ?? '';
+            document.getElementById('v-amount-words').value = numberToWords(total);
+            document.getElementById('v-total').textContent = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
 
-            document.getElementById('v-prepared').textContent    = row.prepared_name ?? '';
+            // Prepared — may signature
+            const prepSig = row.prepared_signature ?? '';
+            document.getElementById('v-prepared').innerHTML = prepSig
+                ? `<span class="relative inline-block">
+        <img src="${prepSig}" 
+             style="position:absolute; bottom:-50px; left:80px; transform:translateX(-50%); 
+                    height:90px; max-width:160px; object-fit:contain; z-index:10; pointer-events:none;">
+        ${row.prepared_name ?? ''}
+       </span>`
+                : (row.prepared_name ?? '');
             document.getElementById('v-prepared-at').textContent = row.prepared_at
                 ? new Date(row.prepared_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-            document.getElementById('v-certified').textContent    = row.certified_name ?? '';
+
+            // Certified — may signature (galing sa certified_signature column)
+            const certSig = row.certified_signature ?? '';
+            document.getElementById('v-certified').innerHTML = certSig
+                ? `<span class="relative inline-block">
+        <img src="${certSig}" 
+             style="position:absolute; bottom:-50px; left:80px; transform:translateX(-50%); 
+                    height:90px; max-width:160px; object-fit:contain; z-index:10; pointer-events:none;">
+        ${row.certified_name ?? ''}
+       </span>`
+                : (row.certified_name ?? '');
             document.getElementById('v-certified-at').textContent = row.certified_name && row.certified_at
                 ? new Date(row.certified_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-            document.getElementById('v-approver').textContent     = row.approver_name ?? '';
-            document.getElementById('v-approved-at').textContent  = row.approver_name && row.approved_at
+
+            // Approver — may signature
+            const apprSig = row.approver_signature ?? '';
+            document.getElementById('v-approver').innerHTML = apprSig
+                ? `<span class="relative inline-block">
+        <img src="${apprSig}" 
+             style="position:absolute; bottom:-50px; left:80px; transform:translateX(-50%); 
+                    height:90px; max-width:160px; object-fit:contain; z-index:10; pointer-events:none;">
+        ${row.approver_name ?? ''}
+       </span>`
+                : (row.approver_name ?? '');
+            document.getElementById('v-approved-at').textContent = row.approver_name && row.approved_at
                 ? new Date(row.approved_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
 
             const receiverName = row.manual_receiver_name || row.receiver_name || '';
-            const receivedAt   = row.manual_receiver_date
+            const receivedAt = row.manual_receiver_date
                 ? new Date(row.manual_receiver_date).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
                 : row.received_at
                     ? new Date(row.received_at.replace(' ', 'T')).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
                     : '';
-            document.getElementById('v-receiver').textContent    = receiverName;
+            document.getElementById('v-receiver').textContent = receiverName;
             document.getElementById('v-received-at').textContent = receivedAt;
 
             // Items
@@ -899,7 +1008,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
             // Footer buttons
             const footerBtns = document.getElementById('v-footer-btns');
-            const closeBtn   = `<button onclick="closeVoucherModal()" class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all border border-gray-200">Close</button>`;
+            const closeBtn = `<button onclick="closeVoucherModal()" class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all border border-gray-200">Close</button>`;
 
             if (!row.budget_received_by) {
                 footerBtns.innerHTML = closeBtn + `
@@ -927,10 +1036,13 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 </div>`;
             } else {
                 footerBtns.innerHTML = closeBtn + `
-<span class="text-xs text-gray-400 px-4 py-2 font-medium">
+<span class="text-xs text-gray-400 px-4 py-2 font-medium flex items-center gap-2">
     ${row.voucher_status === 'released'
-        ? '<i class="fa-solid fa-check text-green-500 mr-1"></i>Released'
-        : '<i class="fa-solid fa-clock text-yellow-500 mr-1"></i>Waiting for approval'}
+                        ? `<button onclick="printVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})"
+               class="flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
+               <i class="fa-solid fa-print mr-1"></i>Print Voucher
+           </button>`
+                        : '<i class="fa-solid fa-clock text-yellow-500 mr-1"></i>Waiting for approval'}
 </span>`;
             }
 
@@ -953,7 +1065,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         }
 
         function submitWithTitle() {
-            const title    = document.getElementById('voucher-title-input').value.trim();
+            const title = document.getElementById('voucher-title-input').value.trim();
             const secondNo = document.getElementById('voucher-second-no-input').value.trim();
             if (!title) {
                 document.getElementById('voucher-title-input').classList.add('border-red-400');
@@ -962,7 +1074,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             document.getElementById('voucher-title-input').classList.remove('border-red-400');
             document.getElementById('voucher-title-modal').classList.add('hidden');
 
-            const payee   = document.getElementById('v-payee').value.trim();
+            const payee = document.getElementById('v-payee').value.trim();
             const address = document.getElementById('v-address').value.trim();
             const purpose = document.getElementById('v-purpose').value.trim();
 
@@ -1015,7 +1127,211 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 });
         }
 
+        function printVoucher(row) {
+            const items = row.items ?? [];
+            let total = 0, itemRows = '', filled = 0;
+            items.forEach(item => {
+                if (!item.description) return;
+                filled++;
+                const amt = parseFloat(item.amount || 0);
+                total += amt;
+                itemRows += `<tr>
+            <td style="text-align:center;border:1px solid #ccc;padding:5px;font-size:11px;">${filled}</td>
+            <td style="border:1px solid #ccc;padding:5px;font-size:11px;">${item.description}${item.purpose ? ' — ' + item.purpose : ''}</td>
+            <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;font-size:11px;">${amt.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+        </tr>`;
+            });
+            for (let e = filled; e < 5; e++) {
+                itemRows += `<tr>
+            <td style="text-align:center;border:1px solid #ccc;padding:5px;color:#ccc;font-size:11px;">${e + 1}</td>
+            <td style="border:1px solid #ccc;padding:5px;height:24px;"></td>
+            <td style="border:1px solid #ccc;padding:5px;"></td>
+        </tr>`;
+            }
+
+            const prepSig = row.prepared_signature ? `<img src="${row.prepared_signature}"   style="position:absolute;top:0;left:50%;transform:translateX(-50%);height:60px;max-width:140px;object-fit:contain;">` : '';
+            const certSig = row.certified_signature ? `<img src="${row.certified_signature}"  style="position:absolute;top:0;left:50%;transform:translateX(-50%);height:60px;max-width:140px;object-fit:contain;">` : '';
+            const apprSig = row.approver_signature ? `<img src="${row.approver_signature}"   style="position:absolute;top:0;left:50%;transform:translateX(-50%);height:60px;max-width:140px;object-fit:contain;">` : '';
+
+            const preparedAt = row.prepared_at ? new Date(row.prepared_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+            const certifiedAt = row.certified_at ? new Date(row.certified_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+            const approvedAt = row.approved_at ? new Date(row.approved_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+            const receiverName = row.manual_receiver_name || row.receiver_name || '';
+            const receivedAt = row.manual_receiver_date
+                ? new Date(row.manual_receiver_date).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
+                : row.received_at
+                    ? new Date(row.received_at.replace(' ', 'T')).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
+                    : '';
+
+            const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <title>Cash Voucher - ${row.voucher_control_no ?? row.control_no}</title>
+    <style>
+        *{box-sizing:border-box;}
+        body{font-family:Arial,sans-serif;font-size:11px;margin:0;padding:15px;}
+        table{width:100%;border-collapse:collapse;}
+        .orange-bg{background:#f97316;color:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+       .sig-cell{padding:12px 8px;width:25%;border-right:1px solid #e5e7eb;box-sizing:border-box;vertical-align:top;}
+.sig-inner{height:70px;display:flex;align-items:center;justify-content:center;}
+.sig-line{border-top:1px solid #999;margin-top:6px;padding-top:4px;text-align:center;}
+        @page{size:A4 portrait;margin:1cm;}
+    </style></head><body>
+    <div style="border:2px solid #f97316;border-radius:2px;">
+
+        <!-- Header -->
+        <div style="display:grid;grid-template-columns:1fr auto;border-bottom:2px solid #f97316;">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;">
+                <img src="<?= BASE_URL ?>/icon/logo.png" style="width:48px;height:48px;object-fit:contain;">
+                <div>
+                    <div style="font-weight:bold;font-size:12px;text-transform:uppercase;">Noblehome Construction Corporation</div>
+                    <div style="font-size:9px;color:#666;margin-top:2px;">1181 MC Premiere Bldg., EDSA Bldg., EDSA Balintawak Quezon City</div>
+                    <div style="font-size:9px;color:#666;">noblehomeconsl.ph@gmail.com | Tel. No. 02-88221295 | Cell. No. 0968-591-6544</div>
+                </div>
+            </div>
+            <div style="text-align:right;padding:10px 14px;border-left:1px solid #f97316;">
+                <div style="font-weight:bold;font-size:16px;text-transform:uppercase;letter-spacing:2px;">Cash Voucher</div>
+                <div style="font-size:9px;color:#888;text-transform:uppercase;margin-bottom:6px;">${row.voucher_title ?? ''}</div>
+                <table style="width:auto;margin-left:auto;">
+                    <tr>
+                        <td class="orange-bg" style="font-size:9px;font-weight:bold;padding:3px 10px;text-align:center;border-right:1px solid #ea6c00;">Voucher No.</td>
+                        <td class="orange-bg" style="font-size:9px;font-weight:bold;padding:3px 10px;text-align:center;">Date:</td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #d1d5db;font-family:monospace;font-size:10px;padding:4px 10px;text-align:center;background:#f9fafb;border-right:0;">${row.voucher_control_no ?? row.control_no}</td>
+                        <td style="border:1px solid #d1d5db;font-family:monospace;font-size:10px;padding:4px 10px;text-align:center;background:#f9fafb;">${row.date_requested}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Payee / Address -->
+        <div style="padding:10px 14px;border-bottom:1px solid #e5e7eb;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:6px;">
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <span style="font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#555;width:90px;">Payee</span>
+                    <span style="color:#aaa;margin-right:4px;">:</span>
+                    <span style="border-bottom:1px solid #aaa;flex:1;font-size:11px;">${row.voucher_payee ?? ''}</span>
+                </div>
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <span style="font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#555;white-space:nowrap;">Payment For</span>
+                    <span style="color:#aaa;margin:0 4px;">:</span>
+                    <span style="border-bottom:1px solid #aaa;flex:1;font-size:11px;">${row.voucher_purpose ?? ''}</span>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <span style="font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#555;width:90px;">Address</span>
+                    <span style="color:#aaa;margin-right:4px;">:</span>
+                    <span style="border-bottom:1px solid #aaa;flex:1;font-size:11px;">${row.voucher_address ?? ''}</span>
+                </div>
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <span style="font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#555;white-space:nowrap;">Amount in Words</span>
+                    <span style="color:#aaa;margin:0 4px;">:</span>
+                    <span style="border-bottom:1px solid #aaa;flex:1;font-size:11px;font-style:italic;">${(() => {
+                    // numberToWords inline
+                    const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+                    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+                    let amount = total; if (amount === 0) return 'Zero Pesos Only';
+                    function cvt(n) { let r = ''; if (n >= 100) { r += ones[Math.floor(n / 100)] + ' Hundred '; n %= 100; } if (n >= 20) { r += tens[Math.floor(n / 10)] + ' '; n %= 10; } if (n > 0) { r += ones[n] + ' '; } return r; }
+                    let i = Math.floor(amount), d = Math.round((amount - i) * 100), res = '';
+                    if (i >= 1000000) { res += cvt(Math.floor(i / 1000000)) + 'Million '; i %= 1000000; }
+                    if (i >= 1000) { res += cvt(Math.floor(i / 1000)) + 'Thousand '; i %= 1000; }
+                    if (i > 0) { res += cvt(i); } res += 'Pesos'; if (d > 0) res += ' and ' + d + '/100';
+                    return res.trim() + ' Only';
+                })()}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Particulars -->
+        <table style="border-collapse:collapse;">
+            <thead>
+                <tr class="orange-bg">
+                    <th style="width:40px;padding:6px;border:1px solid #ea6c00;text-align:center;font-size:10px;">No.</th>
+                    <th style="padding:6px;border:1px solid #ea6c00;text-align:center;font-size:10px;letter-spacing:3px;">P A R T I C U L A R S</th>
+                    <th style="width:130px;padding:6px;border:1px solid #ea6c00;text-align:center;font-size:10px;">Amount (P)</th>
+                </tr>
+            </thead>
+            <tbody>${itemRows}</tbody>
+            <tfoot>
+                <tr style="background:#fff7ed;border-top:2px solid #f97316;">
+                    <td colspan="3" style="border:1px solid #e5e7eb;padding:0;">
+                        <div style="display:flex;justify-content:space-between;padding:6px 12px;">
+                            <div style="font-size:9px;font-weight:bold;text-transform:uppercase;color:#888;">
+                                Payment Method No.: <span style="font-family:monospace;font-size:10px;color:#374151;">${row.voucher_second_no ?? '—'}</span>
+                            </div>
+                            <div style="font-weight:bold;font-size:11px;">
+                                Total Amount: <span style="font-family:monospace;">${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- Signature Headers -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-top:2px solid #f97316;">
+            <div class="orange-bg" style="font-size:9px;font-weight:bold;text-align:center;padding:5px;border-right:1px solid #ea6c00;">Prepared By</div>
+            <div class="orange-bg" style="font-size:9px;font-weight:bold;text-align:center;padding:5px;border-right:1px solid #ea6c00;">Certified Thru Correct</div>
+            <div class="orange-bg" style="font-size:9px;font-weight:bold;text-align:center;padding:5px;border-right:1px solid #ea6c00;">Approved By</div>
+            <div class="orange-bg" style="font-size:9px;font-weight:bold;text-align:center;padding:5px;">Received By</div>
+        </div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid #e5e7eb;">
+    <div style="padding:10px 8px;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;">
+        <div style="height:65px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:4px;">
+            ${row.prepared_signature ? `<img src="${row.prepared_signature}" style="max-height:65px;max-width:120px;object-fit:contain;">` : ''}
+        </div>
+        <div style="border-top:1px solid #999;padding-top:4px;text-align:center;">
+            <div style="font-size:10px;font-weight:600;">${row.prepared_name ?? ''}</div>
+            <div style="font-size:9px;color:#888;">${preparedAt}</div>
+        </div>
+    </div>
+    <div style="padding:10px 8px;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;">
+        <div style="height:65px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:4px;">
+            ${row.certified_signature ? `<img src="${row.certified_signature}" style="max-height:65px;max-width:120px;object-fit:contain;">` : ''}
+        </div>
+        <div style="border-top:1px solid #999;padding-top:4px;text-align:center;">
+            <div style="font-size:10px;font-weight:600;">${row.certified_name ?? ''}</div>
+            <div style="font-size:9px;color:#888;">${certifiedAt}</div>
+        </div>
+    </div>
+    <div style="padding:10px 8px;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;">
+        <div style="height:65px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:4px;">
+            ${row.approver_signature ? `<img src="${row.approver_signature}" style="max-height:65px;max-width:120px;object-fit:contain;">` : ''}
+        </div>
+        <div style="border-top:1px solid #999;padding-top:4px;text-align:center;">
+            <div style="font-size:10px;font-weight:600;">${row.approver_name ?? ''}</div>
+            <div style="font-size:9px;color:#888;">${approvedAt}</div>
+        </div>
+    </div>
+    <div style="padding:10px 8px;display:flex;flex-direction:column;">
+        <div style="height:65px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:4px;">
+            <!-- no signature for receiver -->
+        </div>
+        <div style="border-top:1px solid #999;padding-top:4px;text-align:center;">
+            <div style="font-size:10px;font-weight:600;">${receiverName}</div>
+            <div style="font-size:9px;color:#888;">${receivedAt}</div>
+        </div>
+    </div>
+</div>
+
+        <!-- Footer note -->
+        <div style="padding:8px 14px;">
+            <span style="font-size:9px;font-style:italic;color:#888;">Received the above stated amount in full settlement.</span>
+        </div>
+
+    </div>
+    <script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};<\/script>
+    </body></html>`;
+
+            const w = window.open('', '_blank');
+            w.document.write(html);
+            w.document.close();
+        }
+
         // ─── Fetch ───────────────────────────────────────────
+        let _highlightDone = false;
+
         function fetchVouchers() {
             fetch('<?= BASE_URL ?>/fetchreceived')
                 .then(res => res.json())
@@ -1033,13 +1349,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     }
                     document.getElementById('last-updated').textContent =
                         'Updated ' + new Date().toLocaleTimeString('en-PH');
+
+                    if (!_highlightDone) {
+                        _highlightDone = true;
+                        checkHighlight();
+                    }
                 });
         }
-
         // ─── Toast ───────────────────────────────────────────
         function showToast(message, type = 'success') {
             const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500' };
-            const toast  = document.createElement('div');
+            const toast = document.createElement('div');
             toast.className = `fixed bottom-6 right-6 z-[999] flex items-center gap-3 ${colors[type]} text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-lg transition-all duration-300 opacity-0 translate-y-2`;
             toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> ${message}`;
             document.body.appendChild(toast);
@@ -1052,19 +1372,12 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
         // ─── Highlight ───────────────────────────────────────
         function checkHighlight() {
-            const params      = new URLSearchParams(window.location.search);
+            const params = new URLSearchParams(window.location.search);
             const highlightId = params.get('highlight');
-            const jumpDate    = params.get('date');
             if (!highlightId) return;
 
-            if (jumpDate) {
-                setView('calendar');
-                const d = new Date(jumpDate + 'T00:00:00');
-                calYear = d.getFullYear(); calMonth = d.getMonth();
-                renderCalendar();
-                const rows = allData.filter(r => r.date_requested?.startsWith(jumpDate));
-                openDayPanel(jumpDate, rows);
-            }
+            // HUWAG mag-switch ng view — manatili sa list
+            // Tanggalin ang buong "if (jumpDate)" block
 
             const interval = setInterval(() => {
                 const row = document.querySelector(`tr[data-id="${highlightId}"]`);
@@ -1072,7 +1385,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     clearInterval(interval);
                     row.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     const firstTd = row.querySelector('td:first-child');
-                    const badge   = document.createElement('span');
+                    const badge = document.createElement('span');
                     badge.className = 'highlight-badge';
                     firstTd.prepend(badge);
                     setTimeout(() => badge.remove(), 5000);
@@ -1083,7 +1396,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
         // ─── Init ────────────────────────────────────────────
         fetchVouchers();
-        setTimeout(checkHighlight, 500);
         setInterval(fetchVouchers, 5000);
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') fetchVouchers();

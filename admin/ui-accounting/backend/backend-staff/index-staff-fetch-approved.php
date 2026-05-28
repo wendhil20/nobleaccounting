@@ -11,6 +11,14 @@ $result = $conn->query("SELECT b.*,
     n.name as sender_name, 
     n.email as sender_email,
     r.name as approver_name,
+    COALESCE(
+        b.approver_signature_path,
+        CASE WHEN b.status = 'approved' 
+             THEN (SELECT path FROM noblesignature WHERE user_id = b.approved_by AND is_active = 1 LIMIT 1)
+             ELSE NULL 
+        END
+    ) as approver_signature,
+    b.receiver_signature_path as receiver_signature,
     recv.name as receiver_name
     FROM noblebudgetrequest b
     LEFT JOIN nobleaccount n ON b.user_id = n.id

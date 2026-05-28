@@ -74,7 +74,8 @@ $adminRoutes = [
     'announcement', 
     'accountingmonitoring', 
     'accountinggraph',         
-    'fetch-budget-graph-data',         
+    'fetch-budget-graph-data',    
+    'accountingsignatured',     
 
     //staffaccounting
     'accountingstaff',                  
@@ -142,7 +143,14 @@ $adminRoutes = [
     'notificationstream',              
     'pingrequest',                     
     'fetchstaff',                      
-    'heartbeat',                       
+    'heartbeat', 
+    
+    //general
+    'signatureadd',
+    'uploadsignature',
+    'fetchsignatures',
+    'setactivesignature',
+    'deletesignature',
 
 
 ];
@@ -193,6 +201,7 @@ $routes = [
     'accountingmonitoring'             => 'admin/ui-accounting/index-accounting-monitoring.php',
     'accountinggraph'                  => 'admin/ui-accounting/index-accounting-graph.php',
     'fetch-budget-graph-data'          => 'admin/ui-accounting/backend/backend-accounting/fetch-budget-graph-data.php',
+    'accountingsignatured'             => 'admin/ui-accounting/index-accounting-signatured.php',
 
     //staffaccounting
     'accountingstaff'                  => 'admin/ui-accounting/index-staff-main.php',
@@ -269,6 +278,13 @@ $routes = [
     'fetchnotificationsuser'           => 'user/navigation/backend/backend-notification/fetchnotifications.php',
     'readnotificationuser'             => 'user/navigation/backend/backend-notification/readnotification.php',
     'notificationsuser'                => 'user/ui/index-notifications.php',
+
+    //general
+    'signatureadd'                     => 'admin/navigation/settings/signatureadd.php',
+    'uploadsignature'                  => 'admin/navigation/settings/backend/backend-signatured/upload-signature.php',
+    'fetchsignatures'                  => 'admin/navigation/settings/backend/backend-signatured/fetch-signatures.php',
+    'setactivesignature'               => 'admin/navigation/settings/backend/backend-signatured/set-active-signature.php',
+    'deletesignature'                  => 'admin/navigation/settings/backend/backend-signatured/delete-signature.php',
 ];
 
 

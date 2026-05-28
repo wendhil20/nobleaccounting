@@ -18,6 +18,13 @@ $result = $conn->query("SELECT b.*,
     n.email as sender_email,
     r.name as approver_name,
     r.role as approver_role,
+  COALESCE(
+    b.approver_signature_path,
+    CASE WHEN b.status = 'approved' 
+         THEN (SELECT path FROM noblesignature WHERE user_id = b.approved_by AND is_active = 1 LIMIT 1)
+         ELSE NULL 
+    END
+) as approver_signature,
     recv.name as receiver_name
     FROM noblebudgetrequest b
     LEFT JOIN nobleaccount n ON b.user_id = n.id
@@ -25,7 +32,6 @@ $result = $conn->query("SELECT b.*,
     LEFT JOIN noblerole recv ON b.received_by = recv.id
     WHERE b.sent_to = $user_id
     ORDER BY b.created_at DESC");
-
 $data = [];
 while ($row = $result->fetch_assoc()) {
     $row['items'] = json_decode($row['items'], true);

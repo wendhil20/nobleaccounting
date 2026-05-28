@@ -195,9 +195,9 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         </div>
                     </div>
 
-                    <!-- Meta: Requestor + Purpose -->
+                    <!-- Meta: Requestor + Purpose + Category -->
                     <div
-                        style="display:grid; grid-template-columns:1fr 1fr; border-top:1px solid #111; border-bottom:1px solid #111;">
+                        style="display:grid; grid-template-columns:1fr 1fr 1fr; border-top:1px solid #111; border-bottom:1px solid #111;">
                         <div
                             style="display:flex; align-items:center; gap:6px; padding:7px 14px; border-right:1px solid #111;">
                             <span
@@ -206,12 +206,20 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             <span style="color:#9ca3af; margin:0 4px;">:</span>
                             <span id="p-requestor" style="font-size:12px; color:#111;"></span>
                         </div>
-                        <div style="display:flex; align-items:center; gap:6px; padding:7px 14px;">
+                        <div
+                            style="display:flex; align-items:center; gap:6px; padding:7px 14px; border-right:1px solid #111;">
                             <span
                                 style="font-weight:700; font-size:9px; text-transform:uppercase; letter-spacing:1px; color:#374151; white-space:nowrap;">Purpose
                                 of Request</span>
                             <span style="color:#9ca3af; margin:0 4px;">:</span>
                             <span id="p-purpose" style="font-size:12px; color:#111;"></span>
+                        </div>
+                        <div
+                            style="display:flex; align-items:center; gap:6px; padding:7px 14px; border-right:1px solid #111;">
+                            <span
+                                style="font-weight:700; font-size:9px; text-transform:uppercase; letter-spacing:1px; color:#374151; white-space:nowrap;">Category</span>
+                            <span style="color:#9ca3af; margin:0 4px;">:</span>
+                            <span id="p-category" style="font-size:12px; color:#111;"></span>
                         </div>
                     </div>
 
@@ -244,9 +252,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     </table>
 
                     <!-- Signatures -->
-                    <div style="display:grid; grid-template-columns:1fr 1fr; border-top:2px solid #f97316;">
-                        <!-- Approved By header -->
-                    </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr;">
                         <div
                             style="background:#f97316; color:white; font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:1px; text-align:center; padding:5px; border-right:1px solid #ea6c00;">
@@ -257,19 +262,32 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     </div>
                     <div
                         style="display:grid; grid-template-columns:1fr 1fr; border:1px solid #e5e7eb; border-top:none;">
-                        <div style="padding:20px 16px; border-right:1px solid #e5e7eb; text-align:center;">
-                            <div style="font-size:9px; color:#6b7280; margin-bottom:4px;">Name: <span
-                                    id="p-approver-name" style="font-weight:700; font-size:12px; color:#111;"></span>
+                        <div
+                            style="padding:20px 16px; border-right:1px solid #e5e7eb; text-align:center; position:relative; min-height:100px;">
+                            <div style="position:relative; min-height:70px;">
+                                <img id="p-approver-sig" src="" alt=""
+                                    style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); height:90px; max-width:180px; object-fit:contain; display:none;">
                             </div>
-                            <div style="font-size:9px; color:#6b7280; margin-top:10px;">Date: <span id="p-approved-at"
+                            <div style="font-size:9px; color:#6b7280; margin-top:4px;">Name: <span id="p-approver-name"
+                                    style="font-weight:700; font-size:12px; color:#111;"></span></div>
+                            <div style="font-size:9px; color:#6b7280; margin-top:4px;">Date: <span id="p-approved-at"
                                     style="color:#374151;"></span></div>
+                            <div style="border-top:1px solid #9ca3af; margin-top:8px;"></div>
+                            <div
+                                style="font-size:9px; text-transform:uppercase; color:#9ca3af; margin-top:3px; letter-spacing:1px;">
+                                Head</div>
                         </div>
-                        <div style="padding:20px 16px; text-align:center;">
-                            <div style="font-size:9px; color:#6b7280; margin-bottom:4px;">Name: <span
-                                    id="p-receiver-name" style="font-weight:700; font-size:12px; color:#111;"></span>
+                        <div style="padding:20px 16px; text-align:center; position:relative; min-height:100px;">
+                            <div style="position:relative; min-height:70px;">
+                                <img id="p-receiver-sig" src="" alt=""
+                                    style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); height:90px; max-width:180px; object-fit:contain; display:none;">
                             </div>
-                            <div style="font-size:9px; color:#6b7280; margin-top:10px;">Date: <span id="p-received-at"
+                            <div style="font-size:9px; color:#6b7280; margin-top:4px;">Name: <span id="p-receiver-name"
+                                    style="font-weight:700; font-size:12px; color:#111;"></span></div>
+                            <div style="font-size:9px; color:#6b7280; margin-top:4px;">Date: <span id="p-received-at"
                                     style="color:#374151;"></span></div>
+                            <div style="border-top:1px solid #9ca3af; margin-top:8px;"></div>
+                            <div style="font-size:9px; color:#9ca3af; margin-top:3px;">&nbsp;</div>
                         </div>
                     </div>
 
@@ -382,6 +400,27 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             document.getElementById('p-date').textContent = row.date_requested;
             document.getElementById('p-requestor').textContent = row.requestor_name;
             document.getElementById('p-purpose').textContent = row.purpose;
+            document.getElementById('p-category').textContent = row.request_category
+                ? row.request_category.toUpperCase()
+                : '—';
+
+            const approverSig = document.getElementById('p-approver-sig');
+            if (row.approver_signature) {
+                approverSig.src = `<?= BASE_URL ?>/${row.approver_signature}`;
+                approverSig.style.display = 'block';
+            } else {
+                approverSig.style.display = 'none';
+            }
+
+            const receiverSig = document.getElementById('p-receiver-sig');
+            if (row.receiver_signature) {
+                receiverSig.src = `<?= BASE_URL ?>/${row.receiver_signature}`;
+                receiverSig.style.display = 'block';
+            } else {
+                receiverSig.style.display = 'none';
+            }
+            console.log('approver:', row.approver_name, 'receiver:', row.receiver_name);
+
             document.getElementById('p-items').innerHTML = rows;
             document.getElementById('p-total').textContent = '₱ ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
             document.getElementById('p-approver-name').textContent = row.approver_name ?? '';

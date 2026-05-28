@@ -17,11 +17,16 @@ if (!$id || !$action || !$user_id) {
     exit;
 }
 
+// Sa approved block, kunin ang active signature
 if ($action === 'approved') {
+    $sigRow = $conn->query("SELECT path FROM noblesignature WHERE user_id = $user_id AND is_active = 1 LIMIT 1");
+    $sigPath = ($sigRow && $sigRow->num_rows) ? $sigRow->fetch_assoc()['path'] : null;
+
     $stmt = $conn->prepare("UPDATE noblebudgetrequest 
-        SET status = ?, approved_by = ?, approved_at = NOW(), reject_comment = NULL
+        SET status = ?, approved_by = ?, approved_at = NOW(), reject_comment = NULL, approver_signature_path = ?
         WHERE id = ? AND sent_to = ?");
-    $stmt->bind_param("siii", $action, $user_id, $id, $user_id);
+    // "s" ang type para sa sigPath, hindi "i"
+    $stmt->bind_param("sisii", $action, $user_id, $sigPath, $id, $user_id);
 } else {
     $stmt = $conn->prepare("UPDATE noblebudgetrequest 
         SET status = ?, reject_comment = ?, approved_by = NULL, approved_at = NULL
@@ -45,7 +50,7 @@ if ($success && $affected > 0) {
         ? "Request $control_no has been approved."
         : "Request $control_no has been rejected. Reason: $comment";
 
- // ← FIXED: $requestor_id na, hindi $requestor_account_id
+    // ← FIXED: $requestor_id na, hindi $requestor_account_id
     if ($requestor_id) {
         $stmtUserNotif = $conn->prepare("
             INSERT INTO nobleusernotification (user_id, request_id, message, is_read, created_at, sender_id)

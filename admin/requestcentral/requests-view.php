@@ -734,11 +734,28 @@
         const receiverName = row.receiver_name ?? '';
         const receivedAt = row.received_at ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + new Date(row.received_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
 
+        const approverSig = (row.status === 'approved') ? (row.approver_signature ?? '') : '';
         document.getElementById('view-approved-by').innerHTML = approverName
-            ? `<p class="text-sm font-semibold text-gray-800">${approverName}</p><p class="text-[10px] text-gray-400">${approvedAt}</p>` : '';
+            ? `<div class="relative inline-block">
+        ${approverSig
+                ? `<img src="<?= BASE_URL ?>/${approverSig}" 
+                   alt="Signature" 
+                   style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); height:80px; max-width:220px; z-index:10; pointer-events:none;">`
+                : ''}
+        <p class="text-sm font-semibold text-gray-800">${approverName}</p>
+       <p class="text-[10px] text-gray-400">${approvedAt}</p>`
+            : '';
+        const receiverSig = row.receiver_signature_path ?? '';
         document.getElementById('view-received-by').innerHTML = receiverName
-            ? `<p class="text-sm font-semibold text-gray-800">${receiverName}</p><p class="text-[10px] text-gray-400">${receivedAt}</p>` : '';
-
+            ? `<div class="relative inline-block">
+        ${receiverSig
+                ? `<img src="<?= BASE_URL ?>/${receiverSig}" 
+               alt="Signature" 
+               style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); height:80px; max-width:220px; z-index:10; pointer-events:none;">`
+                : ''}
+        <p class="text-sm font-semibold text-gray-800">${receiverName}</p>
+        <p class="text-[10px] text-gray-400">${receivedAt}</p>
+       </div>` : '';
         const downloadBtn = document.getElementById('view-download-btn');
         const pdfBtn = (row.status === 'approved' && row.receiver_name)
             ? `<button onclick="downloadPDF(${row.id})" class="flex items-center gap-1.5 bg-gray-800 hover:bg-gray-900 text-white text-[11px] font-semibold px-3 py-1.5 rounded-md transition-all whitespace-nowrap">
@@ -800,6 +817,8 @@
                 const approvedAt = row.approved_at ? new Date(row.approved_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + new Date(row.approved_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
                 const receiverName = row.receiver_name ?? '';
                 const receivedAt = row.received_at ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + new Date(row.received_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
+                const approverSigPath = (row.status === 'approved' && row.approver_signature) ? `<?= BASE_URL ?>/${row.approver_signature}` : '';
+                const receiverSigPath = row.receiver_signature_path ? `<?= BASE_URL ?>/${row.receiver_signature_path}` : '';
                 const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Budget Request - ${row.control_no}</title>
                 <style>*{box-sizing:border-box;}body{font-family:Arial,sans-serif;font-size:11px;margin:0;padding:15px;}table{width:100%;border-collapse:collapse;}th{background:#f97316;color:white;padding:6px 8px;font-size:10px;text-transform:uppercase;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.label{font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#555;}.control-box{background:#f97316;color:white;font-weight:bold;text-align:center;padding:4px 8px;font-size:9px;text-transform:uppercase;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.sig-line{border-top:1px solid #999;margin-top:40px;}@page{size:A4 landscape;margin:1cm;}</style></head><body>
                 <div style="border:1px solid #111;">
@@ -814,8 +833,9 @@
                 <td style="width:50%;padding:0;vertical-align:top;"><div class="control-box">Date</div><div style="text-align:center;font-family:monospace;font-size:10px;padding:6px;background:#f9fafb;">${row.date_requested}</div></td>
                 </tr></table></td></tr></table>
                 <table style="border-bottom:1px solid #111;"><tr>
-                <td style="width:50%;border-right:1px solid #111;padding:8px;"><span class="label">Requestor Name:</span><span style="font-size:12px;margin-left:5px;">${row.requestor_name}</span></td>
-                <td style="width:50%;padding:8px;"><span class="label">Purpose of Request:</span><span style="font-size:12px;margin-left:5px;">${row.purpose}</span></td></tr></table>
+                <td style="width:34%;border-right:1px solid #111;padding:8px;"><span class="label">Requestor Name:</span><span style="font-size:12px;margin-left:5px;">${row.requestor_name}</span></td>
+                <td style="width:33%;border-right:1px solid #111;padding:8px;"><span class="label">Purpose of Request:</span><span style="font-size:12px;margin-left:5px;">${row.purpose}</span></td>
+                <td style="width:33%;padding:8px;"><span class="label">Category:</span><span style="font-size:12px;margin-left:5px;">${row.request_category ? row.request_category.toUpperCase() : '—'}</span></td>
                 <table style="border-collapse:collapse;width:100%;border-bottom:1px solid #111;"><thead><tr>
                 <th style="width:5%;border:1px solid #ea6c00;">No.</th><th style="border:1px solid #ea6c00;text-align:left;">Items / Description</th>
                 <th style="border:1px solid #ea6c00;text-align:left;">Purpose</th><th style="width:8%;border:1px solid #ea6c00;">Qty</th>
@@ -827,10 +847,17 @@
                 <td style="border:1px solid #ccc;"></td></tr></tfoot></table>
                 <table style="width:100%;"><tr>
                 <td style="width:50%;border-right:1px solid #111;padding:15px 20px;vertical-align:bottom;"><span class="label">Approved By:</span>
-                <div style="margin-top:20px;text-align:center;"><strong style="font-size:12px;">${approverName}</strong><br><span style="font-size:9px;color:#888;">${approvedAt}</span></div>
+                <div style="margin-top:20px;text-align:center;position:relative;">${approverSigPath ? `<img src="${approverSigPath}" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:60px;max-width:180px;object-fit:contain;">` : ''}<strong style="font-size:12px;">${approverName}</strong><br><span style="font-size:9px;color:#888;">${approvedAt}</span></div>
                 <div class="sig-line"></div><div style="text-align:center;font-size:9px;text-transform:uppercase;color:#888;margin-top:3px;">Head</div></td>
-                <td style="width:50%;padding:15px 20px;vertical-align:bottom;"><span class="label">Received By:</span>
-                <div style="margin-top:20px;text-align:center;"><strong style="font-size:12px;">${receiverName}</strong><br><span style="font-size:9px;color:#888;">${receivedAt}</span></div>
+               <td style="width:50%;padding:15px 20px;vertical-align:bottom;">
+                <span class="label">Received By:</span>
+                <div style="margin-top:20px;text-align:center;position:relative;">
+                ${receiverSigPath ? `<img src="${receiverSigPath}" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:60px;max-width:180px;object-fit:contain;">` : ''}
+                <strong style="font-size:12px;">${receiverName}</strong><br>
+                <span style="font-size:9px;color:#888;">${receivedAt}</span>
+                </div>
+                <div class="sig-line"></div>
+                </td>
                 <div class="sig-line"></div><div style="text-align:center;font-size:9px;color:#888;margin-top:3px;">&nbsp;</div></td></tr></table>
                 </div><script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};<\/script></body></html>`;
                 const w = window.open('', '_blank');
@@ -970,29 +997,29 @@
     })();
 
     function showCatTooltip(e, label, reference) {
-    const tip = document.getElementById('cat-tooltip');
-    document.getElementById('cat-tooltip-label').textContent = label;
-    document.getElementById('cat-tooltip-ref').textContent = reference;
-    
-    // Show but invisible first para ma-measure ang actual size
-    tip.style.visibility = 'hidden';
-    tip.classList.remove('hidden');
-    
-    const rect = e.currentTarget.getBoundingClientRect();
-    const tipW = tip.offsetWidth;   // actual width ngayon
-    const tipH = tip.offsetHeight;  // actual height din
-    
-    let left = rect.left + (rect.width / 2) - (tipW / 2);
-    left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
-    
-    // Kung masyado malapit sa taas, ipakita sa baba
-    let top = rect.top - tipH - 8;
-    if (top < 8) top = rect.bottom + 8;
-    
-    tip.style.left = left + 'px';
-    tip.style.top = top + 'px';
-    tip.style.visibility = 'visible';
-}
+        const tip = document.getElementById('cat-tooltip');
+        document.getElementById('cat-tooltip-label').textContent = label;
+        document.getElementById('cat-tooltip-ref').textContent = reference;
+
+        // Show but invisible first para ma-measure ang actual size
+        tip.style.visibility = 'hidden';
+        tip.classList.remove('hidden');
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        const tipW = tip.offsetWidth;   // actual width ngayon
+        const tipH = tip.offsetHeight;  // actual height din
+
+        let left = rect.left + (rect.width / 2) - (tipW / 2);
+        left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
+
+        // Kung masyado malapit sa taas, ipakita sa baba
+        let top = rect.top - tipH - 8;
+        if (top < 8) top = rect.bottom + 8;
+
+        tip.style.left = left + 'px';
+        tip.style.top = top + 'px';
+        tip.style.visibility = 'visible';
+    }
 
     function hideCatTooltip() {
         document.getElementById('cat-tooltip').classList.add('hidden');

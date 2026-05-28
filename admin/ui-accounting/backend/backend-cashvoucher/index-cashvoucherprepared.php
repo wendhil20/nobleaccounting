@@ -1,4 +1,5 @@
 <?php
+// index-cashvoucherprepared.php
 
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
@@ -13,8 +14,12 @@ if (!$voucher_id || !$user_id) {
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE noblevoucher SET prepared_by = ?, prepared_at = NOW() WHERE id = ?");
-$stmt->bind_param("ii", $user_id, $voucher_id);
+// Bago ang UPDATE, kunin muna ang signature
+$sigRow = $conn->query("SELECT path FROM noblesignature WHERE user_id = $user_id AND is_active = 1 LIMIT 1");
+$sigPath = ($sigRow && $sigRow->num_rows) ? $sigRow->fetch_assoc()['path'] : null;
+
+$stmt = $conn->prepare("UPDATE noblevoucher SET prepared_by = ?, prepared_at = NOW(), prepared_signature = ? WHERE id = ?");
+$stmt->bind_param("isi", $user_id, $sigPath, $voucher_id);
 $success = $stmt->execute();
 
 if ($success && $stmt->affected_rows > 0) {
@@ -31,18 +36,18 @@ if ($success && $stmt->affected_rows > 0) {
     AND position = 'head'
 ");
 
-   while ($c = $custodians->fetch_assoc()) {
-    $cid = intval($c['id']);
-    
-    $link = '/cashvoucherdashboard'; // ← page ng head
-    
-    $stmt2 = $conn->prepare("
+    while ($c = $custodians->fetch_assoc()) {
+        $cid = intval($c['id']);
+
+        $link = '/cashvoucherdashboard'; // ← page ng head
+
+        $stmt2 = $conn->prepare("
         INSERT INTO noblenotification (user_id, request_id, message, is_read, created_at, sender_id, link)
         VALUES (?, ?, ?, 0, NOW(), ?, ?)
     ");
-    $stmt2->bind_param("iisis", $cid, $request_id, $message, $user_id, $link);
-    $stmt2->execute();
-}
+        $stmt2->bind_param("iisis", $cid, $request_id, $message, $user_id, $link);
+        $stmt2->execute();
+    }
 
 }
 

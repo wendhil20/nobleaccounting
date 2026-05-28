@@ -21,10 +21,14 @@ if (!$check || !$check['prepared_by']) {
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE noblevoucher SET approved_by = ?, approved_at = NOW(), status = 'ready_to_release' WHERE id = ?");
-$stmt->bind_param("ii", $user_id, $voucher_id);
-$success = $stmt->execute();
+// Bago ang check ng prepared_by, kunin muna ang signature
+$sigRow = $conn->query("SELECT path FROM noblesignature WHERE user_id = $user_id AND is_active = 1 LIMIT 1");
+$sigPath = ($sigRow && $sigRow->num_rows) ? $sigRow->fetch_assoc()['path'] : null;
 
+// Tapos palitan ang UPDATE:
+$stmt = $conn->prepare("UPDATE noblevoucher SET approved_by = ?, approved_at = NOW(), approved_signature = ?, status = 'ready_to_release' WHERE id = ?");
+$stmt->bind_param("isi", $user_id, $sigPath, $voucher_id);
+$success = $stmt->execute();
 
 
 if ($success && $stmt->affected_rows > 0) {

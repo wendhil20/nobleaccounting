@@ -179,7 +179,11 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                 <i class="fa-solid fa-file-circle-check w-4 text-center text-sm"></i>
                 <span>Monitoring Project</span>
             </a>
+
+           
         <?php endif; ?>
+
+
 
         <?php if ($role === ROLE_ACCOUNTING && in_array($position, [POSITION_HEAD, POSITION_CUSTODIAN, POSITION_CUSTOASSISTANT])): ?>
             <a href="<?= BASE_URL ?>/cashvoucherdashboard"
@@ -226,6 +230,18 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
             <i class="fa-solid fa-chevron-right text-[9px] opacity-40 transition-transform duration-200"
                 id="sidebar-notif-chevron"></i>
         </button>
+
+        <div class="pt-4">
+            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">Settings</p>
+        </div>
+
+        <?php if ($role === ROLE_ACCOUNTING && in_array($position, [POSITION_HEAD, POSITION_CUSTODIAN, POSITION_CUSTOASSISTANT, POSITION_STAFF])): ?>
+         <a href="<?= BASE_URL ?>/accountingsignatured"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingsignatured') ?>">
+                <i class="fa-solid fa-signature w-4 text-center text-sm"></i>
+                <span>Signatured Request</span>
+            </a>
+        <?php endif; ?>
 
         <!-- End For Notification -->
 

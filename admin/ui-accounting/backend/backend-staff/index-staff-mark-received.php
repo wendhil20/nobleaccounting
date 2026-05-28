@@ -15,10 +15,14 @@ if (!$id || !$user_id) {
     exit;
 }
 
+// Kunin ang active signature ng receiver
+$sigRow = $conn->query("SELECT path FROM noblesignature WHERE user_id = $user_id AND is_active = 1 LIMIT 1");
+$sigPath = ($sigRow && $sigRow->num_rows) ? $sigRow->fetch_assoc()['path'] : null;
+
 $stmt = $conn->prepare("UPDATE noblebudgetrequest 
-    SET received_by = ?, received_at = NOW()
+    SET received_by = ?, received_at = NOW(), receiver_signature_path = ?
     WHERE id = ? AND status = 'approved'");
-$stmt->bind_param("ii", $user_id, $id);
+$stmt->bind_param("isi", $user_id, $sigPath, $id);
 $success = $stmt->execute();
 $affected = $stmt->affected_rows;
 

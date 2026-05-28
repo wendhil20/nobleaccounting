@@ -159,10 +159,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <div class="flex items-center justify-between px-4 py-2 border-b-2 border-gray-800 gap-4">
                         <h2 class="font-bold text-sm uppercase tracking-widest whitespace-nowrap">Budget Request Form
                         </h2>
-                        <button onclick="closeViewModal()"
-                            class="text-gray-400 hover:text-red-500 transition-colors p-1">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <div class="flex items-center gap-2">
+
+                            <button onclick="printRequest(currentViewRow)"
+                                class="flex items-center gap-1.5 text-[10px] font-semibold text-white bg-orange-500 hover:bg-orange-600 px-3 py-1.5 rounded-lg transition">
+                                <i class="fa-solid fa-print"></i> Print
+                            </button>
+                            <button onclick="closeViewModal()"
+                                class="text-gray-400 hover:text-red-500 transition-colors p-1">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="flex flex-row flex-1 text-[10px]">
                         <div class="flex flex-col border-r-2 border-gray-800 flex-1">
@@ -182,19 +189,25 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </div>
             </div>
 
-            <!-- Requestor + Purpose -->
-            <div class="grid grid-cols-2 border-b-2 border-gray-800">
+
+            <!-- Requestor + Purpose + Category -->
+            <div class="grid grid-cols-3 border-b-2 border-gray-800">
                 <div class="flex items-center gap-2 px-6 py-3 border-r-2 border-gray-800">
                     <span
                         class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Requestor
                         Name:</span>
                     <p id="view-requestor" class="text-sm text-gray-800"></p>
                 </div>
-                <div class="flex items-center gap-2 px-6 py-3">
+                <div class="flex items-center gap-2 px-6 py-3 border-r-2 border-gray-800">
                     <span
                         class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Purpose
                         of Request:</span>
                     <p id="view-purpose" class="text-sm text-gray-800"></p>
+                </div>
+                <div class="flex items-center gap-2 px-6 py-3">
+                    <span
+                        class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Category:</span>
+                    <p id="view-category" class="text-sm text-gray-800"></p>
                 </div>
             </div>
 
@@ -583,12 +596,16 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 });
         }
 
+        let currentViewRow = null;
+
         // ─── View Modal ──────────────────────────────────────
         function viewRequest(row) {
+            currentViewRow = row;
             document.getElementById('view-control-no').textContent = row.control_no;
             document.getElementById('view-date').textContent = row.date_requested;
             document.getElementById('view-requestor').textContent = row.requestor_name;
             document.getElementById('view-purpose').textContent = row.purpose;
+            document.getElementById('view-category').innerHTML = categoryBadge(row.request_category, row.request_reference);
 
             const items = row.items ?? [];
             let total = 0, rowNum = 0;
@@ -626,24 +643,41 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 ? new Date(row.approved_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })
                 + ' ' + new Date(row.approved_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
                 : '';
+            const approverSig = row.approver_signature ?? '';
             document.getElementById('view-approved-by').innerHTML = approverName
-                ? `<p class="text-sm font-semibold text-gray-800">${approverName}</p><p class="text-[10px] text-gray-400">${approvedAt}</p>` : '';
+                ? `<div class="relative inline-block">
+        ${approverSig
+                    ? `<img src="<?= BASE_URL ?>/${approverSig}" 
+                   alt="Signature" 
+                   style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); height:80px; max-width:220px; z-index:10; pointer-events:none;">`
+                    : ''}
+        <p class="text-sm font-semibold text-gray-800">${approverName}</p>
+        <p class="text-[10px] text-gray-400">${approvedAt}</p>
+       </div>`
+                : '';
 
             const receiverName = row.receiver_name ?? '';
             const receivedAt = row.received_at
                 ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })
                 + ' ' + new Date(row.received_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
                 : '';
+            const receiverSig = row.receiver_signature ?? '';
             document.getElementById('view-received-by').innerHTML = receiverName
-                ? `<p class="text-sm font-semibold text-gray-800">${receiverName}</p><p class="text-[10px] text-gray-400">${receivedAt}</p>` : '';
-
+                ? `<div class="relative inline-block">
+        ${receiverSig
+                    ? `<img src="<?= BASE_URL ?>/${receiverSig}" 
+                   alt="Signature" 
+                   style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); height:80px; max-width:220px; z-index:10; pointer-events:none;">`
+                    : ''}
+        <p class="text-sm font-semibold text-gray-800">${receiverName}</p>
+        <p class="text-[10px] text-gray-400">${receivedAt}</p>
+       </div>`
+                : '';
             // Attachments
             let attachments = [];
             try {
                 const raw = row.attachments;
-                console.log('attachments raw:', raw); // ← dagdag ito pansamantala
                 attachments = Array.isArray(raw) ? raw : (typeof raw === 'string' && raw.trim() ? JSON.parse(raw) : []);
-                console.log('attachments parsed:', attachments); // ← at ito
             } catch (e) { attachments = []; }
 
             const attachSection = document.getElementById('view-attachments');
@@ -693,6 +727,89 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         }
 
         function closeViewModal() { document.getElementById('view-modal').classList.add('hidden'); }
+
+        // ─── Print ───────────────────────────────────────────
+        function printRequest(row) {
+            if (!row) return;
+            const items = row.items ?? [];
+            let total = 0, itemRows = '', filledCount = 0;
+            items.forEach(item => {
+                if (!item.description) return;
+                filledCount++;
+                const amount = parseFloat(item.amount || 0);
+                total += amount;
+                itemRows += `<tr>
+            <td style="text-align:center;border:1px solid #ccc;padding:5px;">${filledCount}</td>
+            <td style="border:1px solid #ccc;padding:5px;">${item.description || ''}</td>
+            <td style="border:1px solid #ccc;padding:5px;">${item.purpose || ''}</td>
+            <td style="text-align:center;border:1px solid #ccc;padding:5px;">${item.quantity || 0}</td>
+            <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">${parseFloat(item.unit_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+            <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">₱ ${amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+            <td style="border:1px solid #ccc;padding:5px;">${item.notes || ''}</td></tr>`;
+            });
+            for (let e = filledCount; e < 5; e++) {
+                itemRows += `<tr>
+            <td style="text-align:center;border:1px solid #ccc;padding:5px;color:#ccc;">${e + 1}</td>
+            <td style="border:1px solid #ccc;padding:5px;height:22px;"></td>
+            <td style="border:1px solid #ccc;padding:5px;"></td>
+            <td style="text-align:center;border:1px solid #ccc;padding:5px;">0</td>
+            <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">0.00</td>
+            <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">₱ 0.00</td>
+            <td style="border:1px solid #ccc;padding:5px;"></td></tr>`;
+            }
+            const approverName = row.approver_name ?? '';
+            const approvedAt = row.approved_at
+                ? new Date(row.approved_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })
+                + ' ' + new Date(row.approved_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
+                : '';
+            const receiverName = row.receiver_name ?? '';
+            const receivedAt = row.received_at
+                ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })
+                + ' ' + new Date(row.received_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
+                : '';
+            const approverSigPath = row.approver_signature ? `<?= BASE_URL ?>/${row.approver_signature}` : '';
+            const receiverSigPath = row.receiver_signature ? `<?= BASE_URL ?>/${row.receiver_signature}` : '';
+
+            const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Budget Request - ${row.control_no}</title>
+    <style>*{box-sizing:border-box;}body{font-family:Arial,sans-serif;font-size:11px;margin:0;padding:15px;}table{width:100%;border-collapse:collapse;}th{background:#f97316;color:white;padding:6px 8px;font-size:10px;text-transform:uppercase;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.label{font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#555;}.control-box{background:#f97316;color:white;font-weight:bold;text-align:center;padding:4px 8px;font-size:9px;text-transform:uppercase;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.sig-line{border-top:1px solid #999;margin-top:40px;}@page{size:A4 landscape;margin:1cm;}</style></head><body>
+    <div style="border:1px solid #111;">
+    <table style="border-bottom:1px solid #111;"><tr>
+    <td style="width:60%;border-right:1px solid #111;padding:10px;"><table><tr>
+    <td style="width:60px;"><img src="<?= BASE_URL ?>/icon/logo.png" style="width:50px;height:50px;object-fit:contain;"></td>
+    <td style="border-left:1px solid #aaa;padding-left:10px;"><strong style="font-size:11px;text-transform:uppercase;">Noblehome Construction Corporation</strong><br>
+    <span style="font-size:9px;color:#666;">1181 MC Premiere Bldg., EDSA Balintawak Quezon City<br>noblehomeconsl.ph@gmail.com | Tel. No. 02-88221295 | Cell. No. 0968-591-6544</span></td></tr></table></td>
+    <td style="width:40%;padding:0;vertical-align:top;"><div style="font-weight:bold;font-size:12px;text-transform:uppercase;letter-spacing:1px;padding:8px;border-bottom:1px solid #111;">Budget Request Form</div>
+    <table style="width:100%;"><tr>
+    <td style="width:50%;border-right:1px solid #111;padding:0;vertical-align:top;"><div class="control-box">Control No.</div><div style="text-align:center;font-family:monospace;font-size:10px;padding:6px;background:#f9fafb;">${row.control_no}</div></td>
+    <td style="width:50%;padding:0;vertical-align:top;"><div class="control-box">Date</div><div style="text-align:center;font-family:monospace;font-size:10px;padding:6px;background:#f9fafb;">${row.date_requested}</div></td>
+    </tr></table></td></tr></table>
+    <table style="border-bottom:1px solid #111;"><tr>
+    <td style="width:34%;border-right:1px solid #111;padding:8px;"><span class="label">Requestor Name:</span><span style="font-size:12px;margin-left:5px;">${row.requestor_name}</span></td>
+    <td style="width:33%;border-right:1px solid #111;padding:8px;"><span class="label">Purpose of Request:</span><span style="font-size:12px;margin-left:5px;">${row.purpose}</span></td>
+    <td style="width:33%;padding:8px;"><span class="label">Category:</span><span style="font-size:12px;margin-left:5px;">${row.request_category ? row.request_category.toUpperCase() : '—'}</span></td>
+    </tr></table>
+    <table style="border-collapse:collapse;width:100%;border-bottom:1px solid #111;"><thead><tr>
+    <th style="width:5%;border:1px solid #ea6c00;">No.</th><th style="border:1px solid #ea6c00;text-align:left;">Items / Description</th>
+    <th style="border:1px solid #ea6c00;text-align:left;">Purpose</th><th style="width:8%;border:1px solid #ea6c00;">Qty</th>
+    <th style="width:13%;border:1px solid #ea6c00;">Unit Price</th><th style="width:13%;border:1px solid #ea6c00;">Amount</th>
+    <th style="border:1px solid #ea6c00;text-align:left;">Notes</th></tr></thead>
+    <tbody>${itemRows}</tbody>
+    <tfoot><tr><td colspan="5" style="text-align:right;font-weight:bold;padding:6px;border:1px solid #ccc;font-size:10px;text-transform:uppercase;">Total:</td>
+    <td style="text-align:right;font-weight:bold;font-family:monospace;border:1px solid #ccc;padding:6px;">₱ ${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+    <td style="border:1px solid #ccc;"></td></tr></tfoot></table>
+    <table style="width:100%;"><tr>
+    <td style="width:50%;border-right:1px solid #111;padding:15px 20px;vertical-align:bottom;"><span class="label">Approved By:</span>
+    <div style="margin-top:20px;text-align:center;position:relative;">${approverSigPath ? `<img src="${approverSigPath}" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:60px;max-width:180px;object-fit:contain;">` : ''}<strong style="font-size:12px;">${approverName}</strong><br><span style="font-size:9px;color:#888;">${approvedAt}</span></div>
+    <div class="sig-line"></div><div style="text-align:center;font-size:9px;text-transform:uppercase;color:#888;margin-top:3px;">Head</div></td>
+    <td style="width:50%;padding:15px 20px;vertical-align:bottom;"><span class="label">Received By:</span>
+    <div style="margin-top:20px;text-align:center;position:relative;">${receiverSigPath ? `<img src="${receiverSigPath}" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:60px;max-width:180px;object-fit:contain;">` : ''}<strong style="font-size:12px;">${receiverName}</strong><br><span style="font-size:9px;color:#888;">${receivedAt}</span></div>
+    <div class="sig-line"></div><div style="text-align:center;font-size:9px;color:#888;margin-top:3px;">&nbsp;</div></td></tr></table>
+    </div><script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};<\/script></body></html>`;
+
+            const w = window.open('', '_blank');
+            w.document.write(html);
+            w.document.close();
+        }
 
         // ─── Lightbox ────────────────────────────────────────
         function openLightbox(src, e) {

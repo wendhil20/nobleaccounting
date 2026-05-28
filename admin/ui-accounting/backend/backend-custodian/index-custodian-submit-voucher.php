@@ -30,10 +30,19 @@ if ($check->num_rows > 0) {
     exit;
 }
 
+// Before the INSERT, fetch the custodian's active signature
+$sigRow = $conn->query("SELECT path FROM noblesignature WHERE user_id = $user_id AND is_active = 1 LIMIT 1");
+$sigPath = ($sigRow && $sigRow->num_rows) ? $sigRow->fetch_assoc()['path'] : null;
+
+// Then add certified_signature to your INSERT:
 $stmt = $conn->prepare("INSERT INTO noblevoucher 
-    (request_id, control_no, payee, address, purpose, title, second_no, certified_by, certified_at, created_at, status) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), 'voucher_approval')");
-$stmt->bind_param("issssssi", $request_id, $row['control_no'], $payee, $address, $purpose, $title, $second_no, $user_id);
+    (request_id, control_no, payee, address, purpose, title, second_no, 
+     certified_by, certified_at, certified_signature, created_at, status) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, NOW(), 'voucher_approval')");
+$stmt->bind_param("issssssis", 
+    $request_id, $row['control_no'], $payee, $address, $purpose, 
+    $title, $second_no, $user_id, $sigPath
+);
 $success = $stmt->execute();
 
 // Notify custoassistant

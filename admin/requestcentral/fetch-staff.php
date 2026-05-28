@@ -7,9 +7,11 @@ include ROOT_PATH . '/admin/authentication/index-authguard.php';
 header('Content-Type: application/json');
 
 $result = $conn->query("
-    SELECT r.id, n.name, n.email 
+    SELECT r.id, n.name, n.email,
+    sig.path as signature
     FROM noblerole r
     LEFT JOIN nobleaccount n ON r.account_id = n.id
+    LEFT JOIN noblesignature sig ON sig.user_id = r.account_id AND sig.is_active = 1
     WHERE r.role = 'ACCOUNTING AND FINANCE DEPARTMENT'
     AND r.position = 'staff'
 ");
