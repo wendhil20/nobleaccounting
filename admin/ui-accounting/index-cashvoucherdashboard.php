@@ -456,16 +456,16 @@ $position = $_SESSION['position'] ?? '';
                 }
             }
 
-           footerBtns.innerHTML = closeBtn + (actionBtn || `
+            footerBtns.innerHTML = closeBtn + (actionBtn || `
 <span class="text-xs text-gray-400 px-4 py-2 font-medium flex items-center gap-2">
     ${row.voucher_status === 'released'
-        ? `<button onclick="printVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})"
+                    ? `<button onclick="printVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})"
                class="flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
                <i class="fa-solid fa-print mr-1"></i>Print Voucher
            </button>`
-        : row.voucher_status === 'ready_to_release'
-            ? '<i class="fa-solid fa-box text-blue-500 mr-1"></i>Ready to Release'
-            : '<i class="fa-solid fa-clock text-yellow-500 mr-1"></i>Waiting for approval'}
+                    : row.voucher_status === 'ready_to_release'
+                        ? '<i class="fa-solid fa-box text-blue-500 mr-1"></i>Ready to Release'
+                        : '<i class="fa-solid fa-clock text-yellow-500 mr-1"></i>Waiting for approval'}
 </span>`);
 
             document.getElementById('voucher-modal').classList.remove('hidden');
@@ -533,7 +533,7 @@ $position = $_SESSION['position'] ?? '';
                 });
         }
 
-          function printVoucher(row) {
+        function printVoucher(row) {
             const items = row.items ?? [];
             let total = 0, itemRows = '', filled = 0;
             items.forEach(item => {
@@ -730,7 +730,7 @@ $position = $_SESSION['position'] ?? '';
     <script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};<\/script>
     </body></html>`;
 
-          const w = window.open('', '_blank');
+            const w = window.open('', '_blank');
             w.document.write(html);
             w.document.close();
         }

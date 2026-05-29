@@ -1,5 +1,5 @@
 <?php
-
+// index-my-vouchers.php
 include ROOT_PATH . '/network/connect.php';
 if (empty($_SESSION['logged_in'])) {
     header('Location: ' . BASE_URL . '/');
@@ -32,8 +32,8 @@ if (empty($_SESSION['logged_in'])) {
                 <span class="text-sm font-semibold text-gray-700">Voucher Records</span>
                 <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
+            <div class="overflow-x-auto overflow-y-auto max-h-[60vh]">
+                <table class="w-full text-sm min-w-[700px]">
                     <thead>
                         <tr class="bg-gray-50 text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
                             <th class="px-5 py-3 text-left">Voucher No.</th>
@@ -290,19 +290,37 @@ if (empty($_SESSION['logged_in'])) {
             document.getElementById('v-purpose').textContent = row.purpose ?? '';
             document.getElementById('v-amount-words').textContent = numberToWords(total);
             document.getElementById('v-total').textContent = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-
-            document.getElementById('v-prepared').textContent = row.prepared_name ?? '';
             document.getElementById('v-prepared-at').textContent = row.prepared_at
                 ? new Date(row.prepared_at.replace(' ', 'T')).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-            document.getElementById('v-certified').textContent = row.certified_name ?? '';
             document.getElementById('v-certified-at').textContent = row.certified_at
                 ? new Date(row.certified_at.replace(' ', 'T')).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-            document.getElementById('v-approver').textContent = row.approver_name ?? '';
             document.getElementById('v-approved-at').textContent = row.approved_at
                 ? new Date(row.approved_at.replace(' ', 'T')).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-            document.getElementById('v-receiver').textContent = row.receiver_name ?? '';
             document.getElementById('v-received-at').textContent = row.received_at
                 ? new Date(row.received_at.replace(' ', 'T')).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+            // Prepared
+            const prepSig = row.prepared_signature ?? '';
+            document.getElementById('v-prepared').innerHTML = prepSig
+                ? `<span class="relative inline-block"><img src="${prepSig}" style="position:absolute;bottom:-50px;left:80px;transform:translateX(-50%);height:90px;max-width:160px;object-fit:contain;z-index:10;pointer-events:none;">${row.prepared_name ?? ''}</span>`
+                : (row.prepared_name ?? '');
+
+            // Certified
+            const certSig = row.certified_signature ?? '';
+            document.getElementById('v-certified').innerHTML = certSig
+                ? `<span class="relative inline-block"><img src="${certSig}" style="position:absolute;bottom:-50px;left:80px;transform:translateX(-50%);height:90px;max-width:160px;object-fit:contain;z-index:10;pointer-events:none;">${row.certified_name ?? ''}</span>`
+                : (row.certified_name ?? '');
+
+            // Approver
+            const apprSig = row.approver_signature ?? '';
+            document.getElementById('v-approver').innerHTML = apprSig
+                ? `<span class="relative inline-block"><img src="${apprSig}" style="position:absolute;bottom:-50px;left:80px;transform:translateX(-50%);height:90px;max-width:160px;object-fit:contain;z-index:10;pointer-events:none;">${row.approver_name ?? ''}</span>`
+                : (row.approver_name ?? '');
+
+            // Receiver
+            const recvSig = row.receiver_signature ?? '';
+            document.getElementById('v-receiver').innerHTML = recvSig
+                ? `<span class="relative inline-block"><img src="${recvSig}" style="position:absolute;bottom:-50px;left:80px;transform:translateX(-50%);height:90px;max-width:160px;object-fit:contain;z-index:10;pointer-events:none;">${row.receiver_name ?? ''}</span>`
+                : (row.receiver_name ?? '');
 
             let rows = '', filled = 0;
             items.forEach(item => {

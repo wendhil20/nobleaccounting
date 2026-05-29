@@ -150,6 +150,11 @@ if (!empty($_SESSION['logged_in'])) {
             <div class="text-center text-xs text-white border-t border-gray-100 pt-5 mt-7">
                 &copy; <?= date('Y') ?> Noble Accounting. All rights reserved.
             </div>
+            
+            <script>
+                sessionStorage.clear();
+            </script>
+
 
         </div>
     </div>

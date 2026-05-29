@@ -13,7 +13,10 @@ $result = $conn->query("
            cert.name as certified_name, v.certified_at,
            appr.name as approver_name, v.approved_at,
            rel.name as released_by_name,
-           recv.name as receiver_name, v.received_at
+           recv.name as receiver_name, v.received_at,
+           v.prepared_signature,
+           v.certified_signature,
+           v.approved_signature as approver_signature
     FROM noblevoucher v
     LEFT JOIN noblebudgetrequest b ON v.request_id = b.id
     LEFT JOIN noblerole prep ON v.prepared_by = prep.id

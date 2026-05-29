@@ -76,6 +76,7 @@ $adminRoutes = [
     'accountinggraph',         
     'fetch-budget-graph-data',    
     'accountingsignatured',     
+    'accountingtracking',     
 
     //staffaccounting
     'accountingstaff',                  
@@ -203,6 +204,7 @@ $routes = [
     'accountinggraph'                  => 'admin/ui-accounting/index-accounting-graph.php',
     'fetch-budget-graph-data'          => 'admin/ui-accounting/backend/backend-accounting/fetch-budget-graph-data.php',
     'accountingsignatured'             => 'admin/ui-accounting/index-accounting-signatured.php',
+    'accountingtracking'               => 'admin/ui-accounting/index-accounting-tracking.php',
 
     //staffaccounting
     'accountingstaff'                  => 'admin/ui-accounting/index-staff-main.php',

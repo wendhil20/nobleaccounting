@@ -2,10 +2,14 @@
 // index-my-request-history.php
 
 include ROOT_PATH . '/network/connect.php';
-if (empty($_SESSION['logged_in'])) { header('Location: ' . BASE_URL . '/'); exit; }
+if (empty($_SESSION['logged_in'])) {
+    header('Location: ' . BASE_URL . '/');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +17,7 @@ if (empty($_SESSION['logged_in'])) { header('Location: ' . BASE_URL . '/'); exit
     <?php include ROOT_PATH . '/link/top.php'; ?>
     <?php include ROOT_PATH . '/user/navigation/top.php'; ?>
 </head>
+
 <body class="min-h-screen px-4 py-12 relative"
     style="background-image: url('<?= BASE_URL ?>/icon/building2.png'); background-size: cover; background-position: center;">
     <div class="absolute inset-0 bg-black/50 z-0"></div>
@@ -28,15 +33,16 @@ if (empty($_SESSION['logged_in'])) { header('Location: ' . BASE_URL . '/'); exit
                 <span class="text-sm font-semibold text-gray-700">Request History</span>
                 <div class="flex items-center gap-3">
                     <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <i
+                            class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                         <input type="text" id="search-input" placeholder="Search..."
                             class="pl-8 pr-4 py-1.5 text-xs border border-gray-200 rounded-full outline-none focus:border-amber-400 transition-all w-48">
                     </div>
                     <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
                 </div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
+            <div class="overflow-x-auto overflow-y-auto max-h-[60vh]">
+                <table class="w-full text-sm min-w-[700px]">
                     <thead>
                         <tr class="bg-gray-50 text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
                             <th class="px-5 py-3 text-left">Control No.</th>
@@ -48,9 +54,11 @@ if (empty($_SESSION['logged_in'])) { header('Location: ' . BASE_URL . '/'); exit
                         </tr>
                     </thead>
                     <tbody id="history-tbody">
-                        <tr><td colspan="6" class="px-5 py-8 text-center text-gray-400">
-                            <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading...
-                        </td></tr>
+                        <tr>
+                            <td colspan="6" class="px-5 py-8 text-center text-gray-400">
+                                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading...
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -58,7 +66,8 @@ if (empty($_SESSION['logged_in'])) { header('Location: ' . BASE_URL . '/'); exit
     </div>
 
     <!-- View Modal -->
-    <div id="view-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8 overflow-y-auto">
+    <div id="view-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8 overflow-y-auto">
         <div class="bg-white w-full max-w-4xl rounded-sm shadow-xl border border-gray-300 my-auto">
 
             <div class="grid grid-cols-[1fr_auto] border-b-2 border-gray-800">
@@ -75,19 +84,26 @@ if (empty($_SESSION['logged_in'])) { header('Location: ' . BASE_URL . '/'); exit
                 </div>
                 <div class="flex flex-col">
                     <div class="flex items-center justify-between px-4 py-2 border-b-2 border-gray-800 gap-4">
-                        <h2 class="font-bold text-sm uppercase tracking-widest whitespace-nowrap">Budget Request Form</h2>
-                        <button onclick="closeViewModal()" class="text-gray-400 hover:text-red-500 transition-colors p-1">
+                        <h2 class="font-bold text-sm uppercase tracking-widest whitespace-nowrap">Budget Request Form
+                        </h2>
+                        <button onclick="closeViewModal()"
+                            class="text-gray-400 hover:text-red-500 transition-colors p-1">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
                     <div class="flex flex-row flex-1 text-[10px]">
                         <div class="flex flex-col border-r-2 border-gray-800 flex-1">
-                            <span class="bg-orange-500 text-white font-bold px-4 py-1 uppercase tracking-wider text-center border-b-2 border-gray-800">Control No.</span>
-                            <p id="v-control-no" class="flex-1 px-4 py-1 font-mono text-xs text-center bg-gray-50 min-w-[180px]"></p>
+                            <span
+                                class="bg-orange-500 text-white font-bold px-4 py-1 uppercase tracking-wider text-center border-b-2 border-gray-800">Control
+                                No.</span>
+                            <p id="v-control-no"
+                                class="flex-1 px-4 py-1 font-mono text-xs text-center bg-gray-50 min-w-[180px]"></p>
                         </div>
                         <div class="flex flex-col flex-1">
-                            <span class="bg-orange-500 text-white font-bold px-4 py-1 uppercase tracking-wider text-center border-b-2 border-gray-800">Date:</span>
-                            <p id="v-date" class="flex-1 px-4 py-1 font-mono text-xs text-center bg-gray-50 min-w-[150px]"></p>
+                            <span
+                                class="bg-orange-500 text-white font-bold px-4 py-1 uppercase tracking-wider text-center border-b-2 border-gray-800">Date:</span>
+                            <p id="v-date"
+                                class="flex-1 px-4 py-1 font-mono text-xs text-center bg-gray-50 min-w-[150px]"></p>
                         </div>
                     </div>
                 </div>
@@ -95,11 +111,15 @@ if (empty($_SESSION['logged_in'])) { header('Location: ' . BASE_URL . '/'); exit
 
             <div class="grid grid-cols-2 border-b-2 border-gray-800">
                 <div class="flex items-center gap-2 px-6 py-3 border-r-2 border-gray-800">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Requestor Name:</span>
+                    <span
+                        class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Requestor
+                        Name:</span>
                     <p id="v-requestor" class="text-sm text-gray-800"></p>
                 </div>
                 <div class="flex items-center gap-2 px-6 py-3">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Purpose of Request:</span>
+                    <span
+                        class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Purpose
+                        of Request:</span>
                     <p id="v-purpose" class="text-sm text-gray-800"></p>
                 </div>
             </div>
@@ -120,12 +140,18 @@ if (empty($_SESSION['logged_in'])) { header('Location: ' . BASE_URL . '/'); exit
                     <tbody id="v-items-tbody"></tbody>
                     <tfoot>
                         <tr class="border-t-2 border-gray-800 bg-gray-50">
-                            <td colspan="5" class="px-4 py-2 font-bold text-xs uppercase tracking-widest text-right border-r border-gray-300">Total:</td>
+                            <td colspan="5"
+                                class="px-4 py-2 font-bold text-xs uppercase tracking-widest text-right border-r border-gray-300">
+                                Total:</td>
                             <td id="v-total" class="px-4 py-2 font-bold font-mono text-right"></td>
                             <td></td>
                         </tr>
                     </tfoot>
                 </table>
+                <!-- i-dagdag pagkatapos ng </table> (items table) at bago ng grid signatures -->
+                <div class="px-6 py-3 border-t border-gray-100">
+                    <div id="v-reject-comment"></div>
+                </div>
             </div>
 
             <div class="grid grid-cols-2 border-t-2 border-gray-800">
@@ -154,7 +180,7 @@ if (empty($_SESSION['logged_in'])) { header('Location: ' . BASE_URL . '/'); exit
         let allData = [];
 
         const statusMap = {
-            pending:  { label: 'Pending',  cls: 'bg-yellow-100 text-yellow-700' },
+            pending: { label: 'Pending', cls: 'bg-yellow-100 text-yellow-700' },
             approved: { label: 'Approved', cls: 'bg-green-100 text-green-700' },
             rejected: { label: 'Rejected', cls: 'bg-red-100 text-red-700' },
         };
@@ -209,41 +235,73 @@ if (empty($_SESSION['logged_in'])) { header('Location: ' . BASE_URL . '/'); exit
             const items = row.items ?? [];
             let total = 0;
             document.getElementById('v-control-no').textContent = row.control_no;
-            document.getElementById('v-date').textContent       = row.date_requested;
-            document.getElementById('v-requestor').textContent  = row.requestor_name;
-            document.getElementById('v-purpose').textContent    = row.purpose;
+            document.getElementById('v-date').textContent = row.date_requested;
+            document.getElementById('v-requestor').textContent = row.requestor_name;
+            document.getElementById('v-purpose').textContent = row.purpose;
             document.getElementById('v-status-badge').innerHTML = statusBadge(row.status);
 
             document.getElementById('v-items-tbody').innerHTML = items.map((item, i) => {
                 const amount = parseFloat(item.amount) || 0;
                 total += amount;
                 return `<tr class="border-t border-gray-200">
-                    <td class="px-3 py-2 text-center text-xs text-gray-400 font-mono border-r border-gray-200">${i + 1}</td>
-                    <td class="px-4 py-2 border-r border-gray-200">${item.description || ''}</td>
-                    <td class="px-4 py-2 border-r border-gray-200">${item.purpose || ''}</td>
-                    <td class="px-4 py-2 border-r border-gray-200 text-center">${item.quantity || 0}</td>
-                    <td class="px-4 py-2 border-r border-gray-200 text-right font-mono">${parseFloat(item.unit_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
-                    <td class="px-4 py-2 border-r border-gray-200 text-right font-mono">₱ ${amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
-                    <td class="px-4 py-2">${item.notes || ''}</td>
-                </tr>`;
+            <td class="px-3 py-2 text-center text-xs text-gray-400 font-mono border-r border-gray-200">${i + 1}</td>
+            <td class="px-4 py-2 border-r border-gray-200">${item.description || ''}</td>
+            <td class="px-4 py-2 border-r border-gray-200">${item.purpose || ''}</td>
+            <td class="px-4 py-2 border-r border-gray-200 text-center">${item.quantity || 0}</td>
+            <td class="px-4 py-2 border-r border-gray-200 text-right font-mono">${parseFloat(item.unit_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+            <td class="px-4 py-2 border-r border-gray-200 text-right font-mono">₱ ${amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+            <td class="px-4 py-2">${item.notes || ''}</td>
+        </tr>`;
             }).join('');
 
             document.getElementById('v-total').textContent = '₱ ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
 
             const fmtDate = str => str
                 ? new Date(str.replace(' ', 'T')).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })
-                  + ' ' + new Date(str.replace(' ', 'T')).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
+                + ' ' + new Date(str.replace(' ', 'T')).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
                 : '';
 
+            // ── Approver with signature ──
+            const approverSig = (row.status === 'approved' && row.approver_signature)
+                ? `<?= BASE_URL ?>/${row.approver_signature}` : '';
+
             document.getElementById('v-approved-by').innerHTML = row.approver_name
-                ? `<p class="text-sm font-semibold text-gray-800">${row.approver_name}</p>
-                   <p class="text-[10px] text-gray-400">${fmtDate(row.approved_at)}</p>`
+                ? `<div class="relative inline-block">
+               ${approverSig
+                    ? `<img src="${approverSig}" alt="Signature"
+                          style="position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+                                 height:80px; max-width:220px; z-index:10; pointer-events:none;">`
+                    : ''}
+               <p class="text-sm font-semibold text-gray-800">${row.approver_name}</p>
+               <p class="text-[10px] text-gray-400">${fmtDate(row.approved_at)}</p>
+           </div>`
                 : '<p class="text-xs text-gray-300 italic">Not yet approved</p>';
 
+            // ── Receiver with signature ──
+            const receiverSig = row.receiver_signature_path
+                ? `<?= BASE_URL ?>/${row.receiver_signature_path}` : '';
+
             document.getElementById('v-received-by').innerHTML = row.receiver_name
-                ? `<p class="text-sm font-semibold text-gray-800">${row.receiver_name}</p>
-                   <p class="text-[10px] text-gray-400">${fmtDate(row.received_at)}</p>`
+                ? `<div class="relative inline-block">
+               ${receiverSig
+                    ? `<img src="${receiverSig}" alt="Signature"
+                          style="position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+                                 height:80px; max-width:220px; z-index:10; pointer-events:none;">`
+                    : ''}
+               <p class="text-sm font-semibold text-gray-800">${row.receiver_name}</p>
+               <p class="text-[10px] text-gray-400">${fmtDate(row.received_at)}</p>
+           </div>`
                 : '<p class="text-xs text-gray-300 italic">Not yet received</p>';
+
+            // ── Reject reason (kung rejected) ──
+            const rejectDiv = document.getElementById('v-reject-comment');
+            if (rejectDiv) {
+                rejectDiv.innerHTML = (row.reject_comment && row.status === 'rejected')
+                    ? `<div class="mt-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                   <p class="text-[10px] font-bold uppercase tracking-widest text-red-500 mb-1">Reason for Rejection:</p>
+                   <p class="text-sm text-red-700">${row.reject_comment}</p>
+               </div>` : '';
+            }
 
             document.getElementById('view-modal').classList.remove('hidden');
         }
@@ -266,4 +324,5 @@ if (empty($_SESSION['logged_in'])) { header('Location: ' . BASE_URL . '/'); exit
         setInterval(fetchHistory, 10000);
     </script>
 </body>
+
 </html>

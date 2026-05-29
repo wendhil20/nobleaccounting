@@ -165,7 +165,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
     </div>
 
     <script>
-        const BASE_URL = '<?= BASE_URL ?>';
         let allProjects = [];
         let expenseMap  = {};
         let activeFilter = 'all';

@@ -1,6 +1,14 @@
 <?php
-
+// index-logout.php
 session_destroy();
-header('Location: ' . BASE_URL . '/loginadmin');
-exit;
 ?>
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+<script>
+    sessionStorage.clear();
+    window.location.href = '<?= BASE_URL ?>/loginadmin';
+</script>
+</body>
+</html>
