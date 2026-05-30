@@ -384,28 +384,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
     <!-- User Profile -->
     <div class="px-3 py-4 border-t border-gray-100">
         <div id="sidebar-user-block"
-            class="relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-all">
-
-            <!-- Hover Tooltip -->
-            <div class="absolute bottom-full left-2 mb-2 hidden group-hover:block z-50">
-                <div class="bg-gray-900 text-white rounded-lg px-3 py-2 shadow-lg min-w-max">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span id="tooltip-dot"
-                            class="w-2 h-2 rounded-full flex-shrink-0 <?= $isOnline ? 'bg-green-400' : 'bg-gray-400' ?>"></span>
-                        <span id="tooltip-status"
-                            class="text-xs font-semibold <?= $isOnline ? 'text-green-400' : 'text-gray-400' ?>">
-                            <?= $isOnline ? 'Online' : 'Away' ?>
-                        </span>
-                    </div>
-                    <p class="text-xs font-semibold text-white">
-                        <?= isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Admin' ?>
-                    </p>
-                    <p class="text-[10px] text-gray-400 mt-0.5">
-                        <?= isset($_SESSION['role']) ? htmlspecialchars($_SESSION['role']) : 'Administrator' ?>
-                    </p>
-                    <div class="absolute -bottom-1 left-4 w-2 h-2 bg-gray-900 rotate-45"></div>
-                </div>
-            </div>
+            class="relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-all overflow-visible">
 
             <!-- Avatar + Online Dot -->
             <div class="relative flex-shrink-0">
@@ -483,6 +462,49 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
         // ── Sidebar Collapse ──────────────────────────────────────────
         const SIDEBAR_KEY = 'sidebar_collapsed';
         let sidebarCollapsed = localStorage.getItem(SIDEBAR_KEY) === 'true';
+
+// ── User Tooltip — i-append sa body para hindi maclip ng sidebar ──
+const userTooltip = document.createElement('div');
+userTooltip.id = 'user-tooltip';
+userTooltip.className = 'fixed z-[9999] hidden pointer-events-none';
+userTooltip.innerHTML = `
+    <div style="display:flex; align-items:center; gap:0;">
+        <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:6px solid #111827;flex-shrink:0;"></div>
+        <div style="background:#111827;color:white;border-radius:8px;padding:8px 12px;white-space:nowrap;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:<?= $isOnline ? '#4ade80' : '#9ca3af' ?>;flex-shrink:0;"></span>
+                <span style="font-size:11px;font-weight:600;color:<?= $isOnline ? '#4ade80' : '#9ca3af' ?>"><?= $isOnline ? 'Online' : 'Away' ?></span>
+            </div>
+            <p style="font-size:12px;font-weight:600;margin:0;"><?= htmlspecialchars($_SESSION['username'] ?? 'Admin') ?></p>
+            <p style="font-size:10px;color:#9ca3af;margin:2px 0 0;"><?= htmlspecialchars($_SESSION['role'] ?? '') ?></p>
+        </div>
+    </div>`;
+document.body.appendChild(userTooltip); // ← nasa body na, hindi sa sidebar
+
+const userBlock = document.getElementById('sidebar-user-block');
+
+userBlock.addEventListener('mouseenter', () => {
+    const rect = userBlock.getBoundingClientRect();
+    userTooltip.style.visibility = 'hidden';
+    userTooltip.classList.remove('hidden');
+
+    const tipHeight = userTooltip.offsetHeight;
+
+    let top = rect.top + (rect.height / 2) - (tipHeight / 2);
+
+    // Kung lalabas sa baba ng screen, i-adjust pataas
+    if (top + tipHeight > window.innerHeight - 20) {
+        top = rect.bottom - tipHeight;
+    }
+
+    userTooltip.style.left = (rect.right + 8) + 'px';
+    userTooltip.style.top = top + 'px';
+    userTooltip.style.visibility = 'visible';
+});
+
+userBlock.addEventListener('mouseleave', () => {
+    userTooltip.classList.add('hidden');
+});
 
         function applySidebarState() {
             const sidebar = document.getElementById('sidebar');
