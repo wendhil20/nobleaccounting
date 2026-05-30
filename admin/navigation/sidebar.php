@@ -463,11 +463,11 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
         const SIDEBAR_KEY = 'sidebar_collapsed';
         let sidebarCollapsed = localStorage.getItem(SIDEBAR_KEY) === 'true';
 
-// ── User Tooltip — i-append sa body para hindi maclip ng sidebar ──
-const userTooltip = document.createElement('div');
-userTooltip.id = 'user-tooltip';
-userTooltip.className = 'fixed z-[9999] hidden pointer-events-none';
-userTooltip.innerHTML = `
+        // ── User Tooltip — i-append sa body para hindi maclip ng sidebar ──
+        const userTooltip = document.createElement('div');
+        userTooltip.id = 'user-tooltip';
+        userTooltip.className = 'fixed z-[9999] hidden pointer-events-none';
+        userTooltip.innerHTML = `
     <div style="display:flex; align-items:center; gap:0;">
         <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:6px solid #111827;flex-shrink:0;"></div>
         <div style="background:#111827;color:white;border-radius:8px;padding:8px 12px;white-space:nowrap;">
@@ -479,32 +479,32 @@ userTooltip.innerHTML = `
             <p style="font-size:10px;color:#9ca3af;margin:2px 0 0;"><?= htmlspecialchars($_SESSION['role'] ?? '') ?></p>
         </div>
     </div>`;
-document.body.appendChild(userTooltip); // ← nasa body na, hindi sa sidebar
+        document.body.appendChild(userTooltip); // ← nasa body na, hindi sa sidebar
 
-const userBlock = document.getElementById('sidebar-user-block');
+        const userBlock = document.getElementById('sidebar-user-block');
 
-userBlock.addEventListener('mouseenter', () => {
-    const rect = userBlock.getBoundingClientRect();
-    userTooltip.style.visibility = 'hidden';
-    userTooltip.classList.remove('hidden');
+        userBlock.addEventListener('mouseenter', () => {
+            const rect = userBlock.getBoundingClientRect();
+            userTooltip.style.visibility = 'hidden';
+            userTooltip.classList.remove('hidden');
 
-    const tipHeight = userTooltip.offsetHeight;
+            const tipHeight = userTooltip.offsetHeight;
 
-    let top = rect.top + (rect.height / 2) - (tipHeight / 2);
+            let top = rect.top + (rect.height / 2) - (tipHeight / 2);
 
-    // Kung lalabas sa baba ng screen, i-adjust pataas
-    if (top + tipHeight > window.innerHeight - 20) {
-        top = rect.bottom - tipHeight;
-    }
+            // Kung lalabas sa baba ng screen, i-adjust pataas
+            if (top + tipHeight > window.innerHeight - 20) {
+                top = rect.bottom - tipHeight;
+            }
 
-    userTooltip.style.left = (rect.right + 8) + 'px';
-    userTooltip.style.top = top + 'px';
-    userTooltip.style.visibility = 'visible';
-});
+            userTooltip.style.left = (rect.right + 8) + 'px';
+            userTooltip.style.top = top + 'px';
+            userTooltip.style.visibility = 'visible';
+        });
 
-userBlock.addEventListener('mouseleave', () => {
-    userTooltip.classList.add('hidden');
-});
+        userBlock.addEventListener('mouseleave', () => {
+            userTooltip.classList.add('hidden');
+        });
 
         function applySidebarState() {
             const sidebar = document.getElementById('sidebar');

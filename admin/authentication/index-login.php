@@ -23,50 +23,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($account && password_verify($password, $account['password'])) {
             $_SESSION['account_id'] = $account['id'];
-            $_SESSION['username'] = $account['name'];
-            $_SESSION['email'] = $account['email'];
-            $_SESSION['role'] = $account['role'];
-            $_SESSION['position']   = $account['position']; 
-            $_SESSION['logged_in'] = true;
+            $_SESSION['username']   = $account['name'];
+            $_SESSION['email']      = $account['email'];
+            $_SESSION['role']       = $account['role'];
+            $_SESSION['position']   = $account['position'];
+            $_SESSION['logged_in']  = true;
 
-            // Map role to route
-            $roleRoutes = [
-                'IT DEPARTMENT' => 'it',
-                'ACCOUNTING AND FINANCE DEPARTMENT' => 'accounting',
-                'HUMAN RESOURCES DEPARTMENT' => 'humanresource',
-                'OPERATIONS DEPARTMENT' => 'operation',
-                'SALES AND MARKETING DEPARTMENT' => 'salesmarket',
-                'GRAPHIC DESIGNER' => 'graphicdesign',
-                'DESIGNER DEPARTMENT' => 'designer',
-                'CUTTING LIST DEPARTMENT' => 'cuttinglist',
-            ];
+            $position = $account['position'] ?? '';
+            $role     = $account['role'];
 
-            $route = $roleRoutes[$account['role']] ?? 'loginadmin'; // unknown role = back to login
+            if ($role === 'ACCOUNTING AND FINANCE DEPARTMENT') {
+                $route = match($position) {
+                    'head'           => 'accounting',
+                    'staff'          => 'accountingstaff',
+                    'custodian'      => 'accountingcustodian',
+                    'custoassistant' => 'accountingcustodianassistant',
+                    default          => 'accounting',
+                };
+            } else {
+                $roleRoutes = [
+                    'IT DEPARTMENT'                            => 'it',
+                    'HUMAN RESOURCES DEPARTMENT'               => 'humanresource',
+                    'OPERATIONS DEPARTMENT'                    => 'operation',
+                    'SALES AND MARKETING DEPARTMENT'           => 'salesmarket',
+                    'GRAPHIC DESIGN DEPARTMENT'                => 'graphicdesign',
+                    'DESIGN DEPARTMENT'                        => 'designer',
+                    'ORDER PROCESSING/CUTTING LIST DEPARTMENT' => 'cuttinglist',
+                ];
+                $route = $roleRoutes[$role] ?? 'loginadmin';
+            }
+
             header('Location: ' . BASE_URL . '/' . $route);
             exit;
+
         } else {
             $error = 'Invalid email or password.';
         }
     }
 }
 
-// BAGO — i-redirect sa tamang route base sa role
+// Already logged in — redirect sa tamang page
 if (!empty($_SESSION['logged_in'])) {
-    $roleRoutes = [
-        'IT DEPARTMENT' => 'it',
-        'ACCOUNTING AND FINANCE DEPARTMENT' => 'accounting',
-        'HUMAN RESOURCES DEPARTMENT' => 'humanresource',
-        'OPERATIONS DEPARTMENT' => 'operation',
-        'SALES AND MARKETING DEPARTMENT' => 'salesmarket',
-        'GRAPHIC DESIGN DEPARTMENT' => 'graphicdesign',
-        'DESIGN DEPARTMENT' => 'designer',
-        'ORDER PROCESSING/CUTTING LIST DEPARTMENT' => 'cuttinglist',
-    ];
-    $route = $roleRoutes[$_SESSION['role']] ?? 'loginadmin';
+    $position = $_SESSION['position'] ?? '';
+    $role     = $_SESSION['role'] ?? '';
+
+    if ($role === 'ACCOUNTING AND FINANCE DEPARTMENT') {
+        $route = match($position) {
+            'head'           => 'accounting',
+            'staff'          => 'accountingstaff',
+            'custodian'      => 'accountingcustodian',
+            'custoassistant' => 'accountingcustodianassistant',
+            default          => 'accounting',
+        };
+    } else {
+        $roleRoutes = [
+            'IT DEPARTMENT'                            => 'it',
+            'HUMAN RESOURCES DEPARTMENT'               => 'humanresource',
+            'OPERATIONS DEPARTMENT'                    => 'operation',
+            'SALES AND MARKETING DEPARTMENT'           => 'salesmarket',
+            'GRAPHIC DESIGN DEPARTMENT'                => 'graphicdesign',
+            'DESIGN DEPARTMENT'                        => 'designer',
+            'ORDER PROCESSING/CUTTING LIST DEPARTMENT' => 'cuttinglist',
+        ];
+        $route = $roleRoutes[$role] ?? 'loginadmin';
+    }
+
     header('Location: ' . BASE_URL . '/' . $route);
     exit;
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -108,17 +132,15 @@ if (!empty($_SESSION['logged_in'])) {
             <p class="text-sm text-gray-200 mb-6">Enter your credentials to continue.</p>
 
             <?php if (!empty($error)): ?>
-                <div
-                    class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded px-4 py-3 mb-6">
-                    <span
-                        class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-200 text-red-700 font-bold text-xs shrink-0">!</span>
+                <div class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded px-4 py-3 mb-6">
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-200 text-red-700 font-bold text-xs shrink-0">!</span>
                     <?= htmlspecialchars($error) ?>
                 </div>
             <?php endif; ?>
 
             <form method="POST" action="">
 
-                <!-- Email Field — full input, @noble.com only -->
+                <!-- Email -->
                 <div class="mb-5">
                     <label for="email" class="block text-xs font-medium tracking-widest uppercase text-white mb-1.5">
                         <i class="fa-solid fa-envelope mr-1"></i> Email
@@ -126,8 +148,7 @@ if (!empty($_SESSION['logged_in'])) {
                     <input type="email" id="email" name="email" autocomplete="email" placeholder="yourname@noble.com"
                         value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required
                         class="w-full px-3 py-2.5 text-sm text-gray-800 bg-gray-50 border border-gray-300 rounded focus:outline-none focus:border-yellow-500 focus:bg-white transition placeholder-gray-400">
-                    <p class="text-[11px] text-gray-400 mt-1.5">Only <span
-                            class="text-yellow-400 font-medium">@noble.com</span> emails are accepted.</p>
+                    <p class="text-[11px] text-gray-400 mt-1.5">Only <span class="text-yellow-400 font-medium">@noble.com</span> emails are accepted.</p>
                 </div>
 
                 <!-- Password -->
@@ -150,11 +171,10 @@ if (!empty($_SESSION['logged_in'])) {
             <div class="text-center text-xs text-white border-t border-gray-100 pt-5 mt-7">
                 &copy; <?= date('Y') ?> Noble Accounting. All rights reserved.
             </div>
-            
+
             <script>
                 sessionStorage.clear();
             </script>
-
 
         </div>
     </div>

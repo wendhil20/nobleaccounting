@@ -99,7 +99,7 @@
             border-radius: 5px;
             padding: 12px 16px;
             min-width: 280px;
-            max-width: 340px;
+            max-width: 480px;
             box-shadow: 0 4px 24px rgba(0,0,0,0.4);
             pointer-events: none;
             cursor: default;
