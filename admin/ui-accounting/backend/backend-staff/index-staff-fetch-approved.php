@@ -3,8 +3,15 @@
 
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
+include ROOT_PATH . '/network/cache-helper.php';
 
 header('Content-Type: application/json');
+
+$cached = getCache('staff_approved_requests', 60);
+if ($cached !== false) {
+    echo $cached;
+    exit;
+}
 
 // Approved pero hindi pa nareceive
 $result = $conn->query("SELECT b.*, 
@@ -34,4 +41,6 @@ while ($row = $result->fetch_assoc()) {
     $data[] = $row;
 }
 
-echo json_encode($data);
+$json = json_encode($data);
+setCache('staff_approved_requests', $json);
+echo $json;

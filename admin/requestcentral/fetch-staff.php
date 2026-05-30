@@ -3,8 +3,15 @@
 
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
+include ROOT_PATH . '/network/cache-helper.php';
 
 header('Content-Type: application/json');
+
+$cached = getCache('accounting_staff_list', 60); // 1 minute
+if ($cached !== false) {
+    echo $cached;
+    exit;
+}
 
 $result = $conn->query("
     SELECT r.id, n.name, n.email,
@@ -21,4 +28,7 @@ while ($row = $result->fetch_assoc()) {
     $staff[] = $row;
 }
 
-echo json_encode($staff);
+$json = json_encode($staff);
+setCache('accounting_staff_list', $json);
+
+echo $json;

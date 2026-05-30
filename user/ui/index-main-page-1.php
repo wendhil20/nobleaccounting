@@ -8,26 +8,11 @@ if (empty($_SESSION['logged_in'])) {
     exit;
 }
 
-function generateControlNo($conn)
-{
-    $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    do {
-        $rand = '';
-        for ($i = 0; $i < 8; $i++) {
-            $rand .= $chars[rand(0, strlen($chars) - 1)];
-        }
-        $control = 'NHREQUEST-' . $rand;
-        $stmt = $conn->prepare("SELECT id FROM noblebudgetrequest WHERE control_no = ?");
-        $stmt->bind_param("s", $control);
-        $stmt->execute();
-        $stmt->store_result();
-    } while ($stmt->num_rows > 0);
-    return $control;
-}
-
-$control_no = generateControlNo($conn);
+$control_no = 'PENDING';
 $today = date('Y-m-d');
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 

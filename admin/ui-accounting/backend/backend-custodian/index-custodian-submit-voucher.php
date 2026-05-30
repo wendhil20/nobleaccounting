@@ -47,6 +47,11 @@ $success = $stmt->execute();
 
 // Notify custoassistant
 if ($success) {
+
+    clearCache('custodian_received_requests');
+    clearCache('staff_approved_requests');
+    clearCache('staff_acknowledged_requests');
+
     $control_no = $row['control_no'];
     $message = "Cash voucher for $control_no has been submitted and needs to be prepared. Check Approval Cash Voucher.";
 

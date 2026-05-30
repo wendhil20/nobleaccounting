@@ -193,6 +193,18 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                     <i class="fa-solid fa-list-check w-4 text-center text-sm flex-shrink-0"></i>
                     <span class="sidebar-label">Requests List</span>
                 </a>
+
+                <a href="<?= BASE_URL ?>/accountinggeneralsheet" data-tooltip="General Sheet"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountinggeneralsheet') ?>">
+                    <i class="fa-solid fa-clipboard-list w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">General Sheet</span>
+                </a>
+
+                <a href="<?= BASE_URL ?>/accountingpettycash" data-tooltip="Petty Cash"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingpettycash') ?>">
+                    <i class="fa-solid fa-coins w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Petty Cash</span>
+                </a>
             <?php endif; ?>
 
             <?php if ($isStaff): ?>
@@ -220,6 +232,18 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingcustodian') ?>">
                     <i class="fa-solid fa-list w-4 text-center text-sm flex-shrink-0"></i>
                     <span class="sidebar-label">Cash Voucher Request</span>
+                </a>
+
+                <a href="<?= BASE_URL ?>/accountinggeneralsheet" data-tooltip="General Sheet"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountinggeneralsheet') ?>">
+                    <i class="fa-solid fa-clipboard-list w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">General Sheet</span>
+                </a>
+
+                <a href="<?= BASE_URL ?>/accountingcustodianpettycash" data-tooltip="Petty Cash"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingcustodianpettycash') ?>">
+                    <i class="fa-solid fa-coins w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Petty Cash</span>
                 </a>
             <?php endif; ?>
         <?php endif; ?>
@@ -454,7 +478,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
     <script src="<?= BASE_URL ?>/js/global-notif.js"></script>
 
     <script>
-       
+
         const BASE_URL = '<?= BASE_URL ?>';
         // ── Sidebar Collapse ──────────────────────────────────────────
         const SIDEBAR_KEY = 'sidebar_collapsed';

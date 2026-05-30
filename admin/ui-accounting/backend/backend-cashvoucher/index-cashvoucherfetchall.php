@@ -2,7 +2,15 @@
 // index-cashvoucherfetchall.php
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
+include ROOT_PATH . '/network/cache-helper.php';
+
 header('Content-Type: application/json');
+
+$cached = getCache('cashvoucher_all', 60);
+if ($cached !== false) {
+    echo $cached;
+    exit;
+}
 
 $result = $conn->query("SELECT b.*,
     n.name as requestor_name,
@@ -43,4 +51,7 @@ while ($row = $result->fetch_assoc()) {
     $row['items'] = json_decode($row['items'], true);
     $data[] = $row;
 }
-echo json_encode($data);
+
+$json = json_encode($data);
+setCache('cashvoucher_all', $json);
+echo $json;

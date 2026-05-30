@@ -3,6 +3,8 @@
 
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
+include ROOT_PATH . '/network/cache-helper.php';
+
 
 header('Content-Type: application/json');
 
@@ -28,6 +30,10 @@ $affected = $stmt->affected_rows;
 
 // Notify custodians
 if ($success && $affected > 0) {
+
+    clearCache('staff_approved_requests');
+    clearCache('staff_acknowledged_requests');
+    
     $req = $conn->query("SELECT control_no FROM noblebudgetrequest WHERE id = $id LIMIT 1");
     $reqRow = $req->fetch_assoc();
     $control_no = $reqRow['control_no'] ?? '';

@@ -3,6 +3,7 @@
 
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
+include ROOT_PATH . '/network/cache-helper.php';
 
 header('Content-Type: application/json');
 
@@ -39,6 +40,8 @@ $affected = $stmt->affected_rows;
 
 // Mag-notify sa lahat ng STAFF pagkatapos ng action
 if ($success && $affected > 0) {
+
+    clearCache("budget_requests_{$user_id}");
 
     // ← user_id ang column, hindi sent_by
     $req = $conn->query("SELECT control_no, user_id FROM noblebudgetrequest WHERE id = $id LIMIT 1");

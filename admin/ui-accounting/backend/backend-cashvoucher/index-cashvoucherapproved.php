@@ -3,6 +3,8 @@
 
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
+include ROOT_PATH . '/network/cache-helper.php';
+
 header('Content-Type: application/json');
 
 $body       = json_decode(file_get_contents('php://input'), true);
@@ -32,6 +34,10 @@ $success = $stmt->execute();
 
 
 if ($success && $stmt->affected_rows > 0) {
+
+    clearCache('cashvoucher_all');
+    clearCache('custodian_received_requests');
+    
     $vRow = $conn->query("
         SELECT v.request_id, b.control_no 
         FROM noblevoucher v

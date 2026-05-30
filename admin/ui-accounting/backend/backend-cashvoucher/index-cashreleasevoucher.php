@@ -4,6 +4,8 @@
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
 include ROOT_PATH . '/network/mailer.php';
+include ROOT_PATH . '/network/cache-helper.php';
+
 header('Content-Type: application/json');
 
 $body = json_decode(file_get_contents('php://input'), true);
@@ -51,6 +53,12 @@ $success = $stmt->execute();
 
 // Send email sa requestor
 if ($success && $vRow['requestor_email']) {
+
+    clearCache('cashvoucher_all');
+    clearCache('custodian_received_requests');
+    clearCache('staff_approved_requests');
+    clearCache('staff_acknowledged_requests');
+
     $control_no = $vRow['control_no'];
     $purpose = $vRow['purpose'];
     $name = $vRow['requestor_name'];

@@ -3,6 +3,8 @@
 
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
+include ROOT_PATH . '/network/cache-helper.php';
+
 header('Content-Type: application/json');
 
 $body = json_decode(file_get_contents('php://input'), true);
@@ -23,6 +25,10 @@ $stmt->bind_param("isi", $user_id, $sigPath, $voucher_id);
 $success = $stmt->execute();
 
 if ($success && $stmt->affected_rows > 0) {
+
+    clearCache('cashvoucher_all');
+    clearCache('custodian_received_requests');
+
     // Kunin ang control_no ng request
     $vRow = $conn->query("SELECT request_id, control_no FROM noblevoucher WHERE id = $voucher_id LIMIT 1")->fetch_assoc();
     $control_no = $vRow['control_no'] ?? '';

@@ -3,6 +3,7 @@
 
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
+include ROOT_PATH . '/network/cache-helper.php';
 
 header('Content-Type: application/json');
 
@@ -10,6 +11,13 @@ $user_id = intval($_SESSION['account_id'] ?? 0);
 
 // ← DAGDAG DITO — GET = fetch staff list
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    
+    $cached = getCache('ping_staff_list', 60); // 1 minute
+    if ($cached !== false) {
+        echo $cached;
+        exit;
+    }
+
     $result = $conn->query("
         SELECT id, name, email 
         FROM noblerole 
@@ -21,7 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $staff[] = $row;
     }
 
-    echo json_encode($staff);
+    $json = json_encode($staff);
+    setCache('ping_staff_list', $json);
+    
+    echo $json;
     exit;
 }
 

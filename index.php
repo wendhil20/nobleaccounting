@@ -77,6 +77,8 @@ $adminRoutes = [
     'fetch-budget-graph-data',    
     'accountingsignatured',     
     'accountingtracking',     
+    'accountinggeneralsheet',     
+    'accountingpettycash',     
 
     //staffaccounting
     'accountingstaff',                  
@@ -93,6 +95,7 @@ $adminRoutes = [
     'submitrequestvoucher',             
     'accountingcustodianassistant',     
     'announcementcustodian',            
+    'accountingcustodianpettycash',     
 
     // custiodiansublink
     'projectmonitor',                   
@@ -205,6 +208,8 @@ $routes = [
     'fetch-budget-graph-data'          => 'admin/ui-accounting/backend/backend-accounting/fetch-budget-graph-data.php',
     'accountingsignatured'             => 'admin/ui-accounting/index-accounting-signatured.php',
     'accountingtracking'               => 'admin/ui-accounting/index-accounting-tracking.php',
+    'accountinggeneralsheet'           => 'admin/ui-accounting/index-accounting-generalsheet.php',
+    'accountingpettycash'              => 'admin/ui-accounting/index-accounting-pettycash.php',
 
     //staffaccounting
     'accountingstaff'                  => 'admin/ui-accounting/index-staff-main.php',
@@ -221,6 +226,7 @@ $routes = [
     'submitrequestvoucher'             => 'admin/ui-accounting/backend/backend-custodian/index-custodian-submit-voucher.php',
     'accountingcustodianassistant'     => 'admin/ui-accounting/index-custodianassist-main.php',
     'announcementcustodian'            => 'admin/ui-accounting/index-custodian-dashboard.php',
+    'accountingcustodianpettycash'     => 'admin/ui-accounting/index-custodian-pettycash.php',
 
     // custiodiansublink
     'projectmonitor'                   => 'admin/ui-accounting/index-projectmonitor-main.php',

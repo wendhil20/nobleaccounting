@@ -1,7 +1,5 @@
 <?php
 // index-submit-request.php
-
-
 include ROOT_PATH . '/network/connect.php';
 
 if (empty($_SESSION['logged_in'])) {
@@ -16,7 +14,12 @@ $body = json_decode(file_get_contents('php://input'), true);
 
 error_log(print_r($body, true));
 
-$control_no     = trim($body['control_no'] ?? '');
+$monthYear = date('mY');
+$conn->query("INSERT INTO noblerequestsequences () VALUES ()");
+$seq = $conn->insert_id;
+$control_no = 'NHREQUEST-' . $monthYear . '-' . str_pad($seq, 3, '0', STR_PAD_LEFT);
+
+
 $user_id        = intval($_SESSION['account_id'] ?? 0);
 $requestor_name = trim($body['requestor_name'] ?? '');
 $purpose        = trim($body['purpose'] ?? '');
@@ -121,9 +124,14 @@ $result = $stmt->execute();
 if ($result && $stmt->affected_rows > 0) {
     $new_request_id = $conn->insert_id;
 
+    // ─── CLEAR CACHE NG APPROVER ─────────────────────
+    include ROOT_PATH . '/network/cache-helper.php';
+    clearCache("budget_requests_{$sent_to}");
+    // ─────────────────────────────────────────────────
+
     $message = "New budget request from {$requestor_name}: {$purpose} check your request list.";
     
-    $link = '/accounting'; // ← didirekta sa request list ng head
+    $link = '/accounting';
     
     $notif_stmt = $conn->prepare("
         INSERT INTO noblenotification (user_id, request_id, message, link) 
