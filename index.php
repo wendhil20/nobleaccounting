@@ -113,6 +113,9 @@ $adminRoutes = [
     'pettycashdepartment',
     'fetchsalespersons',
     'savesalesperson',
+    'fetchprojectnames',
+    'saveprojectname',
+    'deleteprojectname',
 
     // custiodiansublink
     'projectmonitor',                   
