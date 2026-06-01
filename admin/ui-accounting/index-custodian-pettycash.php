@@ -70,16 +70,16 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 <table class="w-full text-sm border-collapse min-w-[900px]">
                     <thead class="sticky top-0 z-10">
                         <tr class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-widest">
-                            <th class="px-3 py-3 text-center border-r border-orange-400 w-10">No.</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-28">Date</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-32">Cash Inflows</th>
-                            <th class="px-4 py-3 text-center border-r border-orange-400 w-24">Voucher No.</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-36">Account Title</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400">Particulars</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-28">Source</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-28">Reference</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-28">Added By</th>
-                            <th class="px-4 py-3 text-center w-20">Action</th>
+                            <th class="px-2 py-2 text-center border-r border-orange-400 w-10">No.</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-28">Date</th>
+                            <th class="px-1 py-1 text-right border-r border-orange-400 w-32">Cash Inflows</th>
+                            <th class="px-1 py-1 text-center border-r border-orange-400 w-24">Voucher No.</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-36">Account Title</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400">Particulars</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-28">Source</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-28">Reference</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-28">Added By</th>
+                            <th class="px-1 py-1 text-center w-20">Action</th>
                         </tr>
                     </thead>
                     <tbody id="sheet-tbody">
@@ -276,20 +276,20 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
                 return `
             <tr class="border-t border-gray-100 transition ${rowBg}">
-                <td class="px-3 py-3 text-center text-xs text-gray-400 font-mono border-r border-gray-100">${rowNum}</td>
-                <td class="px-4 py-3 text-xs text-gray-600 border-r border-gray-100 whitespace-nowrap">${row.date ?? ''}</td>
-                <td class="px-4 py-3 text-xs font-mono text-right text-green-700 border-r border-gray-100 font-semibold">
+                <td class="px-2 py-2 text-center text-xs text-gray-400 font-mono border-r border-gray-100">${rowNum}</td>
+                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100 whitespace-nowrap">${row.date ?? ''}</td>
+                <td class="px-1 py-1 text-xs font-mono text-right text-green-700 border-r border-gray-100 font-semibold">
                     ${row.cash_inflows ? '₱ ' + parseFloat(row.cash_inflows).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : ''}
                 </td>
-                <td class="px-4 py-3 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.voucher_no ?? ''}</td>
-                <td class="px-4 py-3 text-xs text-gray-700 border-r border-gray-100">${row.account_title ?? ''}</td>
-                <td class="px-4 py-3 text-xs text-gray-700 border-r border-gray-100">
+                <td class="px-1 py-1 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.voucher_no ?? ''}</td>
+                <td class="px-1 py-1 text-xs text-gray-700 border-r border-gray-100">${row.account_title ?? ''}</td>
+                <td class="px-1 py-1 text-xs text-gray-700 border-r border-gray-100">
                     ${badge}${row.particulars ?? ''}
                 </td>
-                <td class="px-4 py-3 text-xs text-gray-600 border-r border-gray-100">${row.in_charge ?? ''}</td>
-                <td class="px-4 py-3 text-xs text-gray-500 border-r border-gray-100">${row.reference ?? ''}</td>
-                <td class="px-4 py-3 text-xs text-gray-500 border-r border-gray-100">${row.inserted_by ?? ''}</td>
-                <td class="px-4 py-3 text-center">
+                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.in_charge ?? ''}</td>
+                <td class="px-1 py-1 text-xs text-gray-500 border-r border-gray-100">${row.reference ?? ''}</td>
+                <td class="px-1 py-1 text-xs text-gray-500 border-r border-gray-100">${row.inserted_by ?? ''}</td>
+                <td class="px-1 py-1 text-center">
                     <div class="flex items-center justify-center gap-1.5">
                         <button onclick="editEntry(${row.id})"
                             class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-orange-100 text-gray-500 hover:text-orange-500 transition">

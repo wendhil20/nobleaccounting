@@ -82,26 +82,26 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 <table class="w-full text-sm border-collapse" style="min-width: 1800px;">
                     <thead class="sticky top-0 z-10">
                         <tr class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-widest">
-                            <th class="px-3 py-3 text-center border-r border-orange-400 w-10">No.</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-24">Date</th>
-                            <th class="px-4 py-3 text-center border-r border-orange-400 w-24">Ref No.</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-36">Account Title</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400">Particulars</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-28">Dept.</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-24">In-Charge</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-24">Actual</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-32">Supplier (Corp)</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-32">Supplier (Indiv)</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-28">Address</th>
-                            <th class="px-4 py-3 text-center border-r border-orange-400 w-24">TIN</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-24">VATable</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-20">VAT</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-24">Total</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-24">Non-VAT</th>
-                            <th class="px-4 py-3 text-center border-r border-orange-400 w-28">No Sales Inv.</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-24">VAT Exempt</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-24">Added By</th>
-                            <th class="px-4 py-3 text-center w-16">Action</th>
+                            <th class="px-1 py-1 text-center border-r border-orange-400 w-10">No.</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-24">Date</th>
+                            <th class="px-1 py-1 text-center border-r border-orange-400 w-24">Ref No.</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-36">Account Title</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400">Particulars</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-28">Dept.</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-24">In-Charge</th>
+                            <th class="px-1 py-1 text-right border-r border-orange-400 w-24">Actual</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-32">Supplier (Corp)</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-32">Supplier (Indiv)</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-28">Address</th>
+                            <th class="px-1 py-1 text-center border-r border-orange-400 w-24">TIN</th>
+                            <th class="px-1 py-1 text-right border-r border-orange-400 w-24">VATable</th>
+                            <th class="px-1 py-1 text-right border-r border-orange-400 w-20">VAT</th>
+                            <th class="px-1 py-1 text-right border-r border-orange-400 w-24">Total</th>
+                            <th class="px-1 py-1 text-right border-r border-orange-400 w-24">Non-VAT</th>
+                            <th class="px-1 py-1 text-center border-r border-orange-400 w-28">No Sales Inv.</th>
+                            <th class="px-1 py-1 text-right border-r border-orange-400 w-24">VAT Exempt</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-24">Added By</th>
+                            <th class="px-1 py-1 text-center w-16">Action</th>
                         </tr>
                     </thead>
                     <tbody id="sheet-tbody">
@@ -117,7 +117,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                                 class="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-widest text-gray-500 border-r border-gray-200">
                                 Total</td>
                             <td id="foot-actual"
-                                class="px-4 py-3 text-right font-bold font-mono text-red-500 border-r border-gray-200 text-xs">
+                                class="px-4 py-3 text-right font-bold font-mono text-red-500 border-r border-gray-200 text-xs whitespace-nowrap">
                             </td>
                             <td colspan="4" class="border-r border-gray-200"></td>
                             <td id="foot-vatable"
@@ -696,26 +696,26 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 const money = (val) => val ? '₱ ' + parseFloat(val).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '';
                 return `
             <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
-                <td class="px-3 py-2.5 text-center text-xs text-gray-400 font-mono border-r border-gray-100">${rowNum}</td>
-                <td class="px-4 py-2.5 text-xs text-gray-600 border-r border-gray-100 whitespace-nowrap">${row.date ?? ''}</td>
-                <td class="px-4 py-2.5 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.reference_no ?? ''}</td>
-                <td class="px-4 py-2.5 text-xs text-gray-700 border-r border-gray-100">${row.account_title ?? ''}</td>
-                <td class="px-4 py-2.5 text-xs text-gray-700 border-r border-gray-100">${row.particulars ?? ''}</td>
-                <td class="px-4 py-2.5 text-xs text-gray-600 border-r border-gray-100">${row.project_department ?? ''}</td>
-                <td class="px-4 py-2.5 text-xs text-gray-600 border-r border-gray-100">${row.in_charge ?? ''}</td>
-                <td class="px-4 py-2.5 text-xs font-mono text-right text-red-600 border-r border-gray-100 font-semibold whitespace-nowrap">${money(row.actual)}</td>
-                <td class="px-4 py-2.5 text-xs text-gray-600 border-r border-gray-100">${row.supplier_name_corp ?? ''}</td>
-                <td class="px-4 py-2.5 text-xs text-gray-600 border-r border-gray-100">${row.supplier_name_indiv ?? ''}</td>
-                <td class="px-4 py-2.5 text-xs text-gray-500 border-r border-gray-100">${row.address ?? ''}</td>
-                <td class="px-4 py-2.5 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.tin ?? ''}</td>
-                <td class="px-4 py-2.5 text-xs font-mono text-right text-purple-600 border-r border-gray-100 whitespace-nowrap">${money(row.vatable_amount)}</td>
-                <td class="px-4 py-2.5 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.vat)}</td>
-                <td class="px-4 py-2.5 text-xs font-mono text-right text-gray-800 font-semibold border-r border-gray-100 whitespace-nowrap">${money(row.total)}</td>
-                <td class="px-4 py-2.5 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.non_vat)}</td>
-                <td class="px-4 py-2.5 text-xs text-center text-gray-600 border-r border-gray-100">${row.no_sales_invoice ?? ''}</td>
-                <td class="px-4 py-2.5 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.vat_exempt)}</td>
-                <td class="px-4 py-2.5 text-xs text-gray-600 border-r border-gray-100">${row.inserted_by ?? '—'}</td>
-                <td class="px-4 py-2.5 text-center">
+                <td class="px-1 py-1 text-center text-xs text-gray-400 font-mono border-r border-gray-100">${rowNum}</td>
+                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100 whitespace-nowrap">${row.date ?? ''}</td>
+                <td class="px-1 py-1 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.reference_no ?? ''}</td>
+                <td class="px-1 py-1 text-xs text-gray-700 border-r border-gray-100">${row.account_title ?? ''}</td>
+                <td class="px-1 py-1 text-xs text-gray-700 border-r border-gray-100">${row.particulars ?? ''}</td>
+                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.project_department ?? ''}</td>
+                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.in_charge ?? ''}</td>
+                <td class="px-1 py-1 text-xs font-mono text-right text-red-600 border-r border-gray-100 font-semibold whitespace-nowrap">${money(row.actual)}</td>
+                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.supplier_name_corp ?? ''}</td>
+                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.supplier_name_indiv ?? ''}</td>
+                <td class="px-1 py-1 text-xs text-gray-500 border-r border-gray-100">${row.address ?? ''}</td>
+                <td class="px-1 py-1 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.tin ?? ''}</td>
+                <td class="px-1 py-1 text-xs font-mono text-right text-purple-600 border-r border-gray-100 whitespace-nowrap">${money(row.vatable_amount)}</td>
+                <td class="px-1 py-1 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.vat)}</td>
+                <td class="px-1 py-1 text-xs font-mono text-right text-gray-800 font-semibold border-r border-gray-100 whitespace-nowrap">${money(row.total)}</td>
+                <td class="px-1 py-1 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.non_vat)}</td>
+                <td class="px-1 py-1 text-xs text-center text-gray-600 border-r border-gray-100">${row.no_sales_invoice ?? ''}</td>
+                <td class="px-1 py-1 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.vat_exempt)}</td>
+                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.inserted_by ?? '—'}</td>
+                <td class="px-1 py-1 text-center">
                     <div class="flex items-center justify-center gap-1.5">
                         <button onclick="editEntry(${row.id})"
                             class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-orange-100 text-gray-500 hover:text-orange-500 transition">
