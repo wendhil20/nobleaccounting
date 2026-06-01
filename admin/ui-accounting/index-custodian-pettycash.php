@@ -139,7 +139,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="radio" name="entry-type" id="type-received" value="received" checked
                                 class="accent-orange-500">
-                            <span class="text-sm text-gray-700 font-medium">Received</span>
+                            <span class="text-sm text-gray-700 font-medium">Receipts</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="radio" name="entry-type" id="type-beginning" value="beginning"
