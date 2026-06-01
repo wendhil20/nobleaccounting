@@ -28,8 +28,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 <p class="text-sm text-gray-400 mt-1">Cash inflows and transaction records</p>
             </div>
             <div class="flex items-center gap-3 flex-wrap">
-                <!-- Sheet Tabs -->
-                <!-- Sheet Tabs -->
                 <div class="flex items-center bg-white border border-gray-200 rounded-lg p-1 shadow-sm gap-1">
                     <span class="text-xs font-bold text-white bg-orange-500 px-3 py-1.5 rounded-md">General Sheet</span>
                     <a id="tab-custodian" href="<?= BASE_URL ?>/accountingcustodianpettycashtwo"
@@ -41,7 +39,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         Department Sheet <i class="fa-solid fa-arrow-right text-[9px]"></i>
                     </a>
                 </div>
-                <!-- Month Filter -->
                 <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm">
                     <i class="fa-solid fa-calendar text-orange-400 text-xs"></i>
                     <input type="month" id="filter-month"
@@ -65,22 +62,12 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Total Cash Inflows</p>
                 <p id="card-inflows" class="text-xl font-bold text-green-600">₱ 0.00</p>
             </div>
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Total Actual (Expenses)
-                </p>
-                <p id="card-actual" class="text-xl font-bold text-red-500">₱ 0.00</p>
-            </div>
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 border-l-4 border-l-blue-400">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Remaining Balance</p>
-                <p id="card-balance" class="text-xl font-bold text-blue-600">₱ 0.00</p>
-                <p class="text-[9px] text-gray-400 mt-1">→ Becomes next month's beginning</p>
-            </div>
         </div>
 
         <!-- Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-sm border-collapse min-w-[1200px]">
+                <table class="w-full text-sm border-collapse min-w-[900px]">
                     <thead class="sticky top-0 z-10">
                         <tr class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-widest">
                             <th class="px-3 py-3 text-center border-r border-orange-400 w-10">No.</th>
@@ -89,10 +76,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             <th class="px-4 py-3 text-center border-r border-orange-400 w-24">Voucher No.</th>
                             <th class="px-4 py-3 text-left border-r border-orange-400 w-36">Account Title</th>
                             <th class="px-4 py-3 text-left border-r border-orange-400">Particulars</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-32">Department</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-28">In-Charge</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-28">Actual</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-28">Remarks</th>
+                            <th class="px-4 py-3 text-left border-r border-orange-400 w-28">Source</th>
                             <th class="px-4 py-3 text-left border-r border-orange-400 w-28">Reference</th>
                             <th class="px-4 py-3 text-left border-r border-orange-400 w-28">Added By</th>
                             <th class="px-4 py-3 text-center w-20">Action</th>
@@ -100,7 +84,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     </thead>
                     <tbody id="sheet-tbody">
                         <tr>
-                            <td colspan="12" class="px-5 py-10 text-center text-gray-400 text-sm">
+                            <td colspan="10" class="px-5 py-10 text-center text-gray-400 text-sm">
                                 <i class="fa-solid fa-table text-2xl mb-2 block"></i>No entries yet
                             </td>
                         </tr>
@@ -113,11 +97,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             <td id="foot-inflows"
                                 class="px-4 py-3 text-right font-bold font-mono text-green-600 border-r border-gray-200 text-xs">
                             </td>
-                            <td colspan="5" class="border-r border-gray-200"></td>
-                            <td id="foot-actual"
-                                class="px-4 py-3 text-right font-bold font-mono text-red-500 border-r border-gray-200 text-xs">
-                            </td>
-                            <td colspan="3"></td>
+                            <td colspan="7"></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -206,52 +186,22 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
                 <!-- Particulars -->
                 <div class="col-span-2">
-                    <label
-                        class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Particulars
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Particulars
                         <span class="text-red-400">*</span></label>
                     <input type="text" id="entry-particulars" placeholder="e.g. Petty Cash Beginning"
                         class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-100 transition">
                 </div>
 
-                <!-- Department -->
+                <!-- Source (was In-Charge) -->
                 <div>
-                    <label
-                        class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Department</label>
-                    <input type="text" id="entry-department" placeholder="e.g. Accounting"
-                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-100 transition">
-                </div>
-
-                <!-- In-Charge -->
-                <div>
-                    <label
-                        class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">In-Charge</label>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Source</label>
                     <input type="text" id="entry-in-charge" placeholder="e.g. Juan Dela Cruz"
                         class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-100 transition">
                 </div>
 
-                <!-- Actual -->
-                <div>
-                    <label
-                        class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Actual</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₱</span>
-                        <input type="number" id="entry-actual" step="0.01" min="0" placeholder="0.00"
-                            class="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2 text-sm text-gray-800 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-100 transition">
-                    </div>
-                </div>
-
-                <!-- Remarks -->
-                <div>
-                    <label
-                        class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Remarks</label>
-                    <input type="text" id="entry-remarks" placeholder="Optional"
-                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-100 transition">
-                </div>
-
                 <!-- Reference -->
-                <div class="col-span-2">
-                    <label
-                        class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Reference</label>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Reference</label>
                     <input type="text" id="entry-reference" placeholder="Optional reference"
                         class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-100 transition">
                 </div>
@@ -310,7 +260,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         function renderTable(data) {
             const tbody = document.getElementById('sheet-tbody');
             if (!data.length) {
-                tbody.innerHTML = `<tr><td colspan="12" class="px-5 py-10 text-center text-gray-400 text-sm">
+                tbody.innerHTML = `<tr><td colspan="10" class="px-5 py-10 text-center text-gray-400 text-sm">
                 <i class="fa-solid fa-table text-2xl mb-2 block"></i>No entries yet</td></tr>`;
                 return;
             }
@@ -336,13 +286,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 <td class="px-4 py-3 text-xs text-gray-700 border-r border-gray-100">
                     ${badge}${row.particulars ?? ''}
                 </td>
-                <td class="px-4 py-3 text-xs text-gray-600 border-r border-gray-100">${row.department ?? ''}</td>
                 <td class="px-4 py-3 text-xs text-gray-600 border-r border-gray-100">${row.in_charge ?? ''}</td>
-                
-                <td class="px-4 py-3 text-xs font-mono text-right text-red-600 border-r border-gray-100">
-                    ${row.actual ? '₱ ' + parseFloat(row.actual).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : ''}
-                </td>
-                <td class="px-4 py-3 text-xs text-gray-500 border-r border-gray-100">${row.remarks ?? ''}</td>
                 <td class="px-4 py-3 text-xs text-gray-500 border-r border-gray-100">${row.reference ?? ''}</td>
                 <td class="px-4 py-3 text-xs text-gray-500 border-r border-gray-100">${row.inserted_by ?? ''}</td>
                 <td class="px-4 py-3 text-center">
@@ -363,7 +307,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
         // ── Summary ────────────────────────────────────────────────
         function renderSummary(data, month) {
-            let beginning = 0, inflows = 0, actual = 0;
+            let beginning = 0, inflows = 0;
 
             data.forEach(row => {
                 if (row.entry_type === 'beginning') {
@@ -371,29 +315,18 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 } else {
                     inflows += parseFloat(row.cash_inflows || 0);
                 }
-                actual += parseFloat(row.actual || 0);
             });
 
-            // Remaining Balance = Beginning + Cash Inflows - Total Actual
-            const remaining = beginning + inflows - actual;
+            const remaining = beginning + inflows;
             const fmt = v => '₱ ' + v.toLocaleString('en-PH', { minimumFractionDigits: 2 });
 
             document.getElementById('card-beginning').textContent = fmt(beginning);
             document.getElementById('card-inflows').textContent = fmt(inflows);
-            document.getElementById('card-actual').textContent = fmt(actual);
-            document.getElementById('card-balance').textContent = fmt(remaining);
+            document.getElementById('foot-inflows').textContent = fmt(beginning + inflows);
 
-            const totalInflows = beginning + inflows;
-            document.getElementById('foot-inflows').textContent = fmt(totalInflows);
-            document.getElementById('foot-actual').textContent = fmt(actual);
-
-            // Carryover bar
             if (data.length > 0) {
                 const [yr, mo] = month.split('-').map(Number);
-                const nextDate = new Date(yr, mo, 1); // JS months are 0-indexed so mo = next month
-                const nextMonth = nextDate.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' });
                 const currentMonthLabel = new Date(yr, mo - 1, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' });
-
                 document.getElementById('carryover-month').textContent = currentMonthLabel;
                 document.getElementById('carryover-amount').textContent = fmt(remaining);
                 document.getElementById('carryover-bar').classList.remove('hidden');
@@ -407,19 +340,14 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             editMode = false;
             document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-plus mr-2 text-orange-500"></i>Add Entry';
             document.getElementById('entry-id').value = '';
-
             const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
             document.getElementById('entry-date').value = today;
             document.getElementById('entry-date').readOnly = true;
-
             document.getElementById('entry-cash-inflows').value = '';
             document.getElementById('entry-voucher-no').value = '';
             document.getElementById('entry-account-title').value = '';
             document.getElementById('entry-particulars').value = '';
-            document.getElementById('entry-department').value = '';
             document.getElementById('entry-in-charge').value = '';
-            document.getElementById('entry-actual').value = '';
-            document.getElementById('entry-remarks').value = '';
             document.getElementById('entry-reference').value = '';
             document.querySelector('input[name="entry-type"][value="received"]').checked = true;
             document.getElementById('entry-modal').classList.remove('hidden');
@@ -437,10 +365,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             document.getElementById('entry-voucher-no').value = row.voucher_no ?? '';
             document.getElementById('entry-account-title').value = row.account_title ?? '';
             document.getElementById('entry-particulars').value = row.particulars ?? '';
-            document.getElementById('entry-department').value = row.department ?? '';
             document.getElementById('entry-in-charge').value = row.in_charge ?? '';
-            document.getElementById('entry-actual').value = row.actual ?? '';
-            document.getElementById('entry-remarks').value = row.remarks ?? '';
             document.getElementById('entry-reference').value = row.reference ?? '';
             const typeVal = row.entry_type === 'beginning' ? 'beginning' : 'received';
             document.querySelector(`input[name="entry-type"][value="${typeVal}"]`).checked = true;
@@ -468,10 +393,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 voucher_no: document.getElementById('entry-voucher-no').value.trim(),
                 account_title: document.getElementById('entry-account-title').value.trim(),
                 particulars,
-                department: document.getElementById('entry-department').value.trim(),
                 in_charge: document.getElementById('entry-in-charge').value.trim(),
-                actual: document.getElementById('entry-actual').value || 0,
-                remarks: document.getElementById('entry-remarks').value.trim(),
                 reference: document.getElementById('entry-reference').value.trim(),
             };
 

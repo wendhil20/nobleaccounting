@@ -6,7 +6,7 @@ include ROOT_PATH . '/admin/authentication/index-authguard.php';
 include ROOT_PATH . '/admin/authentication/index-roles.php';
 
 $allowedRoles = [ROLE_ACCOUNTING];
-$allowedPositions = [POSITION_CUSTODIAN,POSITION_HEAD];
+$allowedPositions = [POSITION_CUSTODIAN, POSITION_HEAD];
 include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
 ?>
@@ -225,8 +225,10 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             <label
                                 class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Project
                                 Name</label>
-                            <input id="f-project-name" type="text"
+                            <select id="f-project-name"
                                 class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400">
+                                <option value="">— Select —</option>
+                            </select>
                         </div>
                         <div>
                             <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Job
@@ -382,143 +384,144 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 <!-- Step 3: Fields (shown based on mode) -->
                 <div id="entry-fields" class="hidden space-y-4">
                     <div id="hybrid-grid" class="grid grid-cols-1 gap-4">
-                    <!-- ─── BILLING FIELDS ─────────────────────────────── -->
-                    <div id="billing-fields" class="hidden">
-                        <span class="section-tag billing">Billed &amp; Paid by Client</span>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="col-span-2">
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Particulars</label>
-                                <input id="b-particulars" type="text"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400"
-                                    placeholder="e.g. Progress Billing #1">
-                            </div>
-                            <div>
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Amount</label>
-                                <div class="relative">
-                                    <span
-                                        class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold">₱</span>
-                                    <input id="b-amount" type="text" inputmode="decimal"
-                                        class="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2 text-sm outline-none focus:border-orange-400 font-mono"
-                                        placeholder="0.00" oninput="formatAmountInput(this)">
+                        <!-- ─── BILLING FIELDS ─────────────────────────────── -->
+                        <div id="billing-fields" class="hidden">
+                            <span class="section-tag billing">Billed &amp; Paid by Client</span>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="col-span-2">
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Particulars</label>
+                                    <input id="b-particulars" type="text"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400"
+                                        placeholder="e.g. Progress Billing #1">
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Amount</label>
+                                    <div class="relative">
+                                        <span
+                                            class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold">₱</span>
+                                        <input id="b-amount" type="text" inputmode="decimal"
+                                            class="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2 text-sm outline-none focus:border-orange-400 font-mono"
+                                            placeholder="0.00" oninput="formatAmountInput(this)">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Bank
+                                        / Check</label>
+                                    <input id="b-bank-check" type="text"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400"
+                                        placeholder="e.g. BDO Check #123">
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Payment
+                                        Date</label>
+                                    <input id="b-payment-date" type="date"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400">
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Reference</label>
+                                    <input id="b-reference" type="text"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400"
+                                        placeholder="Reference No.">
+                                </div>
+                                <div class="col-span-2">
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Remarks</label>
+                                    <input id="b-remarks" type="text"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400"
+                                        placeholder="Optional notes">
                                 </div>
                             </div>
-                            <div>
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Bank
-                                    / Check</label>
-                                <input id="b-bank-check" type="text"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400"
-                                    placeholder="e.g. BDO Check #123">
-                            </div>
-                            <div>
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Payment
-                                    Date</label>
-                                <input id="b-payment-date" type="date"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400">
-                            </div>
-                            <div>
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Reference</label>
-                                <input id="b-reference" type="text"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400"
-                                    placeholder="Reference No.">
-                            </div>
-                            <div class="col-span-2">
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Remarks</label>
-                                <input id="b-remarks" type="text"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400"
-                                    placeholder="Optional notes">
-                            </div>
                         </div>
-                    </div>
 
-                    <!-- ─── EXPENSE FIELDS ─────────────────────────────── -->
-                    <div id="expense-fields" class="hidden">
-                        <span class="section-tag expense">Costs / Expenses</span>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Title</label>
-                                <input id="e-title" type="text"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400"
-                                    placeholder="e.g. Labor, Materials">
-                            </div>
-                            <div>
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Mode
-                                    of Payment</label>
-                                <select id="e-mode"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400">
-                                    <option value="">— Select —</option>
-                                    <option>Cash</option>
-                                    <option>Check</option>
-                                    <option>Bank Transfer</option>
-                                    <option>GCash</option>
-                                    <option>Other</option>
-                                </select>
-                            </div>
-                            <div class="col-span-2">
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Particulars</label>
-                                <input id="e-particulars" type="text"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400"
-                                    placeholder="e.g. Purchase of cement bags">
-                            </div>
-                            <div>
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Amount</label>
-                                <div class="relative">
-                                    <span
-                                        class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold">₱</span>
-                                    <input id="e-amount" type="text" inputmode="decimal"
-                                        class="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2 text-sm outline-none focus:border-slate-400 font-mono"
-                                        placeholder="0.00" oninput="formatAmountInput(this)">
+                        <!-- ─── EXPENSE FIELDS ─────────────────────────────── -->
+                        <div id="expense-fields" class="hidden">
+                            <span class="section-tag expense">Costs / Expenses</span>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Title</label>
+                                    <input id="e-title" type="text"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400"
+                                        placeholder="e.g. Labor, Materials">
                                 </div>
-                            </div>
-                            <div>
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Payment
-                                    Date</label>
-                                <input id="e-payment-date" type="date"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400">
-                            </div>
-                            <div>
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Reference</label>
-                                <input id="e-reference" type="text"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400"
-                                    placeholder="Reference No.">
-                            </div>
-                            <div>
-                                <label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Remarks</label>
-                                <input id="e-remarks" type="text"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400"
-                                    placeholder="Optional notes">
+                                <div>
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Mode
+                                        of Payment</label>
+                                    <select id="e-mode"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400">
+                                        <option value="">— Select —</option>
+                                        <option>Cash</option>
+                                        <option>Check</option>
+                                        <option>Bank Transfer</option>
+                                        <option>GCash</option>
+                                        <option>Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2">
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Particulars</label>
+                                    <input id="e-particulars" type="text"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400"
+                                        placeholder="e.g. Purchase of cement bags">
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Amount</label>
+                                    <div class="relative">
+                                        <span
+                                            class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold">₱</span>
+                                        <input id="e-amount" type="text" inputmode="decimal"
+                                            class="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2 text-sm outline-none focus:border-slate-400 font-mono"
+                                            placeholder="0.00" oninput="formatAmountInput(this)">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Payment
+                                        Date</label>
+                                    <input id="e-payment-date" type="date"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400">
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Reference</label>
+                                    <input id="e-reference" type="text"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400"
+                                        placeholder="Reference No.">
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Remarks</label>
+                                    <input id="e-remarks" type="text"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-400"
+                                        placeholder="Optional notes">
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div><!-- /entry-fields -->
+            </div>
+
+            <!-- Footer -->
+            <div
+                class="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-xl">
+                <p id="entry-mode-hint" class="text-[10px] text-gray-400 italic">Select a mode above to continue.</p>
+                <div class="flex items-center gap-2">
+                    <button onclick="closeEntryModal()"
+                        class="text-sm text-gray-500 hover:text-gray-700 px-4 py-2 rounded border border-gray-200">Cancel</button>
+                    <button id="entry-save-btn" onclick="saveEntry()" disabled
+                        class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all">
+                        <i class="fa-solid fa-floppy-disk text-xs"></i> Save Entry
+                    </button>
                 </div>
-            </div><!-- /entry-fields -->
-        </div>
-
-        <!-- Footer -->
-        <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-xl">
-            <p id="entry-mode-hint" class="text-[10px] text-gray-400 italic">Select a mode above to continue.</p>
-            <div class="flex items-center gap-2">
-                <button onclick="closeEntryModal()"
-                    class="text-sm text-gray-500 hover:text-gray-700 px-4 py-2 rounded border border-gray-200">Cancel</button>
-                <button id="entry-save-btn" onclick="saveEntry()" disabled
-                    class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all">
-                    <i class="fa-solid fa-floppy-disk text-xs"></i> Save Entry
-                </button>
             </div>
         </div>
-    </div>
     </div>
 
 
@@ -633,6 +636,24 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     document.getElementById('f-status').value = row.status ?? '';
                 }
             }
+
+
+            // Fetch project names and populate dropdown
+            fetch('<?= BASE_URL ?>/fetchprojectnames')
+                .then(res => res.json())
+                .then(names => {
+                    const sel = document.getElementById('f-project-name');
+                    const currentVal = sel.value;
+                    sel.innerHTML = '<option value="">— Select —</option>';
+                    names.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.name;
+                        opt.textContent = p.name;
+                        sel.appendChild(opt);
+                    });
+                    if (currentVal) sel.value = currentVal;
+                });
+
 
             document.getElementById('add-modal').dataset.editId = id ?? '';
             document.getElementById('add-modal').classList.remove('hidden');

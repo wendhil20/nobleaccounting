@@ -502,7 +502,6 @@ if (!$project) {
     <script>
         const PROJECT_ID = <?= $project_id ?>;
         const CONTRACT_AMOUNT = <?= floatval($project['contract_amount'] ?? 0) ?>;
-        const BASE_URL = '<?= BASE_URL ?>';
 
         function formatAmountInput(input) {
             let raw = input.value.replace(/,/g, '').replace(/[^0-9.]/g, '');

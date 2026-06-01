@@ -25,7 +25,6 @@ $non_vat          = floatval($body['non_vat'] ?? 0);
 $no_sales_invoice = trim($body['no_sales_invoice'] ?? '');
 $vat_exempt       = floatval($body['vat_exempt'] ?? 0);
 
-// ✅ DAGDAG — kunin sa session
 $inserted_by = $_SESSION['username'] ?? 'Unknown';
 
 if (!$date || !$particulars) {
@@ -34,7 +33,6 @@ if (!$date || !$particulars) {
 }
 
 if ($id) {
-    // UPDATE — huwag baguhin ang inserted_by
     $stmt = $conn->prepare("
         UPDATE noblepettycashcustodiantwo SET
             date = ?, reference_no = ?, account_title = ?, particulars = ?,
@@ -44,16 +42,15 @@ if ($id) {
             no_sales_invoice = ?, vat_exempt = ?, updated_at = NOW()
         WHERE id = ?
     ");
-    $stmt->bind_param(
-        "ssssssdssssddddssdi",
-        $date, $reference_no, $account_title, $particulars,
-        $project_dept, $in_charge, $actual,
-        $supplier_corp, $supplier_indiv, $address, $tin,
-        $vatable_amount, $vat, $total, $non_vat,
-        $no_sales_invoice, $vat_exempt, $id
-    );
+   $stmt->bind_param(
+    "ssssssdssssddddsdi",
+    $date, $reference_no, $account_title, $particulars,
+    $project_dept, $in_charge, $actual,
+    $supplier_corp, $supplier_indiv, $address, $tin,
+    $vatable_amount, $vat, $total, $non_vat,
+    $no_sales_invoice, $vat_exempt, $id
+);
 } else {
-    // ✅ INSERT — isama ang inserted_by
     $stmt = $conn->prepare("
         INSERT INTO noblepettycashcustodiantwo
             (date, reference_no, account_title, particulars,
@@ -64,7 +61,7 @@ if ($id) {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     ");
     $stmt->bind_param(
-        "ssssssdssssddddsss",  // ✅ dagdag na 's' sa dulo para sa inserted_by
+        "ssssssdssssddddsss",
         $date, $reference_no, $account_title, $particulars,
         $project_dept, $in_charge, $actual,
         $supplier_corp, $supplier_indiv, $address, $tin,
@@ -74,6 +71,69 @@ if ($id) {
 }
 
 $success = $stmt->execute();
+
+// ── AUTO-LINK TO PROJECT MONITOR ──────────────────────────────────────────────
+if ($success && $project_dept) {
+    $petty_id = $id ? $id : $conn->insert_id;
+
+    $ps = $conn->prepare("SELECT id, contract_amount FROM nobleprojectmonitor WHERE project_name = ? LIMIT 1");
+    $ps->bind_param("s", $project_dept);
+    $ps->execute();
+    $ps->bind_result($linked_project_id, $contractAmount);
+    $ps->fetch();
+    $ps->close();
+
+    if (!$linked_project_id) {
+        // Walang matching project — i-rollback yung pettycash insert/update
+        if (!$id) {
+            $rb = $conn->prepare("DELETE FROM noblepettycashcustodiantwo WHERE id = ?");
+            $rb->bind_param("i", $petty_id);
+            $rb->execute();
+            $rb->close();
+        }
+
+        echo json_encode([
+            'success' => false,
+            'message' => "No project found matching \"$project_dept\". Please create the project first in Project Monitor.",
+        ]);
+        exit;
+    }
+
+    // Check if may existing linked expense
+    $chk = $conn->prepare("SELECT id FROM nobleprojectexpense WHERE pettycash_source_id = ? LIMIT 1");
+    $chk->bind_param("i", $petty_id);
+    $chk->execute();
+    $chk->bind_result($existing_expense_id);
+    $chk->fetch();
+    $chk->close();
+
+    if ($existing_expense_id) {
+        $es = $conn->prepare("UPDATE nobleprojectexpense SET title=?, particulars=?, amount=?, payment_date=?, reference=? WHERE id=?");
+        $es->bind_param("ssdssi", $account_title, $particulars, $actual, $date, $reference_no, $existing_expense_id);
+        $es->execute();
+        $es->close();
+    } else {
+        $es = $conn->prepare("INSERT INTO nobleprojectexpense (project_id, title, particulars, amount, payment_date, reference, pettycash_source_id) VALUES (?,?,?,?,?,?,?)");
+        $es->bind_param("issdssi", $linked_project_id, $account_title, $particulars, $actual, $date, $reference_no, $petty_id);
+        $es->execute();
+        $es->close();
+    }
+
+    // Recompute income/loss
+    $s = $conn->prepare("SELECT COALESCE(SUM(amount), 0) FROM nobleprojectexpense WHERE project_id = ?");
+    $s->bind_param("i", $linked_project_id);
+    $s->execute();
+    $s->bind_result($totalExpenses);
+    $s->fetch();
+    $s->close();
+
+    $incomeLoss = $contractAmount - $totalExpenses;
+    $s3 = $conn->prepare("UPDATE nobleprojectmonitor SET possible_income_loss = ? WHERE id = ?");
+    $s3->bind_param("di", $incomeLoss, $linked_project_id);
+    $s3->execute();
+    $s3->close();
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 echo json_encode([
     'success' => $success,

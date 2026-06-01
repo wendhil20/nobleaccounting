@@ -194,11 +194,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                     <span class="sidebar-label">Requests List</span>
                 </a>
 
-                <a href="<?= BASE_URL ?>/accountinggeneralsheet" data-tooltip="General Sheet"
-                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountinggeneralsheet') ?>">
-                    <i class="fa-solid fa-clipboard-list w-4 text-center text-sm flex-shrink-0"></i>
-                    <span class="sidebar-label">General Sheet</span>
-                </a>
+             
 
                 <a href="<?= BASE_URL ?>/accountingcustodianpettycash" data-tooltip="Petty Cash"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingcustodianpettycash') ?>">
@@ -232,12 +228,6 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingcustodian') ?>">
                     <i class="fa-solid fa-list w-4 text-center text-sm flex-shrink-0"></i>
                     <span class="sidebar-label">Cash Voucher Request</span>
-                </a>
-
-                <a href="<?= BASE_URL ?>/accountinggeneralsheet" data-tooltip="General Sheet"
-                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountinggeneralsheet') ?>">
-                    <i class="fa-solid fa-clipboard-list w-4 text-center text-sm flex-shrink-0"></i>
-                    <span class="sidebar-label">General Sheet</span>
                 </a>
 
                 <a href="<?= BASE_URL ?>/accountingcustodianpettycash" data-tooltip="Petty Cash"
@@ -321,6 +311,12 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingtracking') ?>">
                 <i class="fa-solid fa-timeline w-4 text-center text-sm flex-shrink-0"></i>
                 <span class="sidebar-label">Tracking Req & Vouch</span>
+            </a>
+
+            <a href="<?= BASE_URL ?>/accountinggeneralsheet" data-tooltip="General Sheet"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountinggeneralsheet') ?>">
+                <i class="fa-solid fa-clipboard-list w-4 text-center text-sm flex-shrink-0"></i>
+                <span class="sidebar-label">General Sheet</span>
             </a>
         <?php endif; ?>
 

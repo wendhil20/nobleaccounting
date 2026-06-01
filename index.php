@@ -111,6 +111,8 @@ $adminRoutes = [
     'savepettycashdepartment',
     'deletepettycashdepartment',
     'pettycashdepartment',
+    'fetchsalespersons',
+    'savesalesperson',
 
     // custiodiansublink
     'projectmonitor',                   
@@ -225,6 +227,9 @@ $routes = [
     'accountingtracking'               => 'admin/ui-accounting/index-accounting-tracking.php',
     'accountinggeneralsheet'           => 'admin/ui-accounting/index-accounting-generalsheet.php',
     'accountingpettycash'              => 'admin/ui-accounting/index-accounting-pettycash.php',
+    'savenoblegeneralsheet'            => 'admin/ui-accounting/backend/backend-accounting/noble-save-generalsheet.php',
+    'fetchnoblegeneralsheet'           => 'admin/ui-accounting/backend/backend-accounting/noble-fetch-generalsheet.php',
+    'deletenoblegeneralsheet'          => 'admin/ui-accounting/backend/backend-accounting/noble-delete-generalsheet.php',
     
     //staffaccounting
     'accountingstaff'                  => 'admin/ui-accounting/index-staff-main.php',
@@ -256,6 +261,8 @@ $routes = [
     'savepettycashdepartment'          => 'admin/ui-accounting/backend/backend-custodian/pettycashtwo-save-department.php',
     'deletepettycashdepartment'        => 'admin/ui-accounting/backend/backend-custodian/pettycashtwo-delete-department.php',
     'pettycashdepartment'              => 'admin/ui-accounting/index-custodian-pettycash-department.php',
+    'fetchprojectnames'                => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-fetchprojectname.php',
+    'saveprojectname'                  => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-saveprojectname.php',
 
 
     // custiodiansublink

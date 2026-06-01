@@ -69,10 +69,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </p>
                 <p id="card-actual" class="text-xl font-bold text-red-500">₱ 0.00</p>
             </div>
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Total VATable</p>
-                <p id="card-vatable" class="text-xl font-bold text-purple-600">₱ 0.00</p>
-            </div>
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 border-l-4 border-l-blue-400">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Remaining Balance</p>
                 <p id="card-balance" class="text-xl font-bold text-blue-600">₱ 0.00</p>
@@ -753,7 +749,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
             document.getElementById('card-inflows').textContent = fmt(generalSheetInflows);
             document.getElementById('card-actual').textContent = fmt(actual);
-            document.getElementById('card-vatable').textContent = fmt(vatable);
             document.getElementById('card-balance').textContent = fmt(remaining);
 
             document.getElementById('foot-actual').textContent = fmt(actual);
