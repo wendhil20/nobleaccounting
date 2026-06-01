@@ -78,7 +78,8 @@ $adminRoutes = [
     'accountingsignatured',     
     'accountingtracking',     
     'accountinggeneralsheet',     
-    'accountingpettycash',     
+    'accountingpettycash',  
+    'accountingpettycashtwo',   
 
     //staffaccounting
     'accountingstaff',                  
@@ -95,7 +96,21 @@ $adminRoutes = [
     'submitrequestvoucher',             
     'accountingcustodianassistant',     
     'announcementcustodian',            
-    'accountingcustodianpettycash',     
+    'accountingcustodianpettycash',  
+    'accountingcustodianpettycashtwo',  
+    'savegeneralsheet',                 
+    'fetchgeneralsheet',                
+    'deletegeneralsheet',   
+    'savecustodiansheetpettycashtwo',   
+    'fetchcustodiansheetpettycashtwo',  
+    'deletecustodiansheetpettycashtwo', 
+    'fetchpettycashaccounttitles',
+    'savepettycashaccounttitle',
+    'deletepettycashaccounttitle',
+    'fetchpettycashdepartment',
+    'savepettycashdepartment',
+    'deletepettycashdepartment',
+    'pettycashdepartment',
 
     // custiodiansublink
     'projectmonitor',                   
@@ -210,7 +225,7 @@ $routes = [
     'accountingtracking'               => 'admin/ui-accounting/index-accounting-tracking.php',
     'accountinggeneralsheet'           => 'admin/ui-accounting/index-accounting-generalsheet.php',
     'accountingpettycash'              => 'admin/ui-accounting/index-accounting-pettycash.php',
-
+    
     //staffaccounting
     'accountingstaff'                  => 'admin/ui-accounting/index-staff-main.php',
     'accountingstaffdashboard'         => 'admin/ui-accounting/index-staff-dashboard.php',
@@ -224,9 +239,24 @@ $routes = [
     'accountingcustodiandashboard'     => 'admin/ui-accounting/index-custodian-dashboard.php',
     'fetchreceived'                    => 'admin/ui-accounting/backend/backend-custodian/index-custodian-fetch-received.php',
     'submitrequestvoucher'             => 'admin/ui-accounting/backend/backend-custodian/index-custodian-submit-voucher.php',
+    'savegeneralsheet'                 => 'admin/ui-accounting/backend/backend-custodian/index-custodian-pettycashsavegeneralsheet.php',
+    'fetchgeneralsheet'                => 'admin/ui-accounting/backend/backend-custodian/index-custodian-pettycashfetchgeneralsheet.php',
+    'deletegeneralsheet'               => 'admin/ui-accounting/backend/backend-custodian/index-custodian-pettycashdeletegeneralsheet.php',
     'accountingcustodianassistant'     => 'admin/ui-accounting/index-custodianassist-main.php',
     'announcementcustodian'            => 'admin/ui-accounting/index-custodian-dashboard.php',
     'accountingcustodianpettycash'     => 'admin/ui-accounting/index-custodian-pettycash.php',
+    'accountingcustodianpettycashtwo'  => 'admin/ui-accounting/index-custodian-pettycashtwo.php',
+    'savecustodiansheetpettycashtwo'   => 'admin/ui-accounting/backend/backend-custodian/index-custodian-pettycashtwosavegeneralsheet.php',
+    'fetchcustodiansheetpettycashtwo'  => 'admin/ui-accounting/backend/backend-custodian/index-custodian-pettycashtwofetchgeneralsheet.php',
+    'deletecustodiansheetpettycashtwo' => 'admin/ui-accounting/backend/backend-custodian/index-custodian-pettycashtwodeletegeneralsheet.php',
+    'fetchpettycashaccounttitles'      => 'admin/ui-accounting/backend/backend-custodian/pettycashtwo-fetch-account-title.php',
+    'savepettycashaccounttitle'        => 'admin/ui-accounting/backend/backend-custodian/pettycashtwo-save-account-title.php',
+    'deletepettycashaccounttitle'      => 'admin/ui-accounting/backend/backend-custodian/pettycashtwo-delete-account-title.php',
+    'fetchpettycashdepartment'         => 'admin/ui-accounting/backend/backend-custodian/pettycashtwo-fetch-department.php',
+    'savepettycashdepartment'          => 'admin/ui-accounting/backend/backend-custodian/pettycashtwo-save-department.php',
+    'deletepettycashdepartment'        => 'admin/ui-accounting/backend/backend-custodian/pettycashtwo-delete-department.php',
+    'pettycashdepartment'              => 'admin/ui-accounting/index-custodian-pettycash-department.php',
+
 
     // custiodiansublink
     'projectmonitor'                   => 'admin/ui-accounting/index-projectmonitor-main.php',

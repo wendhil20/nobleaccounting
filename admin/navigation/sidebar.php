@@ -200,8 +200,8 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                     <span class="sidebar-label">General Sheet</span>
                 </a>
 
-                <a href="<?= BASE_URL ?>/accountingpettycash" data-tooltip="Petty Cash"
-                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingpettycash') ?>">
+                <a href="<?= BASE_URL ?>/accountingcustodianpettycash" data-tooltip="Petty Cash"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingcustodianpettycash') ?>">
                     <i class="fa-solid fa-coins w-4 text-center text-sm flex-shrink-0"></i>
                     <span class="sidebar-label">Petty Cash</span>
                 </a>
