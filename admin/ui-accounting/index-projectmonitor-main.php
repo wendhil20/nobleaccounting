@@ -225,10 +225,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             <label
                                 class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Project
                                 Name</label>
-                            <select id="f-project-name"
-                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400">
-                                <option value="">— Select —</option>
-                            </select>
+                            <div class="flex gap-2">
+                                <select id="f-project-name"
+                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400">
+                                    <option value="">— Select —</option>
+                                </select>
+                                <button type="button" onclick="openProjectNameManager()"
+                                    class="shrink-0 w-8 h-9 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-orange-50 hover:border-orange-300 text-gray-400 hover:text-orange-500 transition"
+                                    title="Manage project names">
+                                    <i class="fa-solid fa-gear text-xs"></i>
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Job
@@ -523,14 +530,151 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             </div>
         </div>
     </div>
+    <!-- Project Name Manager Modal -->
+    <div id="projectname-manager-modal"
+        class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
+        <div class="bg-white w-full max-w-md rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[80vh]">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
+                <h3 class="font-bold text-sm uppercase tracking-widest text-gray-700">
+                    <i class="fa-solid fa-gear mr-2 text-orange-500"></i>Manage Project Names
+                </h3>
+                <button onclick="closeProjectNameManager()" class="text-gray-400 hover:text-gray-600 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="px-4 py-3 border-b border-gray-100 flex gap-2 flex-shrink-0">
+                <input type="text" id="new-projectname-input" placeholder="New project name..."
+                    onkeydown="if(event.key==='Enter') addNewProjectName()"
+                    class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-100 transition uppercase">
+                <button onclick="addNewProjectName()"
+                    class="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+                    <i class="fa-solid fa-plus text-[10px]"></i> Add
+                </button>
+            </div>
+            <div id="projectname-list" class="overflow-y-auto flex-1 px-2 py-2"></div>
+            <div class="px-6 py-3 border-t border-gray-100 bg-gray-50 flex-shrink-0 text-right">
+                <button onclick="closeProjectNameManager()"
+                    class="text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg transition">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
 
-
-    <!-- ════════════════════════════════════════════════════════════
-     SCRIPTS
-═════════════════════════════════════════════════════════════ -->
     <script>
         let allProjects = [];
         let currentMode = null; // 'billing' | 'expense' | 'hybrid'
+        // ── PROJECT NAME MANAGER ───────────────────────────────────────────────────────
+
+        function openProjectNameManager() {
+            document.getElementById('projectname-manager-modal').classList.remove('hidden');
+            renderProjectNameList();
+        }
+
+        function closeProjectNameManager() {
+            document.getElementById('projectname-manager-modal').classList.add('hidden');
+            document.getElementById('new-projectname-input').value = '';
+            // Reload dropdown + preserve current selection
+            const currentVal = document.getElementById('f-project-name').value;
+            fetch('<?= BASE_URL ?>/fetchprojectnames')
+                .then(r => r.json())
+                .then(names => {
+                    const sel = document.getElementById('f-project-name');
+                    sel.innerHTML = '<option value="">— Select —</option>';
+                    names.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.name;
+                        opt.textContent = p.name;
+                        sel.appendChild(opt);
+                    });
+                    if (currentVal) sel.value = currentVal;
+                });
+        }
+
+        function renderProjectNameList() {
+            fetch('<?= BASE_URL ?>/fetchprojectnames')
+                .then(r => r.json())
+                .then(data => {
+                    const list = document.getElementById('projectname-list');
+                    list.innerHTML = data.length ? data.map(p => `
+                <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 group" id="pn-row-${p.id}">
+                    <span id="pn-text-${p.id}" class="text-sm text-gray-700 flex-1">${p.name}</span>
+                    <input id="pn-edit-${p.id}" type="text" value="${p.name}"
+                        class="hidden flex-1 border border-orange-300 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-orange-200 uppercase">
+                    <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition" id="pn-actions-${p.id}">
+                        <button onclick="startEditPN(${p.id})"
+                            class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 transition">
+                            <i class="fa-solid fa-pen text-[9px]"></i>
+                        </button>
+                        <button onclick="deletePN(${p.id})"
+                            class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-red-100 text-gray-400 hover:text-red-500 transition">
+                            <i class="fa-solid fa-trash text-[9px]"></i>
+                        </button>
+                    </div>
+                    <div class="hidden gap-1" id="pn-save-actions-${p.id}">
+                        <button onclick="saveEditPN(${p.id})"
+                            class="w-6 h-6 flex items-center justify-center rounded bg-green-100 hover:bg-green-200 text-green-600 transition">
+                            <i class="fa-solid fa-check text-[9px]"></i>
+                        </button>
+                        <button onclick="cancelEditPN(${p.id})"
+                            class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
+                            <i class="fa-solid fa-xmark text-[9px]"></i>
+                        </button>
+                    </div>
+                </div>`).join('')
+                        : '<p class="text-xs text-gray-400 text-center py-4">No project names yet.</p>';
+                });
+        }
+
+        function startEditPN(id) {
+            document.getElementById('pn-text-' + id).classList.add('hidden');
+            document.getElementById('pn-edit-' + id).classList.remove('hidden');
+            document.getElementById('pn-actions-' + id).classList.add('hidden');
+            document.getElementById('pn-save-actions-' + id).classList.remove('hidden');
+            document.getElementById('pn-save-actions-' + id).classList.add('flex');
+            document.getElementById('pn-edit-' + id).focus();
+        }
+        function cancelEditPN(id) {
+            document.getElementById('pn-text-' + id).classList.remove('hidden');
+            document.getElementById('pn-edit-' + id).classList.add('hidden');
+            document.getElementById('pn-actions-' + id).classList.remove('hidden');
+            document.getElementById('pn-save-actions-' + id).classList.add('hidden');
+            document.getElementById('pn-save-actions-' + id).classList.remove('flex');
+        }
+        function saveEditPN(id) {
+            const val = document.getElementById('pn-edit-' + id).value.trim();
+            if (!val) return;
+            fetch('<?= BASE_URL ?>/saveprojectname', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, name: val })
+            }).then(r => r.json()).then(d => { if (d.success) renderProjectNameList(); });
+        }
+        function deletePN(id) {
+            if (!confirm('Delete this project name?')) return;
+            fetch('<?= BASE_URL ?>/deleteprojectname', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            }).then(r => r.json()).then(d => { if (d.success) renderProjectNameList(); });
+        }
+        function addNewProjectName() {
+            const val = document.getElementById('new-projectname-input').value.trim();
+            if (!val) return;
+            fetch('<?= BASE_URL ?>/saveprojectname', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: val })
+            }).then(r => r.json()).then(d => {
+                if (d.success) {
+                    document.getElementById('new-projectname-input').value = '';
+                    renderProjectNameList();
+                    showToast('Project name added!');
+                } else {
+                    alert(d.message ?? 'Something went wrong.');
+                }
+            });
+        }
 
         // ── PROJECTS TABLE ─────────────────────────────────────────────────────────────
 

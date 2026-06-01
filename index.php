@@ -234,6 +234,7 @@ $routes = [
     'fetchnoblegeneralsheet'           => 'admin/ui-accounting/backend/backend-accounting/noble-fetch-generalsheet.php',
     'deletenoblegeneralsheet'          => 'admin/ui-accounting/backend/backend-accounting/noble-delete-generalsheet.php',
     
+    
     //staffaccounting
     'accountingstaff'                  => 'admin/ui-accounting/index-staff-main.php',
     'accountingstaffdashboard'         => 'admin/ui-accounting/index-staff-dashboard.php',
@@ -266,6 +267,7 @@ $routes = [
     'pettycashdepartment'              => 'admin/ui-accounting/index-custodian-pettycash-department.php',
     'fetchprojectnames'                => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-fetchprojectname.php',
     'saveprojectname'                  => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-saveprojectname.php',
+    'deleteprojectname'                => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-deleteprojectname.php',
 
 
     // custiodiansublink
