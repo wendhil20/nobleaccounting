@@ -379,7 +379,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
     <!-- Title Manager Modal -->
     <div id="title-manager-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
-        <div class="bg-white w-full max-w-md rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[80vh]">
+        <div class="bg-white w-full max-w-md rounded-xl shadow-xl overflow-hidden flex flex-col" style="max-height: 80vh;">
             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
                 <h3 class="font-bold text-sm uppercase tracking-widest text-gray-700">
                     <i class="fa-solid fa-gear mr-2 text-orange-500"></i>Manage Account Titles
@@ -399,7 +399,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </button>
             </div>
             <!-- List -->
-            <div id="title-list" class="overflow-y-auto flex-1 px-2 py-2"></div>
+            <div id="title-list" class="overflow-y-auto px-2 py-2" style="max-height: 320px;"></div>
             <div class="px-6 py-3 border-t border-gray-100 bg-gray-50 flex-shrink-0 text-right">
                 <button onclick="closeTitleManager()"
                     class="text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg transition">
@@ -429,7 +429,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <i class="fa-solid fa-plus text-[10px]"></i> Add
                 </button>
             </div>
-            <div id="dept-list" class="overflow-y-auto flex-1 px-2 py-2"></div>
+            <div id="dept-list" class="overflow-y-auto px-2 py-2" style="max-height: 320px;"></div>
             <div class="px-6 py-3 border-t border-gray-100 bg-gray-50 flex-shrink-0 text-right">
                 <button onclick="closeDeptManager()"
                     class="text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg transition">

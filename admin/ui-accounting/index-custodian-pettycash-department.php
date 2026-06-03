@@ -39,9 +39,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         class="text-xs font-semibold text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-100 transition flex items-center gap-1.5">
                         General Sheet Two <i class="fa-solid fa-arrow-right text-[9px]"></i>
                     </a>
-                    <span class="text-xs font-bold text-white bg-orange-500 px-3 py-1.5 rounded-md">Department
-                        Sheet</span>
-                </div>  
+                    <span class="text-xs font-bold text-white bg-orange-500 px-3 py-1.5 rounded-md">Department Sheet</span>
+                </div>
                 <!-- Month Filter -->
                 <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm">
                     <i class="fa-solid fa-calendar text-orange-400 text-xs"></i>
@@ -72,44 +71,72 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             </div>
         </div>
 
-        <!-- Department Tab Navbar -->
-        <div class="mb-4">
-            <div id="dept-tabs-wrapper" class="flex items-center gap-1 overflow-x-auto pb-1">
-                <div class="text-xs text-gray-400 italic py-2 px-3">Loading departments...</div>
-            </div>
-        </div>
-
         <!-- Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+
+            <!-- Filters row: Department dropdown + Account Title filter -->
+            <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 flex-wrap">
+
+                <!-- Department Dropdown -->
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-building text-orange-400 text-xs"></i>
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Department</span>
+                    <select id="filter-department"
+                        class="text-xs font-semibold text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-orange-300 transition">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+
+                <div class="w-px h-5 bg-gray-200"></div>
+
+                <!-- Account Title Dropdown -->
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-tag text-orange-400 text-xs"></i>
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Account Title</span>
+                    <select id="filter-account-title"
+                        class="text-xs font-semibold text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-orange-300 transition">
+                        <option value="">All Account Titles</option>
+                    </select>
+                </div>
+
+                <!-- Active account title badge -->
+                <span id="filter-badge" class="hidden items-center gap-1 text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-200 rounded-full px-2.5 py-0.5">
+                    <span id="filter-badge-text"></span>
+                    <button onclick="clearAccountFilter()" class="ml-1 hover:text-orange-800 transition">
+                        <i class="fa-solid fa-xmark text-[9px]"></i>
+                    </button>
+                </span>
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-sm border-collapse" style="min-width: 1800px;">
                     <thead class="sticky top-0 z-10">
                         <tr class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-widest">
-                            <th class="px-3 py-3 text-center border-r border-orange-400 w-10">No.</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-24">Date</th>
-                            <th class="px-4 py-3 text-center border-r border-orange-400 w-24">Ref No.</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-36">Account Title</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400">Particulars</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-28">Dept.</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-24">In-Charge</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-28">Actual</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-32">Supplier (Corp)</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-32">Supplier (Indiv)</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-28">Address</th>
-                            <th class="px-4 py-3 text-center border-r border-orange-400 w-24">TIN</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-24">VATable</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-20">VAT</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-24">Total</th>
-                            <th class="px-4 py-3 text-right border-r border-orange-400 w-24">Non-VAT</th>
-                            <th class="px-4 py-3 text-center border-r border-orange-400 w-28">No Sales Inv.</th>
-                            <th class="px-4 py-3 text-left border-r border-orange-400 w-24">Added By</th>
-                            <th class="px-4 py-3 text-right w-24">VAT Exempt</th>
+                            <th class="px-1 py-1 text-center border-r border-orange-400 w-10">No.</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-24">Date</th>
+                            <th class="px-1 py-1 text-center border-r border-orange-400 w-24">Ref No.</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-36">Account Title</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400">Particulars</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-28">Dept.</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-24">In-Charge</th>
+                            <th class="px-1 py-1 text-right border-r border-orange-400 w-28">Actual</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-32">Supplier (Corp)</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-32">Supplier (Indiv)</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-28">Address</th>
+                            <th class="px-1 py-1 text-center border-r border-orange-400 w-24">TIN</th>
+                            <th class="px-1 py-1 text-right border-r border-orange-400 w-24">VATable</th>
+                            <th class="px-1 py-1 text-right border-r border-orange-400 w-20">VAT</th>
+                            <th class="px-1 py-1 text-right border-r border-orange-400 w-24">Total</th>
+                            <th class="px-1 py-1 text-right border-r border-orange-400 w-24">Non-VAT</th>
+                            <th class="px-1 py-1 text-center border-r border-orange-400 w-28">No Sales Inv.</th>
+                            <th class="px-1 py-1 text-left border-r border-orange-400 w-24">Added By</th>
+                            <th class="px-1 py-1 text-right w-24">VAT Exempt</th>
                         </tr>
                     </thead>
                     <tbody id="sheet-tbody">
                         <tr>
                             <td colspan="19" class="px-5 py-10 text-center text-gray-400 text-sm">
-                                <i class="fa-solid fa-building text-2xl mb-2 block"></i>Select a department tab to view entries
+                                <i class="fa-solid fa-building text-2xl mb-2 block"></i>Select a department to view entries
                             </td>
                         </tr>
                     </tbody>
@@ -147,74 +174,106 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         const BASE_URL_JS = '<?= BASE_URL ?>';
         const fmt = v => '₱ ' + parseFloat(v || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 });
 
-        // ── Load Department Tabs ───────────────────────────────────
+        // ── Load Department Dropdown ───────────────────────────────
         function loadDepartmentTabs() {
             fetch(`${BASE_URL_JS}/fetchpettycashdepartment`)
                 .then(r => r.json())
                 .then(data => {
                     allDepartments = data;
-                    renderTabs();
+                    const sel = document.getElementById('filter-department');
+
+                    if (!data.length) {
+                        sel.innerHTML = '<option value="">No departments found</option>';
+                        document.getElementById('sheet-tbody').innerHTML =
+                            '<tr><td colspan="19" class="px-5 py-10 text-center text-gray-400 text-sm"><i class="fa-solid fa-building text-2xl mb-2 block"></i>No departments yet.</td></tr>';
+                        return;
+                    }
+
+                    sel.innerHTML = data.map(d =>
+                        `<option value="${d.id}" data-name="${d.name}">${d.name}</option>`
+                    ).join('');
 
                     // Auto-select from URL or first dept
                     const urlParams = new URLSearchParams(window.location.search);
                     const deptParam = urlParams.get('dept');
                     const match = data.find(d => d.name === deptParam);
+
                     if (match) {
+                        sel.value = match.id;
                         switchDept(match);
-                    } else if (data.length > 0) {
-                        switchDept(data[0]);
                     } else {
-                        document.getElementById('dept-tabs-wrapper').innerHTML =
-                            '<p class="text-xs text-gray-400 italic py-2 px-3">No departments found. Add one from Sheet Two → Department Manager.</p>';
-                        document.getElementById('sheet-tbody').innerHTML =
-                            '<tr><td colspan="18" class="px-5 py-10 text-center text-gray-400 text-sm"><i class="fa-solid fa-building text-2xl mb-2 block"></i>No departments yet.</td></tr>';
+                        sel.value = data[0].id;
+                        switchDept(data[0]);
                     }
                 });
         }
 
-        function renderTabs() {
-            const wrapper = document.getElementById('dept-tabs-wrapper');
-            wrapper.innerHTML = allDepartments.map(d => `
-                <button
-                    id="tab-btn-${d.id}"
-                    onclick='switchDept(${JSON.stringify(d)})'
-                    class="dept-tab flex-shrink-0 text-xs font-semibold px-4 py-2 rounded-lg border transition whitespace-nowrap
-                        ${activeDept && activeDept.id === d.id
-                            ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
-                            : 'bg-white text-gray-500 border-gray-200 hover:border-orange-300 hover:text-orange-500'}">
-                    ${d.name}
-                </button>
-            `).join('');
-        }
-
         function switchDept(dept) {
             activeDept = dept;
-            renderTabs();
             document.getElementById('card-dept').textContent = dept.name;
+            resetAccountFilter();
             fetchEntries();
 
-            // Update URL
             const url = new URL(window.location);
             url.searchParams.set('dept', dept.name);
             url.searchParams.set('month', document.getElementById('filter-month').value);
             window.history.replaceState({}, '', url);
         }
 
-        // ── Fetch Sheet Two entries filtered by dept ───────────────
+        // ── Account Title Filter Helpers ───────────────────────────
+        function populateAccountTitles(data) {
+            const select = document.getElementById('filter-account-title');
+            const current = select.value;
+            const titles = [...new Set(data.map(r => (r.account_title ?? '').trim()).filter(Boolean))].sort();
+            select.innerHTML = '<option value="">All Account Titles</option>' +
+                titles.map(t => `<option value="${t}"${t === current ? ' selected' : ''}>${t}</option>`).join('');
+        }
+
+        function resetAccountFilter() {
+            document.getElementById('filter-account-title').innerHTML = '<option value="">All Account Titles</option>';
+            document.getElementById('filter-badge').classList.add('hidden');
+            document.getElementById('filter-badge').classList.remove('flex');
+        }
+
+        function clearAccountFilter() {
+            document.getElementById('filter-account-title').value = '';
+            updateFilterBadge('');
+            fetchEntries();
+        }
+
+        function updateFilterBadge(val) {
+            const badge = document.getElementById('filter-badge');
+            if (val) {
+                document.getElementById('filter-badge-text').textContent = val;
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+            }
+        }
+
+        // ── Fetch Entries ──────────────────────────────────────────
         function fetchEntries() {
             if (!activeDept) return;
             const month = document.getElementById('filter-month').value;
 
-            // Fetch ALL Sheet Two entries for this month, then filter by dept client-side
             fetch(`${BASE_URL_JS}/fetchcustodiansheetpettycashtwo?month=${month}`)
                 .then(r => r.json())
                 .then(data => {
-                    // Filter by active department
                     const filtered = data.filter(row =>
                         (row.project_department ?? '').trim().toLowerCase() === activeDept.name.trim().toLowerCase()
                     );
-                    renderTable(filtered);
-                    renderSummary(filtered);
+
+                    populateAccountTitles(filtered);
+
+                    const acctFilter = document.getElementById('filter-account-title').value;
+                    const display = acctFilter
+                        ? filtered.filter(row => (row.account_title ?? '').trim() === acctFilter)
+                        : filtered;
+
+                    renderTable(display);
+                    renderSummary(display);
                 })
                 .catch(err => console.error(err));
         }
@@ -223,7 +282,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         function renderTable(data) {
             const tbody = document.getElementById('sheet-tbody');
             if (!data.length) {
-                tbody.innerHTML = `<tr><td colspan="18" class="px-5 py-10 text-center text-gray-400 text-sm">
+                tbody.innerHTML = `<tr><td colspan="19" class="px-5 py-10 text-center text-gray-400 text-sm">
                     <i class="fa-solid fa-table text-2xl mb-2 block"></i>No entries for <strong>${activeDept ? activeDept.name : 'this department'}</strong> this month.</td></tr>`;
                 return;
             }
@@ -232,25 +291,25 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 : '';
             tbody.innerHTML = data.map((row, idx) => `
                 <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
-                    <td class="px-3 py-2.5 text-center text-xs text-gray-400 font-mono border-r border-gray-100">${idx + 1}</td>
-                    <td class="px-4 py-2.5 text-xs text-gray-600 border-r border-gray-100 whitespace-nowrap">${row.date ?? ''}</td>
-                    <td class="px-4 py-2.5 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.reference_no ?? ''}</td>
-                    <td class="px-4 py-2.5 text-xs text-gray-700 border-r border-gray-100">${row.account_title ?? ''}</td>
-                    <td class="px-4 py-2.5 text-xs text-gray-700 border-r border-gray-100">${row.particulars ?? ''}</td>
-                    <td class="px-4 py-2.5 text-xs text-gray-600 border-r border-gray-100">${row.project_department ?? ''}</td>
-                    <td class="px-4 py-2.5 text-xs text-gray-600 border-r border-gray-100">${row.in_charge ?? ''}</td>
-                    <td class="px-4 py-2.5 text-xs font-mono text-right text-red-600 border-r border-gray-100 font-semibold whitespace-nowrap">${money(row.actual)}</td>
-                    <td class="px-4 py-2.5 text-xs text-gray-600 border-r border-gray-100">${row.supplier_name_corp ?? ''}</td>
-                    <td class="px-4 py-2.5 text-xs text-gray-600 border-r border-gray-100">${row.supplier_name_indiv ?? ''}</td>
-                    <td class="px-4 py-2.5 text-xs text-gray-500 border-r border-gray-100">${row.address ?? ''}</td>
-                    <td class="px-4 py-2.5 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.tin ?? ''}</td>
-                    <td class="px-4 py-2.5 text-xs font-mono text-right text-purple-600 border-r border-gray-100 whitespace-nowrap">${money(row.vatable_amount)}</td>
-                    <td class="px-4 py-2.5 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.vat)}</td>
-                    <td class="px-4 py-2.5 text-xs font-mono text-right text-gray-800 font-semibold border-r border-gray-100 whitespace-nowrap">${money(row.total)}</td>
-                    <td class="px-4 py-2.5 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.non_vat)}</td>
-                    <td class="px-4 py-2.5 text-xs text-center text-gray-600 border-r border-gray-100">${row.no_sales_invoice ?? ''}</td>
-                    <td class="px-4 py-2.5 text-xs text-gray-600 border-r border-gray-100">${row.inserted_by ?? '—'}</td>
-                    <td class="px-4 py-2.5 text-xs font-mono text-right text-gray-600 whitespace-nowrap">${money(row.vat_exempt)}</td>
+                    <td class="px-1 py-1 text-center text-xs text-gray-400 font-mono border-r border-gray-100">${idx + 1}</td>
+                    <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100 whitespace-nowrap">${row.date ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.reference_no ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-700 border-r border-gray-100">${row.account_title ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-700 border-r border-gray-100">${row.particulars ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.project_department ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.in_charge ?? ''}</td>
+                    <td class="px-1 py-1 text-xs font-mono text-right text-red-600 border-r border-gray-100 font-semibold whitespace-nowrap">${money(row.actual)}</td>
+                    <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.supplier_name_corp ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.supplier_name_indiv ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-500 border-r border-gray-100">${row.address ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.tin ?? ''}</td>
+                    <td class="px-1 py-1 text-xs font-mono text-right text-purple-600 border-r border-gray-100 whitespace-nowrap">${money(row.vatable_amount)}</td>
+                    <td class="px-1 py-1 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.vat)}</td>
+                    <td class="px-1 py-1 text-xs font-mono text-right text-gray-800 font-semibold border-r border-gray-100 whitespace-nowrap">${money(row.total)}</td>
+                    <td class="px-1 py-1 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.non_vat)}</td>
+                    <td class="px-1 py-1 text-xs text-center text-gray-600 border-r border-gray-100">${row.no_sales_invoice ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.inserted_by ?? '—'}</td>
+                    <td class="px-1 py-1 text-xs font-mono text-right text-gray-600 whitespace-nowrap">${money(row.vat_exempt)}</td>
                 </tr>`).join('');
         }
 
@@ -282,10 +341,21 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         if (monthParam) document.getElementById('filter-month').value = monthParam;
 
         document.getElementById('filter-month').addEventListener('change', () => {
+            resetAccountFilter();
             fetchEntries();
             const url = new URL(window.location);
             url.searchParams.set('month', document.getElementById('filter-month').value);
             window.history.replaceState({}, '', url);
+        });
+
+        document.getElementById('filter-department').addEventListener('change', function () {
+            const selected = allDepartments.find(d => d.id == this.value);
+            if (selected) switchDept(selected);
+        });
+
+        document.getElementById('filter-account-title').addEventListener('change', function () {
+            updateFilterBadge(this.value);
+            fetchEntries();
         });
 
         loadDepartmentTabs();
