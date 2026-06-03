@@ -20,61 +20,69 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 </head>
 
 <body class="bg-slate-100">
-    <main id="main-content" class="ml-56 min-h-screen p-8 transition-all duration-300">
+    <main id="main-content" class="md:ml-56 pt-20 md:pt-5 min-h-screen p-4 md:p-8 transition-all duration-300">
 
         <!-- Header -->
-        <div class="mb-6 flex items-center justify-between flex-wrap gap-4">
+        <div class="mb-4 flex items-start justify-between flex-wrap gap-2">
             <div>
-                <h1 class="text-xl font-bold text-gray-800">Petty Cash Custodian Sheet</h1>
-                <p class="text-sm text-gray-400 mt-1">Expense disbursement records</p>
+                <h1 class="text-base font-bold text-gray-800">Petty Cash Custodian Sheet</h1>
+                <p class="text-[11px] text-gray-400 mt-0.5">Expense disbursement records</p>
             </div>
-            <div class="flex items-center gap-3 flex-wrap">
+            <div class="flex items-center gap-2 flex-wrap">
                 <!-- Sheet Tabs -->
-                <div class="flex items-center bg-white border border-gray-200 rounded-lg p-1 shadow-sm gap-1">
+                <div class="flex items-center bg-white border border-gray-200 rounded-lg p-0.5 shadow-sm gap-0.5">
                     <a id="tab-general" href="<?= BASE_URL ?>/accountingcustodianpettycash"
-                        class="text-xs font-semibold text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-100 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-arrow-left text-[9px]"></i> General Sheet
+                        class="text-[10px] font-semibold text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100 transition flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-left text-[8px]"></i>
+                        <span class="hidden sm:inline">General Sheet</span>
+                        <span class="sm:hidden">General</span>
                     </a>
-                    <span class="text-xs font-bold text-white bg-orange-500 px-3 py-1.5 rounded-md">General Sheet
-                        Two</span>
+                    <span class="text-[10px] font-bold text-white bg-orange-500 px-2 py-1 rounded-md">
+                        <span class="hidden sm:inline">General Sheet Two</span>
+                        <span class="sm:hidden">Sheet Two</span>
+                    </span>
                     <a href="<?= BASE_URL ?>/pettycashdepartment"
-                        class="text-xs font-semibold text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-100 transition flex items-center gap-1.5">
-                        Department Sheet <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        class="text-[10px] font-semibold text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100 transition flex items-center gap-1">
+                        <span class="hidden sm:inline">Department Sheet</span>
+                        <span class="sm:hidden">Dept.</span>
+                        <i class="fa-solid fa-arrow-right text-[8px]"></i>
                     </a>
                 </div>
                 <!-- Month Filter -->
-                <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm">
-                    <i class="fa-solid fa-calendar text-orange-400 text-xs"></i>
+                <div class="flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-2 py-1 shadow-sm">
+                    <i class="fa-solid fa-calendar text-orange-400 text-[10px]"></i>
                     <input type="month" id="filter-month"
-                        class="text-xs font-semibold text-gray-600 outline-none border-none bg-transparent"
+                        class="text-[10px] font-semibold text-gray-600 outline-none border-none bg-transparent"
                         value="<?= date('Y-m') ?>">
                 </div>
+                <!-- Add Entry Button -->
                 <button onclick="openAddModal()"
-                    class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-sm">
-                    <i class="fa-solid fa-plus text-[10px]"></i>Add Entry
+                    class="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-semibold px-3 py-1.5 rounded-lg transition shadow-sm">
+                    <i class="fa-solid fa-plus text-[9px]"></i>
+                    <span class="hidden sm:inline">Add Entry</span>
+                    <span class="sm:hidden">Add</span>
                 </button>
             </div>
         </div>
 
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Cash Inflows (This Month)
-                </p>
-                <p id="card-inflows" class="text-xl font-bold text-green-600">₱ 0.00</p>
-                <p class="text-[9px] text-gray-400 mt-1">From General Sheet</p>
-            </div>
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Total Actual (Expenses)
-                </p>
-                <p id="card-actual" class="text-xl font-bold text-red-500">₱ 0.00</p>
-            </div>
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 border-l-4 border-l-blue-400">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Remaining Balance</p>
-                <p id="card-balance" class="text-xl font-bold text-blue-600">₱ 0.00</p>
-                <p class="text-[9px] text-gray-400 mt-1">→ Next month's beginning</p>
-            </div>
-        </div>
+       <!-- Summary Cards -->
+<div class="grid grid-cols-3 gap-1.5 md:gap-2 mb-4">
+    <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-2 md:p-3 flex flex-col items-center sm:items-start">
+        <p class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5 text-center sm:text-left">Cash Inflows</p>
+        <p id="card-inflows" class="text-xs md:text-sm font-bold text-green-600">₱ 0.00</p>
+        <p class="text-[8px] text-gray-400 mt-0.5 hidden sm:block">From General Sheet</p>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-2 md:p-3 flex flex-col items-center sm:items-start">
+        <p class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5 text-center sm:text-left">Total Actual</p>
+        <p id="card-actual" class="text-xs md:text-sm font-bold text-red-500">₱ 0.00</p>
+        <p class="text-[8px] text-gray-400 mt-0.5 hidden sm:block">Expenses</p>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-2 md:p-3 border-l-2 border-l-blue-400 flex flex-col items-center sm:items-start">
+        <p class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5 text-center sm:text-left">Remaining</p>
+        <p id="card-balance" class="text-xs md:text-sm font-bold text-blue-600">₱ 0.00</p>
+        <p class="text-[8px] text-gray-400 mt-0.5 hidden sm:block">→ Next month's beginning</p>
+    </div>
+</div>
 
         <!-- Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -159,7 +167,9 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
     <!-- Add/Edit Modal -->
     <div id="entry-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
         <div class="bg-white w-full max-w-3xl rounded-xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
+
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
                 <h3 id="modal-title" class="font-bold text-sm uppercase tracking-widest text-gray-700">
                     <i class="fa-solid fa-plus mr-2 text-orange-500"></i>Add Entry
                 </h3>
@@ -167,9 +177,10 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="px-6 py-5 grid grid-cols-3 gap-4 overflow-y-auto">
-                <input type="hidden" id="entry-id">
 
+            <!-- Modal Body — responsive grid -->
+            <div class="px-5 py-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto">
+                <input type="hidden" id="entry-id">
 
                 <!-- Date -->
                 <div>
@@ -204,15 +215,14 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     </div>
                 </div>
 
-                <!-- Particulars -->
-                <div class="col-span-3">
-                    <label
-                        class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Particulars
-                        <span class="text-red-400">*</span></label>
+                <!-- Particulars — full width on all sizes -->
+                <div class="col-span-1 sm:col-span-2 md:col-span-3">
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">
+                        Particulars <span class="text-red-400">*</span>
+                    </label>
                     <input type="text" id="entry-particulars" placeholder="e.g. Transportation Expense of Workers"
                         class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-100 transition">
                 </div>
-
 
                 <!-- Department -->
                 <div>
@@ -251,7 +261,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </div>
 
                 <!-- Supplier Corp -->
-                <div class="col-span-1">
+                <div>
                     <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Supplier
                         Name (Corp)</label>
                     <input type="text" id="entry-supplier-corp" placeholder="Company name"
@@ -259,7 +269,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </div>
 
                 <!-- Supplier Individual -->
-                <div class="col-span-1">
+                <div>
                     <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Supplier
                         Name (Individual)</label>
                     <input type="text" id="entry-supplier-indiv" placeholder="Individual name"
@@ -267,7 +277,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </div>
 
                 <!-- Address -->
-                <div class="col-span-1">
+                <div>
                     <label
                         class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Address</label>
                     <input type="text" id="entry-address" placeholder="Address"
@@ -346,8 +356,10 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </div>
 
             </div>
+
+            <!-- Modal Footer -->
             <div
-                class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 flex-shrink-0">
+                class="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-100 bg-gray-50 flex-shrink-0">
                 <button onclick="closeModal()"
                     class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition">Cancel</button>
                 <button onclick="saveEntry()"
@@ -379,7 +391,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
     <!-- Title Manager Modal -->
     <div id="title-manager-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
-        <div class="bg-white w-full max-w-md rounded-xl shadow-xl overflow-hidden flex flex-col" style="max-height: 80vh;">
+        <div class="bg-white w-full max-w-md rounded-xl shadow-xl overflow-hidden flex flex-col"
+            style="max-height: 80vh;">
             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
                 <h3 class="font-bold text-sm uppercase tracking-widest text-gray-700">
                     <i class="fa-solid fa-gear mr-2 text-orange-500"></i>Manage Account Titles
@@ -388,7 +401,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <!-- Add new -->
             <div class="px-4 py-3 border-b border-gray-100 flex gap-2 flex-shrink-0">
                 <input type="text" id="new-title-input" placeholder="New account title..."
                     onkeydown="if(event.key==='Enter') addNewTitle()"
@@ -398,13 +410,10 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <i class="fa-solid fa-plus text-[10px]"></i> Add
                 </button>
             </div>
-            <!-- List -->
             <div id="title-list" class="overflow-y-auto px-2 py-2" style="max-height: 320px;"></div>
             <div class="px-6 py-3 border-t border-gray-100 bg-gray-50 flex-shrink-0 text-right">
                 <button onclick="closeTitleManager()"
-                    class="text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg transition">
-                    Done
-                </button>
+                    class="text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg transition">Done</button>
             </div>
         </div>
     </div>
@@ -432,9 +441,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             <div id="dept-list" class="overflow-y-auto px-2 py-2" style="max-height: 320px;"></div>
             <div class="px-6 py-3 border-t border-gray-100 bg-gray-50 flex-shrink-0 text-right">
                 <button onclick="closeDeptManager()"
-                    class="text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg transition">
-                    Done
-                </button>
+                    class="text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-lg transition">Done</button>
             </div>
         </div>
     </div>
@@ -443,36 +450,29 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         let allEntries = [];
         let deleteTargetId = null;
         let editMode = false;
-        let generalSheetInflows = 0; // fetched from general sheet
+        let generalSheetInflows = 0;
 
         const BASE_URL_JS = '<?= BASE_URL ?>';
         const fmt = v => '₱ ' + parseFloat(v || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 });
 
-        // ── Fetch ──────────────────────────────────────────────────
         function fetchEntries() {
             const month = document.getElementById('filter-month').value;
-
-            // Also fetch general sheet inflows for this month to compute remaining balance
             Promise.all([
                 fetch(`${BASE_URL_JS}/fetchcustodiansheetpettycashtwo?month=${month}`).then(r => r.json()),
                 fetch(`${BASE_URL_JS}/fetchgeneralsheet?month=${month}`).then(r => r.json())
             ]).then(([custodianData, generalData]) => {
                 allEntries = custodianData;
-
-                // Compute total cash inflows from general sheet (beginning + received)
                 let beginning = 0, received = 0;
                 generalData.forEach(row => {
                     if (row.entry_type === 'beginning') beginning = parseFloat(row.cash_inflows || 0);
                     else received += parseFloat(row.cash_inflows || 0);
                 });
                 generalSheetInflows = beginning + received;
-
                 renderTable(custodianData);
                 renderSummary(custodianData, month);
             }).catch(err => console.error(err));
         }
 
-        // ── Departments ────────────────────────────────────────
         function loadDepartments(selectedValue = '') {
             fetch(`${BASE_URL_JS}/fetchpettycashdepartment`)
                 .then(r => r.json())
@@ -492,42 +492,24 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             document.getElementById('new-dept-input').value = '';
             loadDepartments(document.getElementById('entry-department').value);
         }
-
         function renderDeptList() {
-            fetch(`${BASE_URL_JS}/fetchpettycashdepartment`)
-                .then(r => r.json())
-                .then(data => {
-                    const list = document.getElementById('dept-list');
-                    list.innerHTML = data.length ? data.map(d => `
-                <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 group" id="dept-row-${d.id}">
-                    <span id="dept-text-${d.id}" class="text-sm text-gray-700 flex-1">${d.name}</span>
-                    <input id="dept-edit-${d.id}" type="text" value="${d.name}"
-                        class="hidden flex-1 border border-orange-300 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-orange-200">
-                    <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition" id="dept-actions-${d.id}">
-                        <button onclick="startEditDept(${d.id})"
-                            class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 transition">
-                            <i class="fa-solid fa-pen text-[9px]"></i>
-                        </button>
-                        <button onclick="deleteDeptItem(${d.id})"
-                            class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-red-100 text-gray-400 hover:text-red-500 transition">
-                            <i class="fa-solid fa-trash text-[9px]"></i>
-                        </button>
-                    </div>
-                    <div class="hidden gap-1" id="dept-save-actions-${d.id}">
-                        <button onclick="saveEditDept(${d.id})"
-                            class="w-6 h-6 flex items-center justify-center rounded bg-green-100 hover:bg-green-200 text-green-600 transition">
-                            <i class="fa-solid fa-check text-[9px]"></i>
-                        </button>
-                        <button onclick="cancelEditDept(${d.id})"
-                            class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
-                            <i class="fa-solid fa-xmark text-[9px]"></i>
-                        </button>
-                    </div>
-                </div>`).join('')
-                        : '<p class="text-xs text-gray-400 text-center py-4">No departments yet.</p>';
-                });
+            fetch(`${BASE_URL_JS}/fetchpettycashdepartment`).then(r => r.json()).then(data => {
+                const list = document.getElementById('dept-list');
+                list.innerHTML = data.length ? data.map(d => `
+                    <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 group" id="dept-row-${d.id}">
+                        <span id="dept-text-${d.id}" class="text-sm text-gray-700 flex-1">${d.name}</span>
+                        <input id="dept-edit-${d.id}" type="text" value="${d.name}" class="hidden flex-1 border border-orange-300 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-orange-200">
+                        <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition" id="dept-actions-${d.id}">
+                            <button onclick="startEditDept(${d.id})" class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 transition"><i class="fa-solid fa-pen text-[9px]"></i></button>
+                            <button onclick="deleteDeptItem(${d.id})" class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-red-100 text-gray-400 hover:text-red-500 transition"><i class="fa-solid fa-trash text-[9px]"></i></button>
+                        </div>
+                        <div class="hidden gap-1" id="dept-save-actions-${d.id}">
+                            <button onclick="saveEditDept(${d.id})" class="w-6 h-6 flex items-center justify-center rounded bg-green-100 hover:bg-green-200 text-green-600 transition"><i class="fa-solid fa-check text-[9px]"></i></button>
+                            <button onclick="cancelEditDept(${d.id})" class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 text-gray-500 transition"><i class="fa-solid fa-xmark text-[9px]"></i></button>
+                        </div>
+                    </div>`).join('') : '<p class="text-xs text-gray-400 text-center py-4">No departments yet.</p>';
+            });
         }
-
         function startEditDept(id) {
             document.getElementById('dept-text-' + id).classList.add('hidden');
             document.getElementById('dept-edit-' + id).classList.remove('hidden');
@@ -545,50 +527,26 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         function saveEditDept(id) {
             const val = document.getElementById('dept-edit-' + id).value.trim();
             if (!val) return;
-            fetch(`${BASE_URL_JS}/savepettycashdepartment`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, name: val })
-            }).then(r => r.json()).then(d => { if (d.success) renderDeptList(); });
+            fetch(`${BASE_URL_JS}/savepettycashdepartment`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, name: val }) }).then(r => r.json()).then(d => { if (d.success) renderDeptList(); });
         }
         function deleteDeptItem(id) {
             if (!confirm('Delete this department?')) return;
-            fetch(`${BASE_URL_JS}/deletepettycashdepartment`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            }).then(r => r.json()).then(d => { if (d.success) renderDeptList(); });
+            fetch(`${BASE_URL_JS}/deletepettycashdepartment`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) }).then(r => r.json()).then(d => { if (d.success) renderDeptList(); });
         }
         function addNewDept() {
             const val = document.getElementById('new-dept-input').value.trim();
             if (!val) return;
-            fetch(`${BASE_URL_JS}/savepettycashdepartment`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: val })
-            }).then(r => r.json()).then(d => {
-                if (d.success) {
-                    document.getElementById('new-dept-input').value = '';
-                    renderDeptList();
-                }
+            fetch(`${BASE_URL_JS}/savepettycashdepartment`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: val }) }).then(r => r.json()).then(d => { if (d.success) { document.getElementById('new-dept-input').value = ''; renderDeptList(); } });
+        }
+
+        let allTitles = [];
+        function loadAccountTitles(selectedValue = '') {
+            fetch(`${BASE_URL_JS}/fetchpettycashaccounttitles`).then(r => r.json()).then(data => {
+                allTitles = data;
+                const sel = document.getElementById('entry-account-title');
+                sel.innerHTML = '<option value="">— Select —</option>' + data.map(t => `<option value="${t.title}" ${t.title === selectedValue ? 'selected' : ''}>${t.title}</option>`).join('');
             });
         }
-
-        // ── Account Titles ─────────────────────────────────────
-        let allTitles = [];
-
-        function loadAccountTitles(selectedValue = '') {
-            fetch(`${BASE_URL_JS}/fetchpettycashaccounttitles`)
-                .then(r => r.json())
-                .then(data => {
-                    allTitles = data;
-                    const sel = document.getElementById('entry-account-title');
-                    sel.innerHTML = '<option value="">— Select —</option>' +
-                        data.map(t => `<option value="${t.title}" ${t.title === selectedValue ? 'selected' : ''}>${t.title}</option>`).join('');
-                });
-        }
-
-        // ── Title Manager Modal ────────────────────────────────
         function openTitleManager() {
             document.getElementById('title-manager-modal').classList.remove('hidden');
             renderTitleList();
@@ -598,43 +556,25 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             document.getElementById('new-title-input').value = '';
             loadAccountTitles(document.getElementById('entry-account-title').value);
         }
-
         function renderTitleList() {
-            fetch(`${BASE_URL_JS}/fetchpettycashaccounttitles`)
-                .then(r => r.json())
-                .then(data => {
-                    allTitles = data;
-                    const list = document.getElementById('title-list');
-                    list.innerHTML = data.length ? data.map(t => `
-                <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 group" id="title-row-${t.id}">
-                    <span id="title-text-${t.id}" class="text-sm text-gray-700 flex-1">${t.title}</span>
-                    <input id="title-edit-${t.id}" type="text" value="${t.title}"
-                        class="hidden flex-1 border border-orange-300 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-orange-200">
-                    <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition" id="title-actions-${t.id}">
-                        <button onclick="startEditTitle(${t.id})"
-                            class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 transition">
-                            <i class="fa-solid fa-pen text-[9px]"></i>
-                        </button>
-                        <button onclick="deleteTitleItem(${t.id})"
-                            class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-red-100 text-gray-400 hover:text-red-500 transition">
-                            <i class="fa-solid fa-trash text-[9px]"></i>
-                        </button>
-                    </div>
-                    <div class="hidden gap-1" id="title-save-actions-${t.id}">
-                        <button onclick="saveEditTitle(${t.id})"
-                            class="w-6 h-6 flex items-center justify-center rounded bg-green-100 hover:bg-green-200 text-green-600 transition">
-                            <i class="fa-solid fa-check text-[9px]"></i>
-                        </button>
-                        <button onclick="cancelEditTitle(${t.id})"
-                            class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
-                            <i class="fa-solid fa-xmark text-[9px]"></i>
-                        </button>
-                    </div>
-                </div>`).join('')
-                        : '<p class="text-xs text-gray-400 text-center py-4">No titles yet.</p>';
-                });
+            fetch(`${BASE_URL_JS}/fetchpettycashaccounttitles`).then(r => r.json()).then(data => {
+                allTitles = data;
+                const list = document.getElementById('title-list');
+                list.innerHTML = data.length ? data.map(t => `
+                    <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 group" id="title-row-${t.id}">
+                        <span id="title-text-${t.id}" class="text-sm text-gray-700 flex-1">${t.title}</span>
+                        <input id="title-edit-${t.id}" type="text" value="${t.title}" class="hidden flex-1 border border-orange-300 rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-orange-200">
+                        <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition" id="title-actions-${t.id}">
+                            <button onclick="startEditTitle(${t.id})" class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-orange-100 text-gray-400 hover:text-orange-500 transition"><i class="fa-solid fa-pen text-[9px]"></i></button>
+                            <button onclick="deleteTitleItem(${t.id})" class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-red-100 text-gray-400 hover:text-red-500 transition"><i class="fa-solid fa-trash text-[9px]"></i></button>
+                        </div>
+                        <div class="hidden gap-1" id="title-save-actions-${t.id}">
+                            <button onclick="saveEditTitle(${t.id})" class="w-6 h-6 flex items-center justify-center rounded bg-green-100 hover:bg-green-200 text-green-600 transition"><i class="fa-solid fa-check text-[9px]"></i></button>
+                            <button onclick="cancelEditTitle(${t.id})" class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 text-gray-500 transition"><i class="fa-solid fa-xmark text-[9px]"></i></button>
+                        </div>
+                    </div>`).join('') : '<p class="text-xs text-gray-400 text-center py-4">No titles yet.</p>';
+            });
         }
-
         function startEditTitle(id) {
             document.getElementById('title-text-' + id).classList.add('hidden');
             document.getElementById('title-edit-' + id).classList.remove('hidden');
@@ -652,89 +592,61 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         function saveEditTitle(id) {
             const val = document.getElementById('title-edit-' + id).value.trim();
             if (!val) return;
-            fetch(`${BASE_URL_JS}/savepettycashaccounttitle`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, title: val })
-            }).then(r => r.json()).then(d => { if (d.success) renderTitleList(); });
+            fetch(`${BASE_URL_JS}/savepettycashaccounttitle`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, title: val }) }).then(r => r.json()).then(d => { if (d.success) renderTitleList(); });
         }
         function deleteTitleItem(id) {
             if (!confirm('Delete this title?')) return;
-            fetch(`${BASE_URL_JS}/deletepettycashaccounttitle`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            }).then(r => r.json()).then(d => { if (d.success) renderTitleList(); });
+            fetch(`${BASE_URL_JS}/deletepettycashaccounttitle`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) }).then(r => r.json()).then(d => { if (d.success) renderTitleList(); });
         }
         function addNewTitle() {
             const val = document.getElementById('new-title-input').value.trim();
             if (!val) return;
-            fetch(`${BASE_URL_JS}/savepettycashaccounttitle`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: val })
-            }).then(r => r.json()).then(d => {
-                if (d.success) {
-                    document.getElementById('new-title-input').value = '';
-                    renderTitleList();
-                }
-            });
+            fetch(`${BASE_URL_JS}/savepettycashaccounttitle`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: val }) }).then(r => r.json()).then(d => { if (d.success) { document.getElementById('new-title-input').value = ''; renderTitleList(); } });
         }
 
-        // ── Render Table ───────────────────────────────────────────
         function renderTable(data) {
             const tbody = document.getElementById('sheet-tbody');
             if (!data.length) {
-                tbody.innerHTML = `<tr><td colspan="19" class="px-5 py-10 text-center text-gray-400 text-sm">
-                <i class="fa-solid fa-table text-2xl mb-2 block"></i>No entries yet</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="19" class="px-5 py-10 text-center text-gray-400 text-sm"><i class="fa-solid fa-table text-2xl mb-2 block"></i>No entries yet</td></tr>`;
                 return;
             }
-
             let rowNum = 0;
             tbody.innerHTML = data.map(row => {
                 rowNum++;
                 const money = (val) => val ? '₱ ' + parseFloat(val).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '';
                 return `
-            <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
-                <td class="px-1 py-1 text-center text-xs text-gray-400 font-mono border-r border-gray-100">${rowNum}</td>
-                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100 whitespace-nowrap">${row.date ?? ''}</td>
-                <td class="px-1 py-1 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.reference_no ?? ''}</td>
-                <td class="px-1 py-1 text-xs text-gray-700 border-r border-gray-100">${row.account_title ?? ''}</td>
-                <td class="px-1 py-1 text-xs text-gray-700 border-r border-gray-100">${row.particulars ?? ''}</td>
-                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.project_department ?? ''}</td>
-                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.in_charge ?? ''}</td>
-                <td class="px-1 py-1 text-xs font-mono text-right text-red-600 border-r border-gray-100 font-semibold whitespace-nowrap">${money(row.actual)}</td>
-                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.supplier_name_corp ?? ''}</td>
-                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.supplier_name_indiv ?? ''}</td>
-                <td class="px-1 py-1 text-xs text-gray-500 border-r border-gray-100">${row.address ?? ''}</td>
-                <td class="px-1 py-1 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.tin ?? ''}</td>
-                <td class="px-1 py-1 text-xs font-mono text-right text-purple-600 border-r border-gray-100 whitespace-nowrap">${money(row.vatable_amount)}</td>
-                <td class="px-1 py-1 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.vat)}</td>
-                <td class="px-1 py-1 text-xs font-mono text-right text-gray-800 font-semibold border-r border-gray-100 whitespace-nowrap">${money(row.total)}</td>
-                <td class="px-1 py-1 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.non_vat)}</td>
-                <td class="px-1 py-1 text-xs text-center text-gray-600 border-r border-gray-100">${row.no_sales_invoice ?? ''}</td>
-                <td class="px-1 py-1 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.vat_exempt)}</td>
-                <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.inserted_by ?? '—'}</td>
-                <td class="px-1 py-1 text-center">
-                    <div class="flex items-center justify-center gap-1.5">
-                        <button onclick="editEntry(${row.id})"
-                            class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-orange-100 text-gray-500 hover:text-orange-500 transition">
-                            <i class="fa-solid fa-pen text-[9px]"></i>
-                        </button>
-                        <button onclick="openDeleteModal(${row.id})"
-                            class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-500 transition">
-                            <i class="fa-solid fa-trash text-[9px]"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>`;
+                <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
+                    <td class="px-1 py-1 text-center text-xs text-gray-400 font-mono border-r border-gray-100">${rowNum}</td>
+                    <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100 whitespace-nowrap">${row.date ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.reference_no ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-700 border-r border-gray-100">${row.account_title ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-700 border-r border-gray-100">${row.particulars ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.project_department ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.in_charge ?? ''}</td>
+                    <td class="px-1 py-1 text-xs font-mono text-right text-red-600 border-r border-gray-100 font-semibold whitespace-nowrap">${money(row.actual)}</td>
+                    <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.supplier_name_corp ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.supplier_name_indiv ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-gray-500 border-r border-gray-100">${row.address ?? ''}</td>
+                    <td class="px-1 py-1 text-xs text-center font-mono text-gray-600 border-r border-gray-100">${row.tin ?? ''}</td>
+                    <td class="px-1 py-1 text-xs font-mono text-right text-purple-600 border-r border-gray-100 whitespace-nowrap">${money(row.vatable_amount)}</td>
+                    <td class="px-1 py-1 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.vat)}</td>
+                    <td class="px-1 py-1 text-xs font-mono text-right text-gray-800 font-semibold border-r border-gray-100 whitespace-nowrap">${money(row.total)}</td>
+                    <td class="px-1 py-1 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.non_vat)}</td>
+                    <td class="px-1 py-1 text-xs text-center text-gray-600 border-r border-gray-100">${row.no_sales_invoice ?? ''}</td>
+                    <td class="px-1 py-1 text-xs font-mono text-right text-gray-600 border-r border-gray-100 whitespace-nowrap">${money(row.vat_exempt)}</td>
+                    <td class="px-1 py-1 text-xs text-gray-600 border-r border-gray-100">${row.inserted_by ?? '—'}</td>
+                    <td class="px-1 py-1 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick="editEntry(${row.id})" class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-orange-100 text-gray-500 hover:text-orange-500 transition"><i class="fa-solid fa-pen text-[9px]"></i></button>
+                            <button onclick="openDeleteModal(${row.id})" class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-500 transition"><i class="fa-solid fa-trash text-[9px]"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
             }).join('');
         }
 
-        // ── Summary ────────────────────────────────────────────────
         function renderSummary(data, month) {
             let actual = 0, vatable = 0, vat = 0, total = 0, nonvat = 0, vatexempt = 0;
-
             data.forEach(row => {
                 actual += parseFloat(row.actual || 0);
                 vatable += parseFloat(row.vatable_amount || 0);
@@ -743,43 +655,35 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 nonvat += parseFloat(row.non_vat || 0);
                 vatexempt += parseFloat(row.vat_exempt || 0);
             });
-
-            // Remaining = Total Cash Inflows (from General Sheet) - Total Actual
             const remaining = generalSheetInflows - actual;
-
             document.getElementById('card-inflows').textContent = fmt(generalSheetInflows);
             document.getElementById('card-actual').textContent = fmt(actual);
             document.getElementById('card-balance').textContent = fmt(remaining);
-
             document.getElementById('foot-actual').textContent = fmt(actual);
             document.getElementById('foot-vatable').textContent = fmt(vatable);
             document.getElementById('foot-vat').textContent = fmt(vat);
             document.getElementById('foot-total').textContent = fmt(total);
             document.getElementById('foot-nonvat').textContent = fmt(nonvat);
             document.getElementById('foot-vatexempt').textContent = fmt(vatexempt);
-
-            // Carryover bar
             const [yr, mo] = month.split('-').map(Number);
-            const currentMonthLabel = new Date(yr, mo - 1, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' });
-            document.getElementById('carryover-month').textContent = currentMonthLabel;
+            const label = new Date(yr, mo - 1, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' });
+            document.getElementById('carryover-month').textContent = label;
             document.getElementById('carryover-amount').textContent = fmt(remaining);
             document.getElementById('carryover-bar').classList.remove('hidden');
         }
 
-        // ── Modal ──────────────────────────────────────────────────
         function openAddModal() {
             editMode = false;
             document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-plus mr-2 text-orange-500"></i>Add Entry';
             document.getElementById('entry-id').value = '';
             const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
             document.getElementById('entry-date').value = today;
-            ['reference-no', 'particulars', 'department', 'in-charge', 'actual',
-                'supplier-corp', 'supplier-indiv', 'address', 'tin', 'vatable', 'vat', 'total', 'nonvat',
-                'no-sales-invoice', 'vat-exempt'].forEach(f => {
+            ['reference-no', 'particulars', 'department', 'in-charge', 'actual', 'supplier-corp', 'supplier-indiv',
+                'address', 'tin', 'vatable', 'vat', 'total', 'nonvat', 'no-sales-invoice', 'vat-exempt'].forEach(f => {
                     const el = document.getElementById('entry-' + f);
                     if (el) el.value = '';
                 });
-            loadAccountTitles(); // ← dropdown reset
+            loadAccountTitles();
             loadDepartments();
             document.getElementById('entry-modal').classList.remove('hidden');
         }
@@ -792,9 +696,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             document.getElementById('entry-id').value = row.id;
             document.getElementById('entry-date').value = row.date ?? '';
             document.getElementById('entry-reference-no').value = row.reference_no ?? '';
-            loadAccountTitles(row.account_title ?? ''); // ← load dropdown + pre-select
             document.getElementById('entry-particulars').value = row.particulars ?? '';
-            loadDepartments(row.project_department ?? '');
             document.getElementById('entry-in-charge').value = row.in_charge ?? '';
             document.getElementById('entry-actual').value = row.actual ?? '';
             document.getElementById('entry-supplier-corp').value = row.supplier_name_corp ?? '';
@@ -807,22 +709,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             document.getElementById('entry-nonvat').value = row.non_vat ?? '';
             document.getElementById('entry-no-sales-invoice').value = row.no_sales_invoice ?? '';
             document.getElementById('entry-vat-exempt').value = row.vat_exempt ?? '';
+            loadAccountTitles(row.account_title ?? '');
+            loadDepartments(row.project_department ?? '');
             document.getElementById('entry-modal').classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('entry-modal').classList.add('hidden');
-        }
+        function closeModal() { document.getElementById('entry-modal').classList.add('hidden'); }
 
-        // ── Save ───────────────────────────────────────────────────
         function saveEntry() {
             const date = document.getElementById('entry-date').value;
             const particulars = document.getElementById('entry-particulars').value.trim();
-            if (!date || !particulars) {
-                alert('Date and Particulars are required.');
-                return;
-            }
-
+            if (!date || !particulars) { alert('Date and Particulars are required.'); return; }
             const payload = {
                 id: document.getElementById('entry-id').value || null,
                 date,
@@ -843,50 +740,22 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 no_sales_invoice: document.getElementById('entry-no-sales-invoice').value.trim(),
                 vat_exempt: document.getElementById('entry-vat-exempt').value || 0,
             };
-
             fetch(`${BASE_URL_JS}/savecustodiansheetpettycashtwo`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        closeModal();
-                        fetchEntries();
-                        showToast(editMode ? 'Entry updated!' : 'Entry added!');
-                    } else {
-                        alert(data.message ?? 'Something went wrong.');
-                    }
-                });
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+            }).then(res => res.json()).then(data => {
+                if (data.success) { closeModal(); fetchEntries(); showToast(editMode ? 'Entry updated!' : 'Entry added!'); }
+                else { alert(data.message ?? 'Something went wrong.'); }
+            });
         }
 
-        // ── Delete ─────────────────────────────────────────────────
-        function openDeleteModal(id) {
-            deleteTargetId = id;
-            document.getElementById('delete-modal').classList.remove('hidden');
-        }
-        function closeDeleteModal() {
-            document.getElementById('delete-modal').classList.add('hidden');
-            deleteTargetId = null;
-        }
+        function openDeleteModal(id) { deleteTargetId = id; document.getElementById('delete-modal').classList.remove('hidden'); }
+        function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); deleteTargetId = null; }
         function confirmDelete() {
             fetch(`${BASE_URL_JS}/deletecustodiansheetpettycashtwo`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: deleteTargetId })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        closeDeleteModal();
-                        fetchEntries();
-                        showToast('Entry deleted.', 'delete');
-                    }
-                });
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteTargetId })
+            }).then(res => res.json()).then(data => { if (data.success) { closeDeleteModal(); fetchEntries(); showToast('Entry deleted.', 'delete'); } });
         }
 
-        // ── Toast ──────────────────────────────────────────────────
         function showToast(message, type = 'success') {
             const existing = document.getElementById('cs-toast');
             if (existing) existing.remove();
@@ -898,30 +767,19 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             toast.innerHTML = `<i class="fa-solid ${icon}"></i> ${message}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.classList.replace('opacity-0', 'opacity-100'), 10);
-            setTimeout(() => {
-                toast.classList.replace('opacity-100', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            setTimeout(() => { toast.classList.replace('opacity-100', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-
-        // ── Init ───────────────────────────────────────────────────
         const urlParams = new URLSearchParams(window.location.search);
         const monthParam = urlParams.get('month');
-        if (monthParam) {
-            document.getElementById('filter-month').value = monthParam;
-        }
+        if (monthParam) document.getElementById('filter-month').value = monthParam;
 
         function updateTabLinks() {
             const month = document.getElementById('filter-month').value;
             document.getElementById('tab-general').href = `${BASE_URL_JS}/accountingcustodianpettycash?month=${month}`;
         }
 
-        document.getElementById('filter-month').addEventListener('change', () => {
-            fetchEntries();
-            updateTabLinks();
-        });
-
+        document.getElementById('filter-month').addEventListener('change', () => { fetchEntries(); updateTabLinks(); });
         fetchEntries();
         updateTabLinks();
     </script>

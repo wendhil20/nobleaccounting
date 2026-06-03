@@ -19,50 +19,63 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 </head>
 
 <body class="bg-slate-100">
-    <main id="main-content" class="ml-56 min-h-screen p-8 transition-all duration-300">
+      <main id="main-content"
+        class="md:ml-56 pt-20 md:pt-5 min-h-screen p-4 md:p-8 transition-all duration-300">
 
-        <!-- Header -->
-        <div class="mb-6 flex items-center justify-between flex-wrap gap-4">
-            <div>
-                <h1 class="text-xl font-bold text-gray-800">Petty Cash General Sheet</h1>
-                <p class="text-sm text-gray-400 mt-1">Cash inflows and transaction records</p>
-            </div>
-            <div class="flex items-center gap-3 flex-wrap">
-                <div class="flex items-center bg-white border border-gray-200 rounded-lg p-1 shadow-sm gap-1">
-                    <span class="text-xs font-bold text-white bg-orange-500 px-3 py-1.5 rounded-md">General Sheet</span>
-                    <a id="tab-custodian" href="<?= BASE_URL ?>/accountingcustodianpettycashtwo"
-                        class="text-xs font-semibold text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-100 transition flex items-center gap-1.5">
-                        General Sheet Two <i class="fa-solid fa-arrow-right text-[9px]"></i>
-                    </a>
-                    <a id="tab-department" href="<?= BASE_URL ?>/pettycashdepartment"
-                        class="text-xs font-semibold text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-100 transition flex items-center gap-1.5">
-                        Department Sheet <i class="fa-solid fa-arrow-right text-[9px]"></i>
-                    </a>
-                </div>
-                <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm">
-                    <i class="fa-solid fa-calendar text-orange-400 text-xs"></i>
-                    <input type="month" id="filter-month"
-                        class="text-xs font-semibold text-gray-600 outline-none border-none bg-transparent"
-                        value="<?= date('Y-m') ?>">
-                </div>
-                <button onclick="openAddModal()"
-                    class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-sm">
-                    <i class="fa-solid fa-plus text-[10px]"></i>Add Entry
-                </button>
-            </div>
+       <!-- Header -->
+<div class="mb-4 flex items-start justify-between flex-wrap gap-2">
+    <div>
+        <h1 class="text-base font-bold text-gray-800">Petty Cash General Sheet</h1>
+        <p class="text-[11px] text-gray-400 mt-0.5">Cash inflows and transaction records</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+        <!-- Sheet Tabs -->
+        <div class="flex items-center bg-white border border-gray-200 rounded-lg p-0.5 shadow-sm gap-0.5">
+            <span class="text-[10px] font-bold text-white bg-orange-500 px-2 py-1 rounded-md">
+                <span class="hidden sm:inline">General Sheet</span>
+                <span class="sm:hidden">General</span>
+            </span>
+            <a id="tab-custodian" href="<?= BASE_URL ?>/accountingcustodianpettycashtwo"
+                class="text-[10px] font-semibold text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100 transition flex items-center gap-1">
+                <span class="hidden sm:inline">General Sheet Two</span>
+                <span class="sm:hidden">Sheet Two</span>
+                <i class="fa-solid fa-arrow-right text-[8px]"></i>
+            </a>
+            <a id="tab-department" href="<?= BASE_URL ?>/pettycashdepartment"
+                class="text-[10px] font-semibold text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100 transition flex items-center gap-1">
+                <span class="hidden sm:inline">Department Sheet</span>
+                <span class="sm:hidden">Dept.</span>
+                <i class="fa-solid fa-arrow-right text-[8px]"></i>
+            </a>
         </div>
+        <!-- Month Filter -->
+        <div class="flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-2 py-1 shadow-sm">
+            <i class="fa-solid fa-calendar text-orange-400 text-[10px]"></i>
+            <input type="month" id="filter-month"
+                class="text-[10px] font-semibold text-gray-600 outline-none border-none bg-transparent"
+                value="<?= date('Y-m') ?>">
+        </div>
+        <!-- Add Entry Button -->
+        <button onclick="openAddModal()"
+            class="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-semibold px-3 py-1.5 rounded-lg transition shadow-sm">
+            <i class="fa-solid fa-plus text-[9px]"></i>
+            <span class="hidden sm:inline">Add Entry</span>
+            <span class="sm:hidden">Add</span>
+        </button>
+    </div>
+</div>
 
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Beginning Balance</p>
-                <p id="card-beginning" class="text-xl font-bold text-gray-800">₱ 0.00</p>
-            </div>
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Total Cash Inflows</p>
-                <p id="card-inflows" class="text-xl font-bold text-green-600">₱ 0.00</p>
-            </div>
-        </div>
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+    <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-3 flex items-center justify-between sm:block">
+        <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5 sm:mb-1">Beginning Balance</p>
+        <p id="card-beginning" class="text-sm font-bold text-gray-800">₱ 0.00</p>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-3 flex items-center justify-between sm:block">
+        <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5 sm:mb-1">Total Cash Inflows</p>
+        <p id="card-inflows" class="text-sm font-bold text-green-600">₱ 0.00</p>
+    </div>
+</div>
 
         <!-- Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

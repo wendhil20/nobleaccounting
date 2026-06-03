@@ -66,35 +66,38 @@ if (!$project) {
 <body class="bg-slate-100">
 
     <!-- Top Bar -->
-    <div class="ml-56 no-print">
-        <div class="flex items-center justify-between px-8 py-4 bg-white border-b border-gray-100 shadow-sm">
-            <div class="flex items-center gap-3">
-                <a href="<?= BASE_URL ?>/projectmonitor" class="text-gray-400 hover:text-gray-600 transition-colors">
+    <div class="md:ml-56 no-print">
+        <div
+            class="flex items-center justify-between px-4 md:px-8 py-3 md:py-4 bg-white border-b border-gray-100 shadow-sm mt-14 md:mt-0">
+            <div class="flex items-center gap-2 md:gap-3 min-w-0">
+                <a href="<?= BASE_URL ?>/projectmonitor"
+                    class="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
                 </a>
-                <div>
-                    <h1 class="text-sm font-bold text-gray-800"><?= htmlspecialchars($project['project_name']) ?></h1>
+                <div class="min-w-0">
+                    <h1 class="text-sm font-bold text-gray-800 truncate">
+                        <?= htmlspecialchars($project['project_name']) ?></h1>
                     <p class="text-[10px] text-orange-500 font-mono">
-                        <?= htmlspecialchars($project['reference_no'] ?? '') ?>
-                    </p>
+                        <?= htmlspecialchars($project['reference_no'] ?? '') ?></p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-shrink-0">
                 <button onclick="window.print()"
-                    class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold px-4 py-2 rounded-lg transition-all no-print">
-                    <i class="fa-solid fa-print text-xs"></i> Print
+                    class="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-[10px] font-semibold px-3 py-1.5 rounded-lg transition-all no-print">
+                    <i class="fa-solid fa-print text-[10px]"></i>
+                    <span class="hidden sm:inline">Print</span>
                 </button>
                 <a href="<?= BASE_URL ?>/exportprojectexcel?id=<?= $project_id ?>"
-                    class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all no-print">
-                    <i class="fa-solid fa-file-excel text-xs"></i> Export Excel
+                    class="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-[10px] font-semibold px-3 py-1.5 rounded-lg transition-all no-print">
+                    <i class="fa-solid fa-file-excel text-[10px]"></i>
+                    <span class="hidden sm:inline">Export Excel</span>
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Print Area -->
-    <div id="print-area" class="ml-56 p-8">
-        <div class="bg-white border border-gray-300 shadow-sm max-w-7xl mx-auto">
+    <div id="print-area" class="md:ml-56 p-3 md:p-8">
+        <div class="bg-white border border-gray-200 shadow-sm max-w-7xl mx-auto rounded-xl overflow-hidden">
 
             <!-- Header -->
             <div style="display:grid; grid-template-columns:1fr auto; background:#d97706;">
@@ -131,232 +134,186 @@ if (!$project) {
             </div>
 
             <!-- Basic Information -->
-            <div style="border-bottom: 2px solid #e5e7eb; margin-top:16px;">
-                <div style="background:#f97316; padding:4px 14px; display:inline-block; ">
-                    <span
-                        style="font-size:9px; font-weight:700; color:white; text-transform:uppercase; letter-spacing:1px;">Basic
-                        Information</span>
+            <div class="border-b-2 border-gray-200 mt-4">
+                <div class="bg-orange-500 px-3 py-1.5 inline-block ml-3 md:ml-4">
+                    <span class="text-[9px] font-700 text-white uppercase tracking-widest">Basic Information</span>
                 </div>
-                <div
-                    style="display:grid; grid-template-columns:1fr 1fr; padding:0 14px 12px; gap:6px 24px; font-size:11px;">
-                    <div style="display:flex; align-items:baseline; gap:6px;">
-                        <span
-                            style="font-weight:700; text-transform:uppercase; font-size:9px; color:#374151; white-space:nowrap; min-width:110px;">Project
-                            Name :</span>
-                        <span
-                            style="border-bottom:1px solid #374151; flex:1; padding-bottom:1px;"><?= htmlspecialchars($project['project_name']) ?></span>
-                    </div>
-                    <div style="display:flex; align-items:baseline; gap:6px;">
-                        <span
-                            style="font-weight:700; text-transform:uppercase; font-size:9px; color:#374151; white-space:nowrap; min-width:110px;">Job
-                            Order :</span>
-                        <span
-                            style="border-bottom:1px solid #374151; flex:1; padding-bottom:1px;"><?= htmlspecialchars($project['job_order'] ?? '') ?></span>
-                    </div>
-                    <div style="display:flex; align-items:baseline; gap:6px;">
-                        <span
-                            style="font-weight:700; text-transform:uppercase; font-size:9px; color:#374151; white-space:nowrap; min-width:110px;">Project
-                            Scope :</span>
-                        <span
-                            style="border-bottom:1px solid #374151; flex:1; padding-bottom:1px;"><?= htmlspecialchars($project['project_scope'] ?? '') ?></span>
-                    </div>
-                    <div style="display:flex; align-items:baseline; gap:6px;">
-                        <span
-                            style="font-weight:700; text-transform:uppercase; font-size:9px; color:#374151; white-space:nowrap; min-width:110px;">Purchase
-                            Order :</span>
-                        <span
-                            style="border-bottom:1px solid #374151; flex:1; padding-bottom:1px;"><?= htmlspecialchars($project['purchase_order'] ?? '') ?></span>
-                    </div>
-                    <div style="display:flex; align-items:baseline; gap:6px;">
-                        <span
-                            style="font-weight:700; text-transform:uppercase; font-size:9px; color:#374151; white-space:nowrap; min-width:110px;">Client
-                            Name :</span>
-                        <span
-                            style="border-bottom:1px solid #374151; flex:1; padding-bottom:1px;"><?= htmlspecialchars($project['client_name'] ?? '') ?></span>
-                    </div>
-                    <div style="display:flex; align-items:baseline; gap:6px;">
-                        <span
-                            style="font-weight:700; text-transform:uppercase; font-size:9px; color:#374151; white-space:nowrap; min-width:110px;">Notice
-                            to Proceed :</span>
-                        <span
-                            style="border-bottom:1px solid #374151; flex:1; padding-bottom:1px;"><?= htmlspecialchars($project['notice_to_proceed'] ?? '') ?></span>
-                    </div>
-                    <div style="display:flex; align-items:baseline; gap:6px;">
-                        <span
-                            style="font-weight:700; text-transform:uppercase; font-size:9px; color:#374151; white-space:nowrap; min-width:110px;">Contract
-                            Amount :</span>
-                        <span style="border-bottom:1px solid #374151; flex:1; padding-bottom:1px;">
-                            <?= $project['contract_amount'] ? '₱ ' . number_format($project['contract_amount'], 2) : '' ?>
-                        </span>
-                    </div>
-                    <div style="display:flex; align-items:baseline; gap:6px;">
-                        <span
-                            style="font-weight:700; text-transform:uppercase; font-size:9px; color:#374151; white-space:nowrap; min-width:110px;">(1)
-                            Billing Order # :</span>
-                        <span
-                            style="border-bottom:1px solid #374151; flex:1; padding-bottom:1px;"><?= htmlspecialchars($project['billing_order_1'] ?? '') ?></span>
-                    </div>
-                    <div style="display:flex; align-items:baseline; gap:6px;">
-                        <span
-                            style="font-weight:700; text-transform:uppercase; font-size:9px; color:#374151; white-space:nowrap; min-width:110px;">Sales
-                            Person :</span>
-                        <span
-                            style="border-bottom:1px solid #374151; flex:1; padding-bottom:1px;"><?= htmlspecialchars($project['sales_person'] ?? '') ?></span>
-                    </div>
-                    <div style="display:flex; align-items:baseline; gap:6px;">
-                        <span
-                            style="font-weight:700; text-transform:uppercase; font-size:9px; color:#374151; white-space:nowrap; min-width:110px;">(2)
-                            Billing Order # :</span>
-                        <span
-                            style="border-bottom:1px solid #374151; flex:1; padding-bottom:1px;"><?= htmlspecialchars($project['billing_order_2'] ?? '') ?></span>
-                    </div>
-                    <div style="display:flex; align-items:baseline; gap:6px;">
-                        <span
-                            style="font-weight:700; text-transform:uppercase; font-size:9px; color:#374151; white-space:nowrap; min-width:110px;">Address
-                            :</span>
-                        <span
-                            style="border-bottom:1px solid #374151; flex:1; padding-bottom:1px;"><?= htmlspecialchars($project['address'] ?? '') ?></span>
-                    </div>
-                    <div style="display:flex; align-items:baseline; gap:6px;">
-                        <span
-                            style="font-weight:700; text-transform:uppercase; font-size:9px; color:#374151; white-space:nowrap; min-width:110px;">Status
-                            :</span>
-                        <span
-                            style="border-bottom:1px solid #374151; flex:1; padding-bottom:1px;"><?= htmlspecialchars($project['status'] ?? '') ?></span>
-                    </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 px-3 md:px-4 pb-4 pt-2 text-xs">
+                    <?php
+                    $fields = [
+                        'Project Name' => $project['project_name'],
+                        'Job Order' => $project['job_order'] ?? '',
+                        'Project Scope' => $project['project_scope'] ?? '',
+                        'Purchase Order' => $project['purchase_order'] ?? '',
+                        'Client Name' => $project['client_name'] ?? '',
+                        'Notice to Proceed' => $project['notice_to_proceed'] ?? '',
+                        'Contract Amount' => $project['contract_amount'] ? '₱ ' . number_format($project['contract_amount'], 2) : '',
+                        '(1) Billing Order #' => $project['billing_order_1'] ?? '',
+                        'Sales Person' => $project['sales_person'] ?? '',
+                        '(2) Billing Order #' => $project['billing_order_2'] ?? '',
+                        'Address' => $project['address'] ?? '',
+                        'Status' => $project['status'] ?? '',
+                    ];
+                    foreach ($fields as $label => $value): ?>
+                        <div class="flex items-baseline gap-2">
+                            <span
+                                class="text-[9px] font-bold uppercase tracking-wide text-gray-500 whitespace-nowrap min-w-[110px]"><?= $label ?>
+                                :</span>
+                            <span
+                                class="border-b border-gray-400 flex-1 text-gray-800 pb-0.5 text-[11px]"><?= htmlspecialchars($value) ?></span>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
 
+
             <!-- Section 1: Billed and Paid -->
-            <div style="margin-top:16px; verflow-x:auto; overflow-y:auto; max-height:300px;  ">
-                <div
-                    style="display:flex; align-items:center; justify-content:space-between;  position:sticky; top:0; z-index:3; background-color: #FFFFFF;">
-                    <div style="background:#f97316; padding:3px 12px; display:inline-block;">
-                        <span
-                            style="font-size:9px; font-weight:700; color:white; text-transform:uppercase; letter-spacing:1px;">1.
-                            Billed and Paid by Client / Owner</span>
+            <div class="mt-4 px-3 md:px-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="bg-orange-500 px-3 py-1 rounded">
+                        <span class="text-[9px] font-bold text-white uppercase tracking-widest">1. Billed and Paid by
+                            Client / Owner</span>
                     </div>
-                    <button onclick="openBillingModal()" class="no-print"
-                        style="background:#f97316; color:white; border:none; border-radius:6px; padding:4px 12px; font-size:10px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px;">
-                        <i class="fa-solid fa-plus"></i> Add Row
+                    <button onclick="openBillingModal()"
+                        class="no-print flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-plus text-[9px]"></i> Add Row
                     </button>
                 </div>
-                <table style="width:100%; border-collapse:collapse; font-size:10px;">
-                    <thead>
-                        <tr style="background:#374151; color:white; position:sticky; top:30px; z-index:1;">
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:32px;">NO.
-                            </th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left;">PARTICULARS</th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:right; width:100px;">AMOUNT
-                            </th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:90px;">BANK /
-                                CHECK</th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:90px;">
-                                PAYMENT DATE</th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:90px;">
-                                REFERENCE</th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left; width:100px;">REMARKS
-                            </th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:60px;"
-                                class="no-print">ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody id="billing-tbody">
-                        <tr>
-                            <td colspan="8" style="padding:16px; text-align:center; color:#9ca3af; font-size:11px;">
-                                <i class="fa-solid fa-spinner fa-spin"></i> Loading...
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr style="background:#fef3c7;">
-                            <td colspan="2"
-                                style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-size:9px; text-transform:uppercase; letter-spacing:1px;">
-                                Total Amount Credited :
-                            </td>
-                            <td id="billing-total"
-                                style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-family:monospace; text-align:right;">
-                                ₱ 0.00</td>
-                            <td colspan="2"
-                                style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-size:9px; text-transform:uppercase; letter-spacing:1px; text-align:right;">
-                                Total Balance :
-                            </td>
-                            <td id="billing-balance"
-                                style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-family:monospace; text-align:right;"
-                                colspan="3">₱ 0.00</td>
-                        </tr>
-                    </tfoot>
-                </table>
+
+                <!-- Desktop table -->
+                <div class="hidden md:block overflow-x-auto overflow-y-auto max-h-72">
+                    <table style="width:100%; border-collapse:collapse; font-size:10px;">
+                        <thead>
+                            <tr style="background:#374151; color:white; position:sticky; top:0; z-index:1;">
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:32px;">
+                                    NO.</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left;">PARTICULARS</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:right; width:100px;">
+                                    AMOUNT</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:90px;">
+                                    BANK / CHECK</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:90px;">
+                                    PAYMENT DATE</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:90px;">
+                                    REFERENCE</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left; width:100px;">
+                                    REMARKS</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:60px;"
+                                    class="no-print">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="billing-tbody"></tbody>
+                        <tfoot>
+                            <tr style="background:#fef3c7;">
+                                <td colspan="2"
+                                    style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-size:9px; text-transform:uppercase;">
+                                    Total Amount Credited :</td>
+                                <td id="billing-total"
+                                    style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-family:monospace; text-align:right;">
+                                    ₱ 0.00</td>
+                                <td colspan="2"
+                                    style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-size:9px; text-align:right;">
+                                    Total Balance :</td>
+                                <td id="billing-balance"
+                                    style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-family:monospace; text-align:right;"
+                                    colspan="3">₱ 0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Mobile cards -->
+                <div class="md:hidden overflow-y-auto max-h-72 rounded-lg border border-gray-100" id="billing-cards">
+                    <div class="py-6 text-center text-gray-400 text-sm"><i class="fa-solid fa-spinner fa-spin mr-2"></i>
+                        Loading...</div>
+                </div>
+                <div
+                    class="md:hidden flex items-center justify-between px-3 py-2 bg-yellow-50 border border-yellow-100 rounded-lg mt-2 text-xs font-semibold">
+                    <span class="text-gray-500">Total Credited</span>
+                    <span id="billing-total-m" class="font-mono text-gray-800">₱ 0.00</span>
+                </div>
+                <div
+                    class="md:hidden flex items-center justify-between px-3 py-2 bg-yellow-50 border border-yellow-100 rounded-lg mt-1 text-xs font-semibold">
+                    <span class="text-gray-500">Balance</span>
+                    <span id="billing-balance-m" class="font-mono text-gray-800">₱ 0.00</span>
+                </div>
             </div>
 
             <!-- Section 2: Costs / Expenses -->
-            <div style="margin-top:16px; verflow-x:auto; overflow-y:auto; max-height:300px;  ">
-                <div
-                    style="display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:3; background-color: #FFFFFF; ">
-                    <div style="background:#f97316; padding:3px 12px; display:inline-block;">
-                        <span
-                            style="font-size:9px; font-weight:700; color:white; text-transform:uppercase; letter-spacing:1px;">2.
-                            Costs / Expenses</span>
+            <div class="mt-6 px-3 md:px-4 pb-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="bg-gray-700 px-3 py-1 rounded">
+                        <span class="text-[9px] font-bold text-white uppercase tracking-widest">2. Costs /
+                            Expenses</span>
                     </div>
-                    <button onclick="openExpenseModal()" class="no-print"
-                        style="background:#374151; color:white; border:none; border-radius:6px; padding:4px 12px; font-size:10px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px;">
-                        <i class="fa-solid fa-plus"></i> Add Row
+                    <button onclick="openExpenseModal()"
+                        class="no-print flex items-center gap-1.5 bg-gray-700 hover:bg-gray-800 text-white text-[10px] font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-plus text-[9px]"></i> Add Row
                     </button>
                 </div>
-                <table style="width:100%; border-collapse:collapse; font-size:10px;">
-                    <thead>
-                        <tr style="background:#374151; color:white; position:sticky; top:30px; z-index:1;">
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:32px;">NO.
-                            </th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left; width:120px;">ACCOUNT
-                                TITLE
-                            </th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left;">PARTICULARS</th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:right; width:100px;">AMOUNT
-                            </th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:100px;">MODE
-                                OF PAYMENT</th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:90px;">
-                                PAYMENT DATE</th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:90px;">
-                                REFERENCE</th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left; width:100px;">REMARKS
-                            </th>
-                            <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:60px;"
-                                class="no-print">ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody id="expense-tbody">
-                        <tr>
-                            <td colspan="8" style="padding:16px; text-align:center; color:#9ca3af; font-size:11px;">
-                                <i class="fa-solid fa-spinner fa-spin"></i> Loading...
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr style="background:#fef3c7;">
-                            <td colspan="3"
-                                style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-size:9px; text-transform:uppercase; letter-spacing:1px;">
-                                Total Amount Paid :
-                            </td>
-                            <td id="expense-total"
-                                style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-family:monospace; text-align:right;"
-                                colspan="6">₱ 0.00</td>
-                        </tr>
-                        <!-- DAGDAG NA ROW -->
-                        <tr style="background:#f0fdf4;">
-                            <td colspan="3"
-                                style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-size:9px; text-transform:uppercase; letter-spacing:1px;">
-                                Possible Income / <span class="text-red-500">Loss</span> :
-                            </td>
-                            <td id="income-loss"
-                                style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-family:monospace; text-align:right;"
-                                colspan="6">₱ 0.00</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
 
+                <!-- Desktop table -->
+                <div class="hidden md:block overflow-x-auto overflow-y-auto max-h-72">
+                    <table style="width:100%; border-collapse:collapse; font-size:10px;">
+                        <thead>
+                            <tr style="background:#374151; color:white; position:sticky; top:0; z-index:1;">
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:32px;">
+                                    NO.</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left; width:120px;">
+                                    ACCOUNT TITLE</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left;">PARTICULARS</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:right; width:100px;">
+                                    AMOUNT</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:100px;">
+                                    MODE OF PAYMENT</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:90px;">
+                                    PAYMENT DATE</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:90px;">
+                                    REFERENCE</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:left; width:100px;">
+                                    REMARKS</th>
+                                <th style="padding:5px 8px; border:1px solid #4b5563; text-align:center; width:60px;"
+                                    class="no-print">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expense-tbody"></tbody>
+                        <tfoot>
+                            <tr style="background:#fef3c7;">
+                                <td colspan="3"
+                                    style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-size:9px; text-transform:uppercase;">
+                                    Total Amount Paid :</td>
+                                <td id="expense-total"
+                                    style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-family:monospace; text-align:right;"
+                                    colspan="6">₱ 0.00</td>
+                            </tr>
+                            <tr style="background:#f0fdf4;">
+                                <td colspan="3"
+                                    style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-size:9px; text-transform:uppercase;">
+                                    Possible Income / Loss :</td>
+                                <td id="income-loss"
+                                    style="padding:5px 8px; border:1px solid #e5e7eb; font-weight:700; font-family:monospace; text-align:right;"
+                                    colspan="6">₱ 0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Mobile cards -->
+                <div class="md:hidden overflow-y-auto max-h-72 rounded-lg border border-gray-100" id="expense-cards">
+                    <div class="py-6 text-center text-gray-400 text-sm"><i class="fa-solid fa-spinner fa-spin mr-2"></i>
+                        Loading...</div>
+                </div>
+                <div
+                    class="md:hidden flex items-center justify-between px-3 py-2 bg-yellow-50 border border-yellow-100 rounded-lg mt-2 text-xs font-semibold">
+                    <span class="text-gray-500">Total Paid</span>
+                    <span id="expense-total-m" class="font-mono text-gray-800">₱ 0.00</span>
+                </div>
+                <div
+                    class="md:hidden flex items-center justify-between px-3 py-2 bg-green-50 border border-green-100 rounded-lg mt-1 text-xs font-semibold">
+                    <span class="text-gray-500">Possible Income / Loss</span>
+                    <span id="income-loss-m" class="font-mono text-gray-800">₱ 0.00</span>
+                </div>
+            </div>
             <div
                 style="padding:10px 14px; font-size:8px; color:#9ca3af; text-align:right; border-top:1px solid #e5e7eb; margin-top:12px;">
                 Generated: <?= date('F d, Y') ?> | <?= htmlspecialchars($project['reference_no'] ?? '') ?>
@@ -520,22 +477,27 @@ if (!$project) {
 
         function renderBilling(data) {
             const tbody = document.getElementById('billing-tbody');
+            const cards = document.getElementById('billing-cards');
+
             if (!data.length) {
-                tbody.innerHTML = `<tr><td colspan="8" style="padding:16px; text-align:center; color:#9ca3af; font-size:11px;">No billing entries yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" style="padding:16px; text-align:center; color:#9ca3af;">No billing entries yet.</td></tr>`;
+                cards.innerHTML = `<div class="py-6 text-center text-gray-400 text-sm">No billing entries yet.</div>`;
                 document.getElementById('billing-total').textContent = '₱ 0.00';
+                document.getElementById('billing-total-m').textContent = '₱ 0.00';
                 document.getElementById('billing-balance').textContent = '₱ 0.00';
+                document.getElementById('billing-balance-m').textContent = '₱ 0.00';
                 return;
             }
 
             let total = 0;
+
+            // Desktop rows (unchanged)
             tbody.innerHTML = data.map((row, i) => {
                 const amt = parseFloat(row.amount) || 0;
                 total += amt;
-                return `<tr 
-    style="border-top:1px solid #e5e7eb; ${i % 2 === 1 ? 'background:#f9fafb;' : 'background:white;'}"
-    onmouseenter="this.style.background='#dcfce7'"
-    onmouseleave="this.style.background='${i % 2 === 1 ? '#f9fafb' : 'white'}'"
->
+                return `<tr style="border-top:1px solid #e5e7eb; background:${i % 2 === 1 ? '#f9fafb' : 'white'}"
+            onmouseenter="this.style.background='#dcfce7'"
+            onmouseleave="this.style.background='${i % 2 === 1 ? '#f9fafb' : 'white'}'">
             <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center; color:#9ca3af;">${i + 1}</td>
             <td style="padding:5px 8px; border:1px solid #e5e7eb;">${row.particulars ?? ''}</td>
             <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:right; font-family:monospace;">₱ ${amt.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
@@ -558,9 +520,146 @@ if (!$project) {
         </tr>`;
             }).join('');
 
+            // Mobile cards
+            let mTotal = 0;
+            cards.innerHTML = data.map((row, i) => {
+                const amt = parseFloat(row.amount) || 0;
+                mTotal += amt;
+                return `
+<div class="flex items-start gap-3 px-3 py-3 border-b border-gray-100 ${i % 2 === 1 ? 'bg-gray-50' : 'bg-white'}">
+    <div class="w-1 self-stretch rounded-full bg-orange-400 flex-shrink-0"></div>
+    <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-semibold text-gray-800 truncate">${row.particulars ?? '—'}</span>
+            <span class="font-mono text-xs font-bold text-orange-600 flex-shrink-0">₱ ${amt.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+        </div>
+        <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
+            ${row.bank_check ? `<span class="text-[10px] text-gray-400">${row.bank_check}</span>` : ''}
+            ${row.payment_date ? `<span class="text-[10px] text-gray-400">${row.payment_date}</span>` : ''}
+            ${row.reference ? `<span class="text-[10px] text-gray-400">Ref: ${row.reference}</span>` : ''}
+            ${row.remarks ? `<span class="text-[10px] text-gray-400 italic">${row.remarks}</span>` : ''}
+        </div>
+    </div>
+    <div class="flex gap-1 flex-shrink-0 no-print">
+        <button onclick="editBilling(${JSON.stringify(row).replace(/"/g, '&quot;')})"
+            class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
+            <i class="fa-solid fa-pen text-[9px]"></i>
+        </button>
+        <button onclick="deleteBilling(${row.id})"
+            class="w-7 h-7 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 transition">
+            <i class="fa-solid fa-trash text-[9px]"></i>
+        </button>
+    </div>
+</div>`;
+            }).join('');
+
             const balance = CONTRACT_AMOUNT - total;
-            document.getElementById('billing-total').textContent = '₱ ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-            document.getElementById('billing-balance').textContent = '₱ ' + balance.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+            const balFmt = '₱ ' + balance.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+            const totalFmt = '₱ ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+
+            document.getElementById('billing-total').textContent = totalFmt;
+            document.getElementById('billing-total-m').textContent = totalFmt;
+            document.getElementById('billing-balance').textContent = balFmt;
+            document.getElementById('billing-balance-m').textContent = balFmt;
+        }
+
+        function renderExpenses(data) {
+            const tbody = document.getElementById('expense-tbody');
+            const cards = document.getElementById('expense-cards');
+
+            if (!data.length) {
+                tbody.innerHTML = `<tr><td colspan="9" style="padding:16px; text-align:center; color:#9ca3af;">No expense entries yet.</td></tr>`;
+                cards.innerHTML = `<div class="py-6 text-center text-gray-400 text-sm">No expense entries yet.</div>`;
+                ['expense-total', 'expense-total-m', 'income-loss', 'income-loss-m'].forEach(id => {
+                    document.getElementById(id).textContent = '₱ 0.00';
+                });
+                return;
+            }
+
+            let total = 0;
+
+            // Desktop rows
+            tbody.innerHTML = data.map((row, i) => {
+                const amt = parseFloat(row.amount) || 0;
+                total += amt;
+                return `<tr style="border-top:1px solid #e5e7eb; background:${i % 2 === 1 ? '#f9fafb' : 'white'}"
+            onmouseenter="this.style.background='#dcfce7'"
+            onmouseleave="this.style.background='${i % 2 === 1 ? '#f9fafb' : 'white'}'">
+            <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center; color:#9ca3af;">${i + 1}</td>
+            <td style="padding:5px 8px; border:1px solid #e5e7eb;">${row.title ?? ''}</td>
+            <td style="padding:5px 8px; border:1px solid #e5e7eb;">${row.particulars ?? ''}</td>
+            <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:right; font-family:monospace;">₱ ${amt.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+            <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center;">${row.mode_of_payment ?? ''}</td>
+            <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center;">${row.payment_date ?? ''}</td>
+            <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center;">${row.reference ?? ''}</td>
+            <td style="padding:5px 8px; border:1px solid #e5e7eb;">${row.remarks ?? ''}</td>
+            <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center;" class="no-print">
+                <div style="display:flex; gap:4px; justify-content:center;">
+                    <button onclick="editExpense(${JSON.stringify(row).replace(/"/g, '&quot;')})"
+                        style="background:#f3f4f6; border:none; border-radius:4px; padding:2px 8px; font-size:10px; cursor:pointer;">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button onclick="deleteExpense(${row.id})"
+                        style="background:#fee2e2; color:#dc2626; border:none; border-radius:4px; padding:2px 8px; font-size:10px; cursor:pointer;">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+            }).join('');
+
+            // Mobile cards
+            cards.innerHTML = data.map((row, i) => {
+                const amt = parseFloat(row.amount) || 0;
+                return `
+<div class="flex items-start gap-3 px-3 py-3 border-b border-gray-100 ${i % 2 === 1 ? 'bg-gray-50' : 'bg-white'}">
+    <div class="w-1 self-stretch rounded-full bg-gray-600 flex-shrink-0"></div>
+    <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-semibold text-gray-800 truncate">${row.title ?? '—'}</span>
+            <span class="font-mono text-xs font-bold text-gray-700 flex-shrink-0">₱ ${amt.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+        </div>
+        <div class="text-[11px] text-gray-500 truncate mt-0.5">${row.particulars ?? ''}</div>
+        <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
+            ${row.mode_of_payment ? `<span class="text-[10px] text-gray-400">${row.mode_of_payment}</span>` : ''}
+            ${row.payment_date ? `<span class="text-[10px] text-gray-400">${row.payment_date}</span>` : ''}
+            ${row.reference ? `<span class="text-[10px] text-gray-400">Ref: ${row.reference}</span>` : ''}
+            ${row.remarks ? `<span class="text-[10px] text-gray-400 italic">${row.remarks}</span>` : ''}
+        </div>
+    </div>
+    <div class="flex gap-1 flex-shrink-0 no-print">
+        <button onclick="editExpense(${JSON.stringify(row).replace(/"/g, '&quot;')})"
+            class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
+            <i class="fa-solid fa-pen text-[9px]"></i>
+        </button>
+        <button onclick="deleteExpense(${row.id})"
+            class="w-7 h-7 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 transition">
+            <i class="fa-solid fa-trash text-[9px]"></i>
+        </button>
+    </div>
+</div>`;
+            }).join('');
+
+            const incomeLoss = CONTRACT_AMOUNT - total;
+            const totalFmt = '₱ ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+            const ilFmt = (incomeLoss < 0 ? '-' : '') + '₱ ' + Math.abs(incomeLoss).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+            const ilColor = incomeLoss < 0 ? 'text-red-600' : 'text-green-600';
+
+            document.getElementById('expense-total').textContent = totalFmt;
+            document.getElementById('expense-total-m').textContent = totalFmt;
+
+            ['income-loss', 'income-loss-m'].forEach(id => {
+                const el = document.getElementById(id);
+                el.textContent = ilFmt;
+                el.style.color = incomeLoss < 0 ? '#dc2626' : '#16a34a';
+            });
+
+            // Update mobile income-loss card color
+            const ilMCard = document.getElementById('income-loss-m').closest('div');
+            if (ilMCard) {
+                ilMCard.className = ilMCard.className.replace(/bg-\w+-50/, incomeLoss < 0 ? 'bg-red-50' : 'bg-green-50');
+                ilMCard.className = ilMCard.className.replace(/border-\w+-100/, incomeLoss < 0 ? 'border-red-100' : 'border-green-100');
+            }
         }
 
         function openBillingModal(clear = true) {
@@ -625,60 +724,7 @@ if (!$project) {
                 .then(data => renderExpenses(data));
         }
 
-        function renderExpenses(data) {
-            const tbody = document.getElementById('expense-tbody');
-            if (!data.length) {
-                tbody.innerHTML = `<tr><td colspan="8" style="padding:16px; text-align:center; color:#9ca3af; font-size:11px;">No expense entries yet.</td></tr>`;
-                document.getElementById('expense-total').textContent = '₱ 0.00';
-                return;
-            }
 
-            let total = 0;
-            tbody.innerHTML = data.map((row, i) => {
-                const amt = parseFloat(row.amount) || 0;
-                total += amt;
-                return `<tr 
-    style="border-top:1px solid #e5e7eb; ${i % 2 === 1 ? 'background:#f9fafb;' : 'background:white;'}"
-    onmouseenter="this.style.background='#dcfce7'"
-    onmouseleave="this.style.background='${i % 2 === 1 ? '#f9fafb' : 'white'}'"
->
-            <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center; color:#9ca3af;">${i + 1}</td>
-            <td style="padding:5px 8px; border:1px solid #e5e7eb;">${row.title ?? ''}</td>
-            <td style="padding:5px 8px; border:1px solid #e5e7eb;">${row.particulars ?? ''}</td>
-            <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:right; font-family:monospace;">₱ ${amt.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
-            <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center;">${row.mode_of_payment ?? ''}</td>
-            <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center;">${row.payment_date ?? ''}</td>
-            <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center;">${row.reference ?? ''}</td>
-            <td style="padding:5px 8px; border:1px solid #e5e7eb;">${row.remarks ?? ''}</td>
-            <td style="padding:5px 8px; border:1px solid #e5e7eb; text-align:center;" class="no-print">
-                <div style="display:flex; gap:4px; justify-content:center;">
-                    <button onclick="editExpense(${JSON.stringify(row).replace(/"/g, '&quot;')})"
-                        style="background:#f3f4f6; border:none; border-radius:4px; padding:2px 8px; font-size:10px; cursor:pointer;">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button onclick="deleteExpense(${row.id})"
-                        style="background:#fee2e2; color:#dc2626; border:none; border-radius:4px; padding:2px 8px; font-size:10px; cursor:pointer;">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>`;
-            }).join('');
-
-            // Palitan ng:
-            document.getElementById('expense-total').textContent = '₱ ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-
-            const incomeLoss = CONTRACT_AMOUNT - total;
-            const incomeLossEl = document.getElementById('income-loss');
-            incomeLossEl.textContent = '₱ ' + Math.abs(incomeLoss).toLocaleString('en-PH', { minimumFractionDigits: 2 });
-
-            if (incomeLoss < 0) {
-                incomeLossEl.style.color = '#dc2626'; // pula = loss
-                incomeLossEl.textContent = '-₱ ' + Math.abs(incomeLoss).toLocaleString('en-PH', { minimumFractionDigits: 2 });
-            } else {
-                incomeLossEl.style.color = '#16a34a'; // berde = income
-            }
-        }
 
         function openExpenseModal(clear = true) {
             if (clear) {

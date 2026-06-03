@@ -16,6 +16,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Monitoring</title>
     <?php include ROOT_PATH . '/link/top.php'; ?>
     <?php include ROOT_PATH . '/admin/navigation/sidebar.php'; ?>
@@ -140,28 +141,28 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 </head>
 
 <body class="bg-slate-100">
-    <main class="ml-56 min-h-screen p-8">
+    <main id="main-content" class="md:ml-56 pt-20 md:pt-5 min-h-screen p-4 md:p-8 transition-all duration-300">
 
-        <!-- ── Page Header ─────────────────────────────────────────── -->
-        <div class="mb-6 flex items-center justify-between">
+        <div class="mb-6 flex items-center justify-between gap-2">
             <div>
-                <h1 class="text-xl font-bold text-gray-800">Project Monitoring</h1>
-                <p class="text-sm text-gray-400 mt-1">Accounting Report</p>
+                <h1 class="text-base font-bold text-gray-800">Project Monitoring</h1>
+                <p class="text-xs text-gray-400 mt-0.5">Accounting Report</p>
             </div>
-            <div class="flex items-center gap-2">
-                <!-- NEW: Add Entry button -->
+            <div class="flex items-center gap-2 flex-shrink-0">
                 <button onclick="openEntryModal()"
-                    class="flex items-center gap-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
-                    <i class="fa-solid fa-file-invoice-dollar"></i> Add Entry
+                    class="flex items-center gap-1.5 bg-slate-700 hover:bg-slate-800 text-white text-[10px] font-semibold px-3 py-1.5 rounded-lg transition-all">
+                    <i class="fa-solid fa-file-invoice-dollar text-[10px]"></i>
+                    <span class="hidden sm:inline">Add Entry</span>
+                    <span class="sm:hidden">Entry</span>
                 </button>
-                <!-- Existing: New Project button -->
                 <button onclick="openAddModal()"
-                    class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
-                    <i class="fa-solid fa-plus"></i> New Project
+                    class="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-semibold px-3 py-1.5 rounded-lg transition-all">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    <span class="hidden sm:inline">New Project</span>
+                    <span class="sm:hidden">New</span>
                 </button>
             </div>
         </div>
-
         <!-- ── Projects Table ──────────────────────────────────────── -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
@@ -176,7 +177,9 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
                 </div>
             </div>
-            <div class="overflow-x-auto">
+
+            <!-- Desktop Table (md+) -->
+            <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="bg-gray-50 text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
@@ -198,6 +201,13 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile Cards (below md) -->
+            <div class="md:hidden" id="projects-cards">
+                <div class="px-4 py-8 text-center text-gray-400 text-sm">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading...
+                </div>
             </div>
         </div>
     </main>
@@ -331,15 +341,12 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
     </div>
 
 
-    <!-- ════════════════════════════════════════════════════════════
-     ADD ENTRY MODAL  (Billing / Expense / Hybrid)
-═════════════════════════════════════════════════════════════ -->
     <div id="entry-modal"
-        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 overflow-y-auto">
-        <div class="bg-white w-full max-w-2xl rounded-xl shadow-xl my-8">
+        class="hidden fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-2 py-4 md:px-4 md:py-8 overflow-y-auto">
+        <div class="bg-white w-full max-w-2xl rounded-xl shadow-xl my-auto" id="entry-modal-box">
 
             <!-- Header -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                 <div>
                     <h3 class="font-bold text-sm uppercase tracking-widest text-gray-800">Add Entry</h3>
                     <p class="text-[10px] text-gray-400 mt-0.5">Select a project, choose a mode, then fill in the
@@ -350,7 +357,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </button>
             </div>
 
-            <div class="px-6 py-5 space-y-5">
+            <div class="px-4 py-4 space-y-4">
 
                 <!-- Step 1: Project Selector -->
                 <div>
@@ -372,7 +379,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             class="inline-flex items-center justify-center w-4 h-4 bg-orange-500 text-white rounded-full text-[9px] font-black mr-1">2</span>
                         Choose Mode
                     </label>
-                    <div class="flex gap-3">
+                    <div class="flex gap-2">
                         <button type="button" class="mode-btn" id="mode-billing" onclick="setMode('billing')">
                             <i class="fa-solid fa-file-invoice-dollar text-orange-400"></i>
                             Collection
@@ -388,14 +395,16 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     </div>
                 </div>
 
-                <!-- Step 3: Fields (shown based on mode) -->
+                <!-- Step 3: Fields -->
                 <div id="entry-fields" class="hidden space-y-4">
+                    <!-- Hybrid = stacked on mobile, side by side on md+ -->
                     <div id="hybrid-grid" class="grid grid-cols-1 gap-4">
-                        <!-- ─── BILLING FIELDS ─────────────────────────────── -->
+
+                        <!-- BILLING FIELDS -->
                         <div id="billing-fields" class="hidden">
                             <span class="section-tag billing">Billed &amp; Paid by Client</span>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="col-span-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                                <div class="sm:col-span-2">
                                     <label
                                         class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Particulars</label>
                                     <input id="b-particulars" type="text"
@@ -435,7 +444,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                                         class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400"
                                         placeholder="Reference No.">
                                 </div>
-                                <div class="col-span-2">
+                                <div class="sm:col-span-2">
                                     <label
                                         class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Remarks</label>
                                     <input id="b-remarks" type="text"
@@ -445,10 +454,10 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             </div>
                         </div>
 
-                        <!-- ─── EXPENSE FIELDS ─────────────────────────────── -->
+                        <!-- EXPENSE FIELDS -->
                         <div id="expense-fields" class="hidden">
                             <span class="section-tag expense">Costs / Expenses</span>
-                            <div class="grid grid-cols-2 gap-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                                 <div>
                                     <label
                                         class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Title</label>
@@ -470,7 +479,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                                         <option>Other</option>
                                     </select>
                                 </div>
-                                <div class="col-span-2">
+                                <div class="sm:col-span-2">
                                     <label
                                         class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 block">Particulars</label>
                                     <input id="e-particulars" type="text"
@@ -511,15 +520,17 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                                 </div>
                             </div>
                         </div>
+
                     </div>
-                </div><!-- /entry-fields -->
+                </div>
             </div>
 
             <!-- Footer -->
             <div
-                class="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-xl">
-                <p id="entry-mode-hint" class="text-[10px] text-gray-400 italic">Select a mode above to continue.</p>
-                <div class="flex items-center gap-2">
+                class="flex items-center justify-between gap-3 px-4 py-3 border-t border-gray-100 bg-gray-50 rounded-b-xl">
+                <p id="entry-mode-hint" class="text-[10px] text-gray-400 italic hidden sm:block">Select a mode above to
+                    continue.</p>
+                <div class="flex items-center gap-2 ml-auto">
                     <button onclick="closeEntryModal()"
                         class="text-sm text-gray-500 hover:text-gray-700 px-4 py-2 rounded border border-gray-200">Cancel</button>
                     <button id="entry-save-btn" onclick="saveEntry()" disabled
@@ -530,6 +541,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             </div>
         </div>
     </div>
+
+
     <!-- Project Name Manager Modal -->
     <div id="projectname-manager-modal"
         class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
@@ -690,8 +703,11 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
         function renderProjects(data) {
             const tbody = document.getElementById('projects-tbody');
+            const cards = document.getElementById('projects-cards');
+
             if (!data.length) {
                 tbody.innerHTML = `<tr><td colspan="8" class="px-5 py-8 text-center text-gray-400">No projects yet.</td></tr>`;
+                cards.innerHTML = `<div class="px-4 py-8 text-center text-gray-400 text-sm">No projects yet.</div>`;
                 return;
             }
 
@@ -703,6 +719,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 'Cancelled': 'bg-red-100 text-red-700',
             };
 
+            // ── Desktop rows (unchanged) ──
             tbody.innerHTML = data.map(row => {
                 const statusCls = statusColors[row.status] ?? 'bg-gray-100 text-gray-500';
                 const date = row.created_at
@@ -712,7 +729,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     ? '₱ ' + parseFloat(row.contract_amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })
                     : '—';
 
-                // ── Progress bar ──────────────────────────────────────
                 const contract = parseFloat(row.contract_amount) || 0;
                 const credited = parseFloat(row.total_credited) || 0;
                 const pct = contract > 0 ? Math.min((credited / contract) * 100, 100) : 0;
@@ -730,27 +746,84 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             </div>` : '<span class="text-[10px] text-gray-300">No contract amount set</span>';
 
                 return `
-        <tr class="border-t border-gray-100 hover:bg-orange-50 transition-colors cursor-pointer"
-            onclick="window.location='<?= BASE_URL ?>/projectdetail?id=${row.id}'">
-            <td class="px-5 py-3 font-mono text-xs text-orange-500">${row.reference_no ?? '—'}</td>
-            <td class="px-5 py-3 font-medium text-gray-800">${row.project_name}</td>
-            <td class="px-5 py-3 text-gray-600">${row.client_name ?? '—'}</td>
-            <td class="px-5 py-3 font-mono text-xs text-gray-700 min-w-[180px]">
-                <div>${amount}</div>
-                ${progressHTML}
-            </td>
-            <td class="px-5 py-3 text-gray-600">${row.sales_person ?? '—'}</td>
-            <td class="px-5 py-3">
-                <span class="${statusCls} text-[10px] font-semibold px-2 py-1 rounded-full uppercase">${row.status ?? '—'}</span>
-            </td>
-            <td class="px-5 py-3 text-xs text-gray-400">${date}</td>
-            <td class="px-5 py-3" onclick="event.stopPropagation()">
-                <button onclick="openAddModal(${row.id})"
-                    class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-[10px] font-semibold px-3 py-1.5 rounded-full transition-all">
-                    <i class="fa-solid fa-pen mr-1"></i>Edit
-                </button>
-            </td>
-        </tr>`;
+<tr class="border-t border-gray-100 hover:bg-orange-50 transition-colors cursor-pointer"
+    onclick="window.location='<?= BASE_URL ?>/projectdetail?id=${row.id}'">
+    <td class="px-5 py-3 font-mono text-xs text-orange-500">${row.reference_no ?? '—'}</td>
+    <td class="px-5 py-3 font-medium text-gray-800">${row.project_name}</td>
+    <td class="px-5 py-3 text-gray-600">${row.client_name ?? '—'}</td>
+    <td class="px-5 py-3 font-mono text-xs text-gray-700 min-w-[180px]">
+        <div>${amount}</div>
+        ${progressHTML}
+    </td>
+    <td class="px-5 py-3 text-gray-600">${row.sales_person ?? '—'}</td>
+    <td class="px-5 py-3">
+        <span class="${statusCls} text-[10px] font-semibold px-2 py-1 rounded-full uppercase">${row.status ?? '—'}</span>
+    </td>
+    <td class="px-5 py-3 text-xs text-gray-400">${date}</td>
+    <td class="px-5 py-3" onclick="event.stopPropagation()">
+        <button onclick="openAddModal(${row.id})"
+            class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-[10px] font-semibold px-3 py-1.5 rounded-full transition-all">
+            <i class="fa-solid fa-pen mr-1"></i>Edit
+        </button>
+    </td>
+</tr>`;
+            }).join('');
+
+            // ── Mobile cards ──
+            cards.innerHTML = data.map(row => {
+                const statusCls = statusColors[row.status] ?? 'bg-gray-100 text-gray-500';
+                const date = row.created_at
+                    ? new Date(row.created_at.replace(' ', 'T')).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
+                    : '—';
+                const contract = parseFloat(row.contract_amount) || 0;
+                const credited = parseFloat(row.total_credited) || 0;
+                const pct = contract > 0 ? Math.min((credited / contract) * 100, 100) : 0;
+                const fillClass = pct >= 100 ? 'full' : pct >= 75 ? 'high' : pct >= 40 ? 'mid' : 'low';
+                const pctColor = pct >= 100 ? 'text-green-600' : pct >= 75 ? 'text-green-500' : pct >= 40 ? 'text-orange-500' : 'text-red-500';
+                const amountFmt = contract > 0 ? '₱ ' + contract.toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '—';
+                const creditedFmt = '₱ ' + credited.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+
+                return `
+<div class="flex items-start gap-3 px-4 py-3 border-b border-gray-100 hover:bg-orange-50 active:bg-orange-100 transition-colors cursor-pointer"
+    onclick="window.location='<?= BASE_URL ?>/projectdetail?id=${row.id}'">
+
+    <!-- Left color bar based on status -->
+    <div class="w-1 self-stretch rounded-full flex-shrink-0 mt-1
+        ${row.status === 'Completed' ? 'bg-green-400' :
+                        row.status === 'Ongoing' ? 'bg-blue-400' :
+                            row.status === 'On Hold' ? 'bg-yellow-400' :
+                                row.status === 'Cancelled' ? 'bg-red-400' : 'bg-purple-400'}"></div>
+
+    <!-- Main content -->
+    <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-2 mb-0.5">
+            <span class="font-mono text-[10px] font-bold text-orange-500 truncate">${row.reference_no ?? '—'}</span>
+            <span class="${statusCls} text-[9px] font-semibold px-2 py-0.5 rounded-full uppercase flex-shrink-0">${row.status ?? '—'}</span>
+        </div>
+        <div class="text-sm font-semibold text-gray-800 truncate">${row.project_name}</div>
+        <div class="text-[11px] text-gray-400 truncate">${row.client_name ?? '—'} ${row.sales_person ? '· ' + row.sales_person : ''}</div>
+
+        ${contract > 0 ? `
+        <div class="mt-1.5">
+            <div class="flex items-center justify-between text-[10px] mb-0.5">
+                <span class="text-gray-400">${amountFmt}</span>
+                <span class="font-bold ${pctColor}">${pct.toFixed(1)}%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill ${fillClass}" style="width:${pct}%"></div>
+            </div>
+            <div class="text-[10px] text-gray-400 mt-0.5">${creditedFmt} credited</div>
+        </div>` : `<div class="text-[10px] text-gray-300 mt-1">No contract amount set</div>`}
+
+        <div class="text-[10px] text-gray-300 mt-1">${date}</div>
+    </div>
+
+    <!-- Edit button -->
+    <button onclick="event.stopPropagation(); openAddModal(${row.id})"
+        class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition mt-1">
+        <i class="fa-solid fa-pen text-xs"></i>
+    </button>
+</div>`;
             }).join('');
         }
 
@@ -951,13 +1024,13 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
             if (mode === 'hybrid') {
                 modalBox.classList.remove('max-w-2xl');
-                modalBox.classList.add('max-w-5xl');
+                modalBox.classList.add('md:max-w-5xl');
                 hybridGrid.classList.remove('grid-cols-1');
-                hybridGrid.classList.add('grid-cols-2');
+                hybridGrid.classList.add('md:grid-cols-2');
             } else {
-                modalBox.classList.remove('max-w-5xl');
+                modalBox.classList.remove('md:max-w-5xl');
                 modalBox.classList.add('max-w-2xl');
-                hybridGrid.classList.remove('grid-cols-2');
+                hybridGrid.classList.remove('md:grid-cols-2');
                 hybridGrid.classList.add('grid-cols-1');
             }
 

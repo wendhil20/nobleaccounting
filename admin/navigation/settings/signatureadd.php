@@ -1,4 +1,4 @@
-<main class="ml-56 min-h-screen bg-slate-100 p-8">
+
 
   <!-- Header -->
   <div class="mb-8">
@@ -7,7 +7,7 @@
   </div>
 
   <!-- Signature Card -->
-  <div class="max-w-2xl bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+  <div class="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
 
     <!-- Card Header -->
     <div class="px-6 py-5 border-b border-slate-100 flex items-center gap-3">
@@ -46,7 +46,8 @@
       <div id="panel-draw">
 
         <!-- Toolbar -->
-        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2">
+
           <div class="flex items-center gap-2">
             <!-- Pen color -->
             <label class="text-xs text-slate-500">Color</label>
@@ -88,7 +89,7 @@
              style="background-image:linear-gradient(45deg,#e2e8f0 25%,transparent 25%),linear-gradient(-45deg,#e2e8f0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e2e8f0 75%),linear-gradient(-45deg,transparent 75%,#e2e8f0 75%);background-size:12px 12px;background-position:0 0,0 6px,6px -6px,-6px 0;">
           <canvas id="sig-canvas"
             class="block w-full cursor-crosshair touch-none"
-            style="height:400px;">
+            style="height:220px; min-height:180px;">
           </canvas>
           <div id="canvas-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none">
             <p class="text-slate-400 text-sm select-none">Draw your signature here...</p>
@@ -225,7 +226,7 @@
 <!-- idagdag ito kahit saan sa labas ng main, e.g. bago mag-close ng </main> -->
 <input type="file" id="update-sig-input" accept="image/png" class="hidden" onchange="handleUpdateFile(this.files[0])">
 
-</main>
+
 
 
 
@@ -257,7 +258,7 @@ function renderSignatures(sigs) {
     }
 
     list.innerHTML = sigs.map(s => `
-        <div class="flex items-center gap-4 p-3 rounded-xl border-2 mb-3 transition-all ${s.is_active == 1 ? 'border-blue-400 bg-blue-50' : 'border-slate-100 hover:border-slate-200'}">
+       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-xl border-2 mb-3 transition-all  ${s.is_active == 1 ? 'border-blue-400 bg-blue-50' : 'border-slate-100 hover:border-slate-200'}">
             <!-- Preview -->
             <div class="w-32 h-16 rounded-lg shrink-0 flex items-center justify-center overflow-hidden"
                 style="background-image:linear-gradient(45deg,#e2e8f0 25%,transparent 25%),linear-gradient(-45deg,#e2e8f0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e2e8f0 75%),linear-gradient(-45deg,transparent 75%,#e2e8f0 75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0;">

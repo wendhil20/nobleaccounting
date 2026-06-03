@@ -13,7 +13,8 @@
             <button onclick="toggleDatesDropdown(event)"
                 class="flex items-center gap-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition shadow-sm">
                 <i class="fa-solid fa-calendar-days text-orange-400"></i>
-                Dates with Requests
+                <span class="hidden sm:inline">Dates with Requests</span>
+                <span class="sm:hidden">Dates</span>
                 <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
@@ -46,7 +47,7 @@
             Today
         </button>
         <div class="flex items-center gap-1.5 ml-2">
-            <span id="last-updated" class="text-[10px] text-gray-400"></span>
+            <span id="last-updated" class="text-[10px] text-gray-400 hidden sm:inline"></span>
             <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
         </div>
     </div>
@@ -82,14 +83,16 @@
 </div>
 
 <!-- Day Detail Panel -->
-<div id="day-panel" class="hidden bg-white rounded-xl shadow-sm border border-gray-100">
+<div id="day-panel" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
         <span id="day-panel-title" class="text-sm font-semibold text-gray-700"></span>
         <button onclick="closeDayPanel()" class="text-gray-300 hover:text-gray-500 transition">
             <i class="fa-solid fa-xmark"></i>
         </button>
     </div>
-    <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
+
+    <!-- Desktop table (md+) -->
+    <div class="hidden md:block overflow-x-auto max-h-[400px] overflow-y-auto scrollbar-thin">
         <table class="w-full text-sm">
             <thead class="sticky top-0 z-10">
                 <tr class="bg-gray-50 text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
@@ -105,12 +108,19 @@
             <tbody id="day-requests-tbody"></tbody>
         </table>
     </div>
+
+    <!-- Mobile cards (below md) -->
+    <div class="md:hidden max-h-[400px] overflow-y-auto scrollbar-thin" id="day-requests-cards"></div>
 </div>
 
-<!-- View Request Modal -->
+<!-- ═══════════════════════════════════════════════════════
+     VIEW REQUEST MODAL
+     ═══════════════════════════════════════════════════════ -->
 <div id="view-modal"
     class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8 overflow-y-auto">
-    <div class="bg-white w-full max-w-5xl rounded-sm shadow-xl border border-gray-300 my-auto">
+
+    <!-- ── DESKTOP layout (md+) ── -->
+    <div class="hidden md:block bg-white w-full max-w-5xl rounded-sm shadow-xl border border-gray-300 my-auto">
         <!-- Header -->
         <div class="grid grid-cols-[1fr_auto] border-b-2 border-gray-800">
             <div class="flex items-center gap-4 px-3 py-3 border-r-2 border-gray-800">
@@ -237,8 +247,108 @@
             </div>
         </div>
     </div>
+    <!-- end desktop -->
 
-    <!-- Lightbox -->
+    <!-- ── MOBILE layout (below md) ── -->
+    <div class="md:hidden bg-white w-full rounded-2xl shadow-xl my-auto overflow-hidden">
+
+        <!-- Mobile Header -->
+        <div class="bg-orange-500 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <img src="<?= BASE_URL ?>/icon/logo.png" alt="Logo"
+                    class="w-8 h-8 object-contain bg-white rounded-lg p-0.5">
+                <div>
+                    <p class="text-white font-bold text-xs uppercase leading-tight">Budget Request Form</p>
+                    <p id="m-control-no" class="text-orange-100 text-[9px] font-mono tracking-wider"></p>
+                </div>
+            </div>
+            <button onclick="closeViewModal()" class="text-orange-200 hover:text-white transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Date + Category -->
+        <div class="grid grid-cols-2 border-b border-gray-100">
+            <div class="px-4 py-2.5 border-r border-gray-100">
+                <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Date</p>
+                <p id="m-date" class="font-mono text-xs text-gray-700"></p>
+            </div>
+            <div class="px-4 py-2.5">
+                <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Category</p>
+                <div id="m-category"></div>
+            </div>
+        </div>
+
+        <!-- Requestor + Purpose -->
+        <div class="px-4 py-3 space-y-2 border-b border-gray-100">
+            <div>
+                <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Requestor Name</p>
+                <p id="m-requestor" class="text-sm font-semibold text-gray-800"></p>
+            </div>
+            <div>
+                <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Purpose of Request</p>
+                <p id="m-purpose" class="text-sm text-gray-700"></p>
+            </div>
+        </div>
+
+        <!-- Items List -->
+        <div class="border-b border-gray-100">
+            <div class="bg-orange-500 grid grid-cols-[24px_1fr_50px_72px] px-3 py-1.5 gap-1">
+                <span class="text-[9px] font-bold text-white text-center uppercase">#</span>
+                <span class="text-[9px] font-bold text-white uppercase tracking-widest">Item / Description</span>
+                <span class="text-[9px] font-bold text-white uppercase text-right">Qty</span>
+                <span class="text-[9px] font-bold text-white uppercase text-right">Amount</span>
+            </div>
+            <div id="m-items-list" class="divide-y divide-gray-100 max-h-[200px] overflow-y-auto scrollbar-thin"></div>
+            <!-- Total -->
+            <div class="flex items-center justify-end gap-3 px-4 py-2 bg-orange-50 border-t-2 border-orange-400">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Total:</span>
+                <span id="m-total" class="font-bold font-mono text-sm text-orange-600"></span>
+            </div>
+        </div>
+
+        <!-- Attachment pending badge -->
+        <div id="m-attachment-status" class="hidden px-4 pt-3 border-b border-gray-100 pb-3">
+            <div class="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+                <i class="fa-solid fa-clock text-yellow-500 text-xs"></i>
+                <span class="text-xs font-semibold text-yellow-700">Attachment pending — requestor will follow up</span>
+            </div>
+        </div>
+
+        <!-- Attachments -->
+        <div id="m-attachments" class="hidden px-4 py-3 border-b border-gray-100">
+            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-2">
+                <i class="fa-solid fa-paperclip mr-1"></i> Attachments
+            </p>
+            <div id="m-attachments-grid" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <!-- Reject comment -->
+        <div id="m-reject-comment"></div>
+
+        <!-- Signatures -->
+        <div class="grid grid-cols-2 border-b border-gray-100">
+            <div class="bg-orange-500 py-1.5 text-center border-r border-orange-400">
+                <span class="text-[9px] font-bold text-white uppercase tracking-wider">Approved By</span>
+            </div>
+            <div class="bg-orange-500 py-1.5 text-center">
+                <span class="text-[9px] font-bold text-white uppercase tracking-wider">Received By</span>
+            </div>
+            <div class="px-3 py-3 border-r border-gray-100 min-h-[80px] flex flex-col justify-end">
+                <div id="m-status-badge" class="mb-1"></div>
+                <div id="m-approved-by"></div>
+            </div>
+            <div class="px-3 py-3 min-h-[80px] flex flex-col justify-end">
+                <div id="m-received-by"></div>
+            </div>
+        </div>
+
+        <!-- Mobile action buttons -->
+        <div class="px-4 py-3 bg-gray-50 flex flex-col gap-2" id="m-action-btns"></div>
+    </div>
+    <!-- end mobile -->
+
+    <!-- Lightbox (shared) -->
     <div id="lightbox" class="hidden fixed inset-0 z-[70] bg-black/90 flex items-center justify-center px-4"
         onclick="closeLightbox()">
         <button class="absolute top-4 right-4 text-white text-2xl hover:text-gray-300 transition-colors">
@@ -306,6 +416,13 @@
     </div>
 </div>
 
+<style>
+    .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+</style>
+
 <script>
     // ─── State ───────────────────────────────────────────
     let allRequests = [];
@@ -326,6 +443,7 @@
         const firstDay = new Date(calYear, calMonth, 1).getDay();
         const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
         const today = new Date();
+        const isMobile = window.innerWidth < 768;
 
         const byDate = {};
         allRequests.forEach(r => {
@@ -335,9 +453,11 @@
             byDate[d].push(r);
         });
 
+        // Blank leading cells
         for (let i = 0; i < firstDay; i++) {
             const blank = document.createElement('div');
-            blank.className = 'min-h-[90px] bg-gray-50/50 border-b border-r border-gray-100';
+            blank.className = 'border-b border-r border-gray-100 bg-gray-50/30';
+            blank.style.minHeight = isMobile ? '44px' : '90px';
             grid.appendChild(blank);
         }
 
@@ -351,42 +471,77 @@
             const dayOfWeek = (firstDay + day - 1) % 7;
             const isSun = dayOfWeek === 0;
             const isSat = dayOfWeek === 6;
+            const hasRequests = requests.length > 0;
 
             const cell = document.createElement('div');
+            cell.style.minHeight = isMobile ? '44px' : '90px';
             cell.className = [
-                'min-h-[90px] p-2 border-b border-r border-gray-100 cursor-pointer transition-all duration-150',
-                requests.length ? 'hover:bg-orange-50' : 'hover:bg-gray-50',
+                'border-b border-r border-gray-100 cursor-pointer transition-all duration-150 relative',
+                isMobile ? 'flex flex-col items-center justify-start pt-1.5 pb-1' : 'p-2',
+                hasRequests ? 'hover:bg-orange-50' : 'hover:bg-gray-50',
                 isSelected ? 'bg-orange-50 ring-2 ring-inset ring-orange-400' : '',
             ].join(' ');
 
-            const pending = requests.filter(r => r.status === 'pending').length;
-            const approved = requests.filter(r => r.status === 'approved').length;
-            const rejected = requests.filter(r => r.status === 'rejected').length;
+            const dotColors = {
+                pending:  'bg-yellow-400',
+                approved: 'bg-green-400',
+                rejected: 'bg-red-400',
+            };
+            const seenStatuses = [...new Set(requests.map(r => r.status ?? 'pending'))];
 
-            const dots = [
-                pending ? `<span class="inline-block w-2 h-2 rounded-full bg-yellow-400"></span>` : '',
-                approved ? `<span class="inline-block w-2 h-2 rounded-full bg-green-400"></span>` : '',
-                rejected ? `<span class="inline-block w-2 h-2 rounded-full bg-red-400"></span>` : '',
-            ].join('');
+            if (isMobile) {
+                const dayNumClass = isToday
+                    ? 'w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold'
+                    : isSun ? 'text-red-400 text-xs font-semibold'
+                    : isSat ? 'text-blue-400 text-xs font-semibold'
+                    : 'text-gray-600 text-xs font-semibold';
 
-            const countBadge = requests.length
-                ? `<span class="text-[10px] font-bold text-orange-500">${requests.length} req</span>` : '';
+                const dots = seenStatuses.map(s =>
+                    `<span class="inline-block w-1.5 h-1.5 rounded-full ${dotColors[s] ?? 'bg-gray-300'}"></span>`
+                ).join('');
 
-            cell.innerHTML = `
-                <div class="flex items-start justify-between mb-1">
-                    <span class="text-xs font-semibold ${isToday ? 'w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center' : isSun ? 'text-red-400' : isSat ? 'text-blue-400' : 'text-gray-500'}">${day}</span>
-                    ${countBadge}
-                </div>
-                ${requests.length ? `
-                <div class="flex flex-wrap gap-1 mt-1">${dots}</div>
-                <div class="mt-1.5 space-y-0.5">
-                    ${requests.slice(0, 2).map(r => `
-                        <div class="text-[9px] truncate px-1.5 py-0.5 rounded font-medium
-                            ${r.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : r.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                            ${r.requestor_name}
-                        </div>`).join('')}
-                    ${requests.length > 2 ? `<div class="text-[9px] text-gray-400 px-1">+${requests.length - 2} more</div>` : ''}
-                </div>` : ''}`;
+                cell.innerHTML = `
+                    <span class="${dayNumClass}">${day}</span>
+                    ${hasRequests ? `
+                    <div class="flex items-center justify-center gap-0.5 mt-0.5 flex-wrap">${dots}</div>
+                    <span class="text-[8px] font-bold text-orange-500 leading-tight">${requests.length}</span>
+                    ` : ''}`;
+            } else {
+                const pending  = requests.filter(r => r.status === 'pending').length;
+                const approved = requests.filter(r => r.status === 'approved').length;
+                const rejected = requests.filter(r => r.status === 'rejected').length;
+
+                const dots = [
+                    pending  ? `<span class="inline-block w-2 h-2 rounded-full bg-yellow-400"></span>` : '',
+                    approved ? `<span class="inline-block w-2 h-2 rounded-full bg-green-400"></span>` : '',
+                    rejected ? `<span class="inline-block w-2 h-2 rounded-full bg-red-400"></span>` : '',
+                ].join('');
+
+                const countBadge = hasRequests
+                    ? `<span class="text-[10px] font-bold text-orange-500">${requests.length} req</span>` : '';
+
+                const dayNumClass = isToday
+                    ? 'w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center'
+                    : isSun ? 'text-red-400' : isSat ? 'text-blue-400' : 'text-gray-500';
+
+                cell.innerHTML = `
+                    <div class="flex items-start justify-between mb-1">
+                        <span class="text-xs font-semibold ${dayNumClass}">${day}</span>
+                        ${countBadge}
+                    </div>
+                    ${hasRequests ? `
+                    <div class="flex flex-wrap gap-1 mt-1">${dots}</div>
+                    <div class="mt-1.5 space-y-0.5">
+                        ${requests.slice(0, 2).map(r => `
+                            <div class="text-[9px] truncate px-1.5 py-0.5 rounded font-medium
+                                ${r.status === 'pending' ? 'bg-yellow-100 text-yellow-700'
+                                : r.status === 'approved' ? 'bg-green-100 text-green-700'
+                                : 'bg-red-100 text-red-700'}">
+                                ${r.requestor_name}
+                            </div>`).join('')}
+                        ${requests.length > 2 ? `<div class="text-[9px] text-gray-400 px-1">+${requests.length - 2} more</div>` : ''}
+                    </div>` : ''}`;
+            }
 
             cell.onclick = () => openDayPanel(dateStr, requests);
             grid.appendChild(cell);
@@ -396,7 +551,8 @@
         const trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
         for (let i = 0; i < trailing; i++) {
             const blank = document.createElement('div');
-            blank.className = 'min-h-[90px] bg-gray-50/50 border-b border-r border-gray-100';
+            blank.className = 'border-b border-r border-gray-100 bg-gray-50/30';
+            blank.style.minHeight = isMobile ? '44px' : '90px';
             grid.appendChild(blank);
         }
     }
@@ -421,15 +577,18 @@
     function openDayPanel(dateStr, requests) {
         selectedDate = dateStr;
         renderCalendar();
+
         const panel = document.getElementById('day-panel');
         const title = document.getElementById('day-panel-title');
         const tbody = document.getElementById('day-requests-tbody');
+        const mobileCards = document.getElementById('day-requests-cards');
 
         const d = new Date(dateStr + 'T00:00:00');
         title.textContent = d.toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
         if (!requests.length) {
             tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-gray-400 text-sm">No requests on this day.</td></tr>`;
+            mobileCards.innerHTML = `<div class="px-4 py-8 text-center text-gray-400 text-sm">No requests on this day.</div>`;
         } else {
             tbody.innerHTML = requests.map(row => {
                 const isApproved = row.status === 'approved';
@@ -452,13 +611,64 @@
                         <div class="flex items-center gap-1.5 flex-wrap">
                             ${statusBadge(row.status)}
                             ${(row.attachment_status ?? 'attached') === 'follow_up'
-                        ? `<span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-600 text-[9px] font-semibold px-1.5 py-0.5 rounded-full border border-yellow-200 whitespace-nowrap">
+                                ? `<span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-600 text-[9px] font-semibold px-1.5 py-0.5 rounded-full border border-yellow-200 whitespace-nowrap">
                                     <i class="fa-solid fa-clock text-[8px]"></i> Attchmnt Pending
                                    </span>` : ''}
                         </div>
                     </td>
                     <td class="px-5 py-3">${actionButtons(row.id, row.status, row)}</td>
                 </tr>`;
+            }).join('');
+
+            mobileCards.innerHTML = requests.map(row => {
+                const isApproved = row.status === 'approved';
+                const isRejected = row.status === 'rejected';
+                const barColor = isApproved ? 'bg-green-400' : isRejected ? 'bg-red-400' : 'bg-yellow-400';
+                const rowBg   = isApproved ? 'bg-green-50' : isRejected ? 'bg-red-50' : 'bg-white';
+                const itemCount = row.items?.filter(i => i.description?.trim()).length ?? 0;
+
+                return `
+                <div data-id="${row.id}" class="flex items-start gap-3 px-4 py-3 border-b border-gray-100 ${rowBg} active:bg-gray-50">
+                    <div class="w-1 self-stretch rounded-full flex-shrink-0 mt-0.5 ${barColor}"></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2 mb-0.5">
+                            <span class="font-mono text-[10px] font-bold text-blue-500 truncate">${row.control_no}</span>
+                            <div class="flex items-center gap-1 flex-shrink-0 flex-wrap justify-end">
+                                ${statusBadge(row.status)}
+                                ${(row.attachment_status ?? 'attached') === 'follow_up'
+                                    ? `<span class="inline-flex items-center gap-0.5 bg-yellow-100 text-yellow-600 text-[8px] font-semibold px-1.5 py-0.5 rounded-full border border-yellow-200 whitespace-nowrap">
+                                        <i class="fa-solid fa-clock text-[7px]"></i>Attchmnt Pending
+                                       </span>` : ''}
+                            </div>
+                        </div>
+                        <p class="text-sm font-semibold text-gray-800 truncate leading-tight">${row.requestor_name}</p>
+                        <p class="text-[11px] text-gray-500 truncate">${row.purpose}</p>
+                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                            ${categoryBadge(row.request_category, row.request_reference)}
+                            <span class="text-[10px] text-gray-400">${itemCount} item${itemCount !== 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                            <button onclick='viewRequest(${JSON.stringify(row).replace(/'/g, "\\'")})'
+                                class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-[10px] font-semibold px-2.5 py-1 rounded-full transition-all">
+                                <i class="fa-solid fa-eye mr-1"></i>View
+                            </button>
+                            ${row.status === 'pending' ? `
+                            <button onclick="doAction(${row.id}, 'approved')"
+                                class="bg-green-500 hover:bg-green-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full transition-all">
+                                <i class="fa-solid fa-check mr-1"></i>Approve
+                            </button>
+                            <button onclick="openRejectModal(${row.id})"
+                                class="bg-red-500 hover:bg-red-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full transition-all">
+                                <i class="fa-solid fa-xmark mr-1"></i>Reject
+                            </button>` : ''}
+                            ${row.status === 'approved' ? `
+                            <button onclick="openPingModal(${row.id})"
+                                class="bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full transition-all">
+                                <i class="fa-solid fa-bell mr-1"></i>Ping
+                            </button>` : ''}
+                        </div>
+                    </div>
+                </div>`;
             }).join('');
         }
 
@@ -497,7 +707,7 @@
     // ─── Shared Helpers ──────────────────────────────────
     function statusBadge(status) {
         const map = {
-            pending: 'bg-yellow-100 text-yellow-700',
+            pending:  'bg-yellow-100 text-yellow-700',
             approved: 'bg-green-300 text-green-900',
             rejected: 'bg-red-100 text-red-700',
         };
@@ -508,17 +718,15 @@
         if (!category) return '<span class="text-gray-300 text-xs">—</span>';
         const map = {
             project: { label: 'Project', icon: 'fa-helmet-safety', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-            client: { label: 'Client', icon: 'fa-user-tie', color: 'bg-purple-100 text-purple-700 border-purple-200' },
-            nhcc: { label: 'NHCC', icon: 'fa-building', color: 'bg-orange-100 text-orange-700 border-orange-200' },
+            client:  { label: 'Client',  icon: 'fa-user-tie',      color: 'bg-purple-100 text-purple-700 border-purple-200' },
+            nhcc:    { label: 'NHCC',    icon: 'fa-building',       color: 'bg-orange-100 text-orange-700 border-orange-200' },
         };
         const cfg = map[category] ?? { label: category, icon: 'fa-tag', color: 'bg-gray-100 text-gray-600 border-gray-200' };
-
         if (!reference) {
             return `<span class="inline-flex items-center gap-1 border rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.color}">
                         <i class="fa-solid ${cfg.icon} text-[9px]"></i> ${cfg.label}
                     </span>`;
         }
-
         const safeRef = reference.replace(/'/g, "\\'").replace(/`/g, '\\`');
         return `<div class="relative inline-block"
             onmouseenter="showCatTooltip(event, '${cfg.label}', '${safeRef}')"
@@ -656,6 +864,7 @@
 
     // ─── View Modal ──────────────────────────────────────
     function viewRequest(row) {
+        // ── Desktop fields ──
         document.getElementById('view-control-no').textContent = row.control_no;
         document.getElementById('view-date').textContent = row.date_requested;
         document.getElementById('view-requestor').textContent = row.requestor_name;
@@ -737,25 +946,19 @@
         const approverSig = (row.status === 'approved') ? (row.approver_signature ?? '') : '';
         document.getElementById('view-approved-by').innerHTML = approverName
             ? `<div class="relative inline-block">
-        ${approverSig
-                ? `<img src="<?= BASE_URL ?>/${approverSig}" 
-                   alt="Signature" 
-                   style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); height:80px; max-width:220px; z-index:10; pointer-events:none;">`
-                : ''}
+        ${approverSig ? `<img src="<?= BASE_URL ?>/${approverSig}" alt="Signature" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:80px;max-width:220px;z-index:10;pointer-events:none;">` : ''}
         <p class="text-sm font-semibold text-gray-800">${approverName}</p>
-       <p class="text-[10px] text-gray-400">${approvedAt}</p>`
-            : '';
+        <p class="text-[10px] text-gray-400">${approvedAt}</p>
+       </div>` : '';
+
         const receiverSig = row.receiver_signature_path ?? '';
         document.getElementById('view-received-by').innerHTML = receiverName
             ? `<div class="relative inline-block">
-        ${receiverSig
-                ? `<img src="<?= BASE_URL ?>/${receiverSig}" 
-               alt="Signature" 
-               style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); height:80px; max-width:220px; z-index:10; pointer-events:none;">`
-                : ''}
+        ${receiverSig ? `<img src="<?= BASE_URL ?>/${receiverSig}" alt="Signature" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:80px;max-width:220px;z-index:10;pointer-events:none;">` : ''}
         <p class="text-sm font-semibold text-gray-800">${receiverName}</p>
         <p class="text-[10px] text-gray-400">${receivedAt}</p>
        </div>` : '';
+
         const downloadBtn = document.getElementById('view-download-btn');
         const pdfBtn = (row.status === 'approved' && row.receiver_name)
             ? `<button onclick="downloadPDF(${row.id})" class="flex items-center gap-1.5 bg-gray-800 hover:bg-gray-900 text-white text-[11px] font-semibold px-3 py-1.5 rounded-md transition-all whitespace-nowrap">
@@ -763,6 +966,129 @@
         downloadBtn.innerHTML = `${pdfBtn}
             <button onclick="printRequest(${row.id})" class="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-md transition-all whitespace-nowrap">
                 <i class="fa-solid fa-print text-[10px]"></i>Print</button>`;
+
+        // ══════════════════════════════════════════════════
+        // ── MOBILE fields sync ──
+        // ══════════════════════════════════════════════════
+        document.getElementById('m-control-no').textContent = row.control_no;
+        document.getElementById('m-date').textContent = row.date_requested;
+        document.getElementById('m-requestor').textContent = row.requestor_name;
+        document.getElementById('m-purpose').textContent = row.purpose;
+        document.getElementById('m-category').innerHTML = categoryBadge(row.request_category, row.request_reference);
+        document.getElementById('m-status-badge').innerHTML = statusBadge(row.status);
+        document.getElementById('m-total').textContent = '₱ ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+
+        // Mobile items list
+        const mItemsList = document.getElementById('m-items-list');
+        let mRows = '';
+        let mFilled = 0;
+        (row.items ?? []).filter(i => i.description?.trim()).forEach(item => {
+            mFilled++;
+            const amt = parseFloat(item.amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+            mRows += `
+            <div class="grid grid-cols-[24px_1fr_50px_72px] px-3 py-2 gap-1 items-start">
+                <span class="text-[10px] text-gray-400 text-center mt-0.5">${mFilled}</span>
+                <div>
+                    <p class="text-xs font-medium text-gray-800 leading-tight">${item.description}</p>
+                    ${item.purpose ? `<p class="text-[10px] text-gray-400">${item.purpose}</p>` : ''}
+                    ${item.notes   ? `<p class="text-[10px] text-gray-400 italic">${item.notes}</p>`   : ''}
+                </div>
+                <span class="text-[10px] text-gray-600 text-right mt-0.5">${item.quantity ?? 0}</span>
+                <span class="text-[10px] font-mono font-semibold text-gray-800 text-right mt-0.5">₱${amt}</span>
+            </div>`;
+        });
+        if (!mFilled) mRows = `<div class="px-3 py-3 text-xs text-gray-400 text-center">No items.</div>`;
+        mItemsList.innerHTML = mRows;
+
+        // Mobile attachment pending badge
+        const mAttachStatus = document.getElementById('m-attachment-status');
+        if ((row.attachment_status ?? 'attached') === 'follow_up') {
+            mAttachStatus.classList.remove('hidden');
+        } else {
+            mAttachStatus.classList.add('hidden');
+        }
+
+        // Mobile attachments
+        const mAttach     = document.getElementById('m-attachments');
+        const mAttachGrid = document.getElementById('m-attachments-grid');
+        if (attachments.length) {
+            mAttach.classList.remove('hidden');
+            mAttachGrid.innerHTML = attachments.map(path => {
+                const isPdf   = path.toLowerCase().endsWith('.pdf');
+                const fullUrl = `<?= BASE_URL ?>/${path}`;
+                if (isPdf) {
+                    return `<a href="${fullUrl}" target="_blank"
+                        class="flex flex-col items-center justify-center w-16 h-16 rounded-lg border border-gray-200 bg-red-50 gap-1">
+                        <i class="fa-solid fa-file-pdf text-red-500 text-xl"></i>
+                        <span class="text-[9px] text-red-400 font-semibold uppercase">PDF</span>
+                    </a>`;
+                }
+                return `<div class="cursor-pointer" onclick="openLightbox('${fullUrl}')">
+                    <img src="${fullUrl}" class="w-16 h-16 object-cover rounded-lg border border-gray-200">
+                </div>`;
+            }).join('');
+        } else {
+            mAttach.classList.add('hidden');
+        }
+
+        // Mobile reject comment
+        const mRejectDiv = document.getElementById('m-reject-comment');
+        mRejectDiv.innerHTML = (row.reject_comment && row.status === 'rejected')
+            ? `<div class="mx-4 my-3 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+               <p class="text-[9px] font-bold uppercase tracking-widest text-red-500 mb-1">Reason for Rejection:</p>
+               <p class="text-xs text-red-700">${row.reject_comment}</p></div>` : '';
+
+        // Mobile signatures
+        document.getElementById('m-approved-by').innerHTML = approverName
+            ? `<p class="text-xs font-semibold text-gray-800">${approverName}</p>
+               <p class="text-[10px] text-gray-400">${approvedAt}</p>` : '<p class="text-[10px] text-gray-300">—</p>';
+        document.getElementById('m-received-by').innerHTML = receiverName
+            ? `<p class="text-xs font-semibold text-gray-800">${receiverName}</p>
+               <p class="text-[10px] text-gray-400">${receivedAt}</p>` : '<p class="text-[10px] text-gray-300">—</p>';
+
+        // Mobile action buttons
+        const mActionBtns = document.getElementById('m-action-btns');
+        const mCloseBtn = `<button onclick="closeViewModal()"
+            class="w-full text-sm text-gray-500 font-medium py-2.5 rounded-xl border border-gray-200 bg-white">Close</button>`;
+
+        let mActionHtml = '';
+
+        if (row.status === 'pending') {
+            mActionHtml = `
+            <button onclick="doAction(${row.id}, 'approved'); closeViewModal();"
+                class="w-full flex items-center justify-center gap-2 bg-green-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-all">
+                <i class="fa-solid fa-check"></i>Approve
+            </button>
+            <button onclick="closeViewModal(); openRejectModal(${row.id});"
+                class="w-full flex items-center justify-center gap-2 bg-red-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-all">
+                <i class="fa-solid fa-xmark"></i>Reject
+            </button>`;
+        } else if (row.status === 'approved') {
+            mActionHtml = `
+            <button onclick="closeViewModal(); openPingModal(${row.id});"
+                class="w-full flex items-center justify-center gap-2 bg-blue-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-all">
+                <i class="fa-solid fa-bell"></i>Ping Staff
+            </button>`;
+        }
+
+        // Print button — laging nandoon
+        mActionHtml += `
+        <button onclick="printRequest(${row.id})"
+            class="w-full flex items-center justify-center gap-2 bg-gray-800 text-white text-sm font-semibold py-2.5 rounded-xl transition-all">
+            <i class="fa-solid fa-print"></i>Print
+        </button>`;
+
+        // Download PDF — kung approved at may receiver
+        if (row.status === 'approved' && row.receiver_name) {
+            mActionHtml = `
+            <button onclick="downloadPDF(${row.id})"
+                class="w-full flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-800 text-white text-sm font-semibold py-2.5 rounded-xl transition-all">
+                <i class="fa-solid fa-file-pdf"></i>Download PDF
+            </button>` + mActionHtml;
+        }
+
+        mActionBtns.innerHTML = mActionHtml + mCloseBtn;
+        // ══════════════════════════════════════════════════
 
         document.getElementById('view-modal').classList.remove('hidden');
     }
@@ -813,10 +1139,10 @@
                         <td style="text-align:right;border:1px solid #ccc;padding:5px;font-family:monospace;">₱ 0.00</td>
                         <td style="border:1px solid #ccc;padding:5px;"></td></tr>`;
                 }
-                const approverName = row.approver_name ?? '';
-                const approvedAt = row.approved_at ? new Date(row.approved_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + new Date(row.approved_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
-                const receiverName = row.receiver_name ?? '';
-                const receivedAt = row.received_at ? new Date(row.received_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + new Date(row.received_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
+                const approverName  = row.approver_name ?? '';
+                const approvedAt    = row.approved_at  ? new Date(row.approved_at).toLocaleDateString('en-PH',  { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + new Date(row.approved_at).toLocaleTimeString('en-PH',  { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
+                const receiverName  = row.receiver_name ?? '';
+                const receivedAt    = row.received_at  ? new Date(row.received_at).toLocaleDateString('en-PH',  { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + new Date(row.received_at).toLocaleTimeString('en-PH',  { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
                 const approverSigPath = (row.status === 'approved' && row.approver_signature) ? `<?= BASE_URL ?>/${row.approver_signature}` : '';
                 const receiverSigPath = row.receiver_signature_path ? `<?= BASE_URL ?>/${row.receiver_signature_path}` : '';
                 const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Budget Request - ${row.control_no}</title>
@@ -836,6 +1162,7 @@
                 <td style="width:34%;border-right:1px solid #111;padding:8px;"><span class="label">Requestor Name:</span><span style="font-size:12px;margin-left:5px;">${row.requestor_name}</span></td>
                 <td style="width:33%;border-right:1px solid #111;padding:8px;"><span class="label">Purpose of Request:</span><span style="font-size:12px;margin-left:5px;">${row.purpose}</span></td>
                 <td style="width:33%;padding:8px;"><span class="label">Category:</span><span style="font-size:12px;margin-left:5px;">${row.request_category ? row.request_category.toUpperCase() : '—'}</span></td>
+                </tr></table>
                 <table style="border-collapse:collapse;width:100%;border-bottom:1px solid #111;"><thead><tr>
                 <th style="width:5%;border:1px solid #ea6c00;">No.</th><th style="border:1px solid #ea6c00;text-align:left;">Items / Description</th>
                 <th style="border:1px solid #ea6c00;text-align:left;">Purpose</th><th style="width:8%;border:1px solid #ea6c00;">Qty</th>
@@ -849,16 +1176,12 @@
                 <td style="width:50%;border-right:1px solid #111;padding:15px 20px;vertical-align:bottom;"><span class="label">Approved By:</span>
                 <div style="margin-top:20px;text-align:center;position:relative;">${approverSigPath ? `<img src="${approverSigPath}" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:60px;max-width:180px;object-fit:contain;">` : ''}<strong style="font-size:12px;">${approverName}</strong><br><span style="font-size:9px;color:#888;">${approvedAt}</span></div>
                 <div class="sig-line"></div><div style="text-align:center;font-size:9px;text-transform:uppercase;color:#888;margin-top:3px;">Head</div></td>
-               <td style="width:50%;padding:15px 20px;vertical-align:bottom;">
-                <span class="label">Received By:</span>
+                <td style="width:50%;padding:15px 20px;vertical-align:bottom;"><span class="label">Received By:</span>
                 <div style="margin-top:20px;text-align:center;position:relative;">
                 ${receiverSigPath ? `<img src="${receiverSigPath}" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:60px;max-width:180px;object-fit:contain;">` : ''}
                 <strong style="font-size:12px;">${receiverName}</strong><br>
-                <span style="font-size:9px;color:#888;">${receivedAt}</span>
-                </div>
-                <div class="sig-line"></div>
-                </td>
-                <div class="sig-line"></div><div style="text-align:center;font-size:9px;color:#888;margin-top:3px;">&nbsp;</div></td></tr></table>
+                <span style="font-size:9px;color:#888;">${receivedAt}</span></div>
+                <div class="sig-line"></div></td></tr></table>
                 </div><script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};<\/script></body></html>`;
                 const w = window.open('', '_blank');
                 w.document.write(html);
@@ -896,7 +1219,7 @@
             const d = new Date(date + 'T00:00:00');
             const label = d.toLocaleDateString('en-PH', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
             const dots = [
-                pending ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-yellow-400" title="${pending} pending"></span>` : '',
+                pending  ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-yellow-400" title="${pending} pending"></span>`  : '',
                 approved ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400"  title="${approved} approved"></span>` : '',
                 rejected ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-red-400"    title="${rejected} rejected"></span>` : '',
             ].join('');
@@ -967,19 +1290,32 @@
             const requests = allRequests.filter(r => r.date_requested?.startsWith(jumpDate));
             openDayPanel(jumpDate, requests);
         }
+        let tries = 0;
         const interval = setInterval(() => {
-            const row = document.querySelector(`tr[data-id="${highlightId}"]`);
+            tries++;
+            const isMobile = window.innerWidth < 768;
+            const row = isMobile
+                ? document.querySelector(`#day-requests-cards div[data-id="${highlightId}"]`)
+                : document.querySelector(`#day-requests-tbody tr[data-id="${highlightId}"]`);
             if (row) {
                 clearInterval(interval);
                 row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                const firstTd = row.querySelector('td:first-child');
-                const badge = document.createElement('span');
-                badge.className = 'highlight-badge';
-                firstTd.prepend(badge);
-                setTimeout(() => badge.remove(), 5000);
+                if (!isMobile) {
+                    const firstTd = row.querySelector('td:first-child');
+                    if (firstTd) {
+                        const badge = document.createElement('span');
+                        badge.className = 'highlight-badge';
+                        firstTd.prepend(badge);
+                        setTimeout(() => badge.remove(), 5000);
+                    }
+                } else {
+                    let on = true;
+                    const flash = setInterval(() => { row.style.backgroundColor = on ? '#fecaca' : '#fee2e2'; on = !on; }, 300);
+                    setTimeout(() => { clearInterval(flash); row.style.backgroundColor = ''; }, 5000);
+                }
             }
+            if (tries >= 25) clearInterval(interval);
         }, 200);
-        setTimeout(() => clearInterval(interval), 5000);
     }
 
     // ─── Category Tooltip ────────────────────────────────
@@ -1000,30 +1336,19 @@
         const tip = document.getElementById('cat-tooltip');
         document.getElementById('cat-tooltip-label').textContent = label;
         document.getElementById('cat-tooltip-ref').textContent = reference;
-
-        // Show but invisible first para ma-measure ang actual size
         tip.style.visibility = 'hidden';
         tip.classList.remove('hidden');
-
         const rect = e.currentTarget.getBoundingClientRect();
-        const tipW = tip.offsetWidth;   // actual width ngayon
-        const tipH = tip.offsetHeight;  // actual height din
-
+        const tipW = tip.offsetWidth, tipH = tip.offsetHeight;
         let left = rect.left + (rect.width / 2) - (tipW / 2);
         left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
-
-        // Kung masyado malapit sa taas, ipakita sa baba
         let top = rect.top - tipH - 8;
         if (top < 8) top = rect.bottom + 8;
-
         tip.style.left = left + 'px';
         tip.style.top = top + 'px';
         tip.style.visibility = 'visible';
     }
-
-    function hideCatTooltip() {
-        document.getElementById('cat-tooltip').classList.add('hidden');
-    }
+    function hideCatTooltip() { document.getElementById('cat-tooltip').classList.add('hidden'); }
 
     // ─── Init ────────────────────────────────────────────
     fetchRequests();

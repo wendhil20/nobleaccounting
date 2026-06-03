@@ -3,6 +3,7 @@
 
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
+include ROOT_PATH . '/network/cache-helper.php';
 
 header('Content-Type: application/json');
 

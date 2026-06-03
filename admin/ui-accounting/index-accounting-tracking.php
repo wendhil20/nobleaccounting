@@ -8,7 +8,6 @@ include ROOT_PATH . '/admin/authentication/index-roles.php';
 $allowedRoles = [ROLE_ACCOUNTING];
 include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
-// Fetch all budget requests + voucher info joined
 $sql = "
     SELECT 
         br.*,
@@ -63,13 +62,13 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     <?php include ROOT_PATH . '/admin/navigation/sidebar.php'; ?>
     <style>
         .step-dot {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 13px;
             flex-shrink: 0;
             position: relative;
             z-index: 1;
@@ -87,153 +86,87 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
         }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-                opacity: 0.4;
-            }
-
-            70% {
-                transform: scale(1.6);
-                opacity: 0;
-            }
-
-            100% {
-                transform: scale(1.6);
-                opacity: 0;
-            }
+            0% { transform: scale(1); opacity: 0.4; }
+            70% { transform: scale(1.6); opacity: 0; }
+            100% { transform: scale(1.6); opacity: 0; }
         }
 
-        .badge-pending {
-            background: #fef9c3;
-            color: #854d0e;
-        }
+        .badge-pending  { background:#fef9c3; color:#854d0e; }
+        .badge-approved { background:#dcfce7; color:#166534; }
+        .badge-rejected { background:#fee2e2; color:#991b1b; }
+        .badge-received { background:#dbeafe; color:#1e40af; }
+        .badge-voucher  { background:#f3e8ff; color:#6b21a8; }
 
-        .badge-approved {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .badge-rejected {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .badge-received {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .badge-voucher {
-            background: #f3e8ff;
-            color: #6b21a8;
-        }
-
-        tr {
-            transition: background 0.15s;
-        }
-
-        #trackerModal {
-            overflow: hidden;
-        }
-
-        .modal-inner {
-            max-height: 90vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .modal-inner::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .modal-inner::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .modal-inner::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 999px;
-        }
-
-        .modal-inner::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+        .modal-inner::-webkit-scrollbar { width: 4px; }
+        .modal-inner::-webkit-scrollbar-track { background: transparent; }
+        .modal-inner::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+        .modal-inner::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 
 <body class="bg-slate-100">
-    <main class="ml-56 min-h-screen p-8">
+    <main id="main-content" class="md:ml-56 pt-20 md:pt-5 min-h-screen p-4 md:p-8 transition-all duration-300">
 
         <!-- Header -->
-        <div class="flex items-center justify-between mb-8">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-800">Budget Request Tracking</h1>
-                <p class="text-sm text-slate-500 mt-1">Real-time status of all budget requests</p>
+        <div class="mb-6">
+            <div class="mb-3">
+                <h1 class="text-xl font-bold text-slate-800">Budget Request Tracking</h1>
+                <p class="text-sm text-slate-500 mt-0.5">Real-time status of all budget requests</p>
             </div>
-            <div class="flex gap-2 flex-wrap">
-                <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 font-medium">
-                    <i class="fas fa-clock mr-1"></i> Pending:
-                    <?= count(array_filter($requests, fn($r) => $r['status'] === 'pending')) ?>
+            <div class="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-2">
+                <span class="text-xs px-3 py-2 sm:py-1 rounded-xl sm:rounded-full bg-yellow-100 text-yellow-800 font-medium text-center flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1">
+                    <i class="fas fa-clock"></i>
+                    <span class="font-bold sm:font-medium"><?= count(array_filter($requests, fn($r) => $r['status'] === 'pending')) ?></span>
+                    <span class="text-[10px] sm:text-xs opacity-70 sm:opacity-100">Pending</span>
                 </span>
-                <span class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-800 font-medium">
-                    <i class="fas fa-check-circle mr-1"></i> Approved:
-                    <?= count(array_filter($requests, fn($r) => $r['status'] === 'approved')) ?>
+                <span class="text-xs px-3 py-2 sm:py-1 rounded-xl sm:rounded-full bg-green-100 text-green-800 font-medium text-center flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1">
+                    <i class="fas fa-check-circle"></i>
+                    <span class="font-bold sm:font-medium"><?= count(array_filter($requests, fn($r) => $r['status'] === 'approved')) ?></span>
+                    <span class="text-[10px] sm:text-xs opacity-70 sm:opacity-100">Approved</span>
                 </span>
-                <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-red-800 font-medium">
-                    <i class="fas fa-times-circle mr-1"></i> Rejected:
-                    <?= count(array_filter($requests, fn($r) => $r['status'] === 'rejected')) ?>
+                <span class="text-xs px-3 py-2 sm:py-1 rounded-xl sm:rounded-full bg-red-100 text-red-800 font-medium text-center flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1">
+                    <i class="fas fa-times-circle"></i>
+                    <span class="font-bold sm:font-medium"><?= count(array_filter($requests, fn($r) => $r['status'] === 'rejected')) ?></span>
+                    <span class="text-[10px] sm:text-xs opacity-70 sm:opacity-100">Rejected</span>
                 </span>
             </div>
         </div>
 
         <!-- Filters -->
-        <div class="bg-white shadow-sm border border-slate-100 p-4 mb-6 flex flex-wrap gap-3 items-center">
+        <div class="bg-white shadow-sm border border-slate-100 rounded-xl p-4 mb-5 flex flex-col sm:flex-row gap-3">
             <input type="text" id="searchInput" placeholder="Search by name, control no, purpose..."
-                class="flex-1 min-w-[200px] border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
-            <select id="statusFilter"
-                class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <option value="">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-            </select>
-            <select id="categoryFilter"
-                class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <option value="">All Category</option>
-                <option value="project">Project</option>
-                <option value="client">Client</option>
-                <option value="nhcc">NHCC</option>
-            </select>
+                class="flex-1 border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            <div class="flex gap-3">
+                <select id="statusFilter"
+                    class="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <select id="categoryFilter"
+                    class="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="">All Category</option>
+                    <option value="project">Project</option>
+                    <option value="client">Client</option>
+                    <option value="nhcc">NHCC</option>
+                </select>
+            </div>
         </div>
 
-        <!-- Table -->
-        <div class="bg-white shadow-sm border border-slate-100 overflow-hidden">
+        <!-- Desktop Table (md and up) -->
+        <div class="hidden md:block bg-white shadow-sm border border-slate-100 rounded-xl overflow-hidden">
             <div class="overflow-x-auto overflow-y-auto max-h-[60vh]">
-
                 <table class="w-full text-sm" id="requestTable">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
-                            <th
-                                class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">
-                                Control No.</th>
-                            <th
-                                class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">
-                                Requestor</th>
-                            <th
-                                class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">
-                                Purpose</th>
-                            <th
-                                class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">
-                                Category</th>
-                            <th
-                                class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">
-                                Date Requested</th>
-                            <th
-                                class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">
-                                Status</th>
-                            <th
-                                class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">
-                                Action</th>
+                            <th class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">Control No.</th>
+                            <th class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">Requestor</th>
+                            <th class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">Purpose</th>
+                            <th class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">Category</th>
+                            <th class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">Date</th>
+                            <th class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">Status</th>
+                            <th class="px-5 py-3 text-left font-semibold text-slate-500 uppercase text-xs tracking-wider">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">
@@ -251,13 +184,10 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
                             $hasVoucher = !empty($req['voucher_id']);
                             $vStatus = $req['voucher_status'] ?? '';
 
-                            // Determine display badge
                             if ($hasVoucher && $vStatus === 'released') {
-                                $badgeClass = 'badge-received';
-                                $displayStatus = 'Released';
+                                $badgeClass = 'badge-received'; $displayStatus = 'Released';
                             } elseif ($hasVoucher && !empty($req['v_received_at'])) {
-                                $badgeClass = 'badge-received';
-                                $displayStatus = 'Received';
+                                $badgeClass = 'badge-received'; $displayStatus = 'Received';
                             } elseif ($hasVoucher) {
                                 $badgeClass = 'badge-voucher';
                                 $displayStatus = 'Voucher: ' . ucfirst(str_replace('_', ' ', $vStatus));
@@ -265,44 +195,31 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
                                 $badgeClass = match ($status) {
                                     'approved' => 'badge-approved',
                                     'rejected' => 'badge-rejected',
-                                    default => 'badge-pending',
+                                    default    => 'badge-pending',
                                 };
                                 $displayStatus = ucfirst($status);
                             }
                             ?>
-                            <tr class="hover:bg-slate-50 cursor-pointer request-row" data-id="<?= $req['id'] ?>"
-                                data-status="<?= $status ?>" data-category="<?= $req['request_category'] ?>"
+                            <tr class="hover:bg-slate-50 cursor-pointer request-row"
+                                data-id="<?= $req['id'] ?>"
+                                data-status="<?= $status ?>"
+                                data-category="<?= $req['request_category'] ?>"
                                 data-search="<?= strtolower(($req['control_no'] ?? '') . ' ' . ($req['requestor_name'] ?? '') . ' ' . ($req['purpose'] ?? '')) ?>">
-                                <td class="px-5 py-4 font-mono font-semibold text-slate-700">
-                                    <?= htmlspecialchars($req['control_no'] ?? '') ?>
-                                </td>
+                                <td class="px-5 py-4 font-mono font-semibold text-slate-700"><?= htmlspecialchars($req['control_no'] ?? '') ?></td>
                                 <td class="px-5 py-4">
-                                    <div class="font-medium text-slate-700">
-                                        <?= htmlspecialchars($req['requestor_name'] ?? '—') ?>
-                                    </div>
-                                    <div class="text-xs text-slate-400"><?= htmlspecialchars($req['sent_to_name'] ?? '—') ?>
-                                    </div>
+                                    <div class="font-medium text-slate-700"><?= htmlspecialchars($req['requestor_name'] ?? '—') ?></div>
+                                    <div class="text-xs text-slate-400"><?= htmlspecialchars($req['sent_to_name'] ?? '—') ?></div>
                                 </td>
-                                <td class="px-5 py-4 text-slate-600 max-w-[200px] truncate">
-                                    <?= htmlspecialchars($req['purpose'] ?? '') ?>
-                                </td>
+                                <td class="px-5 py-4 text-slate-600 max-w-[200px] truncate"><?= htmlspecialchars($req['purpose'] ?? '') ?></td>
                                 <td class="px-5 py-4">
-                                    <span class="text-xs px-2 py-1 rounded-md bg-slate-100 text-slate-600 capitalize">
-                                        <?= htmlspecialchars($req['request_category'] ?? '—') ?>
-                                    </span>
+                                    <span class="text-xs px-2 py-1 rounded-md bg-slate-100 text-slate-600 capitalize"><?= htmlspecialchars($req['request_category'] ?? '—') ?></span>
                                 </td>
                                 <td class="px-5 py-4 text-slate-500 text-xs">
-                                    <div>
-                                        <?= $req['date_requested'] ? date('M d, Y', strtotime($req['date_requested'])) : '—' ?>
-                                    </div>
-                                    <div class="text-slate-400">
-                                        <?= $req['created_at'] ? date('h:i A', strtotime($req['created_at'])) : '' ?>
-                                    </div>
+                                    <div><?= $req['date_requested'] ? date('M d, Y', strtotime($req['date_requested'])) : '—' ?></div>
+                                    <div class="text-slate-400"><?= $req['created_at'] ? date('h:i A', strtotime($req['created_at'])) : '' ?></div>
                                 </td>
                                 <td class="px-5 py-4">
-                                    <span class="px-3 py-1 rounded-full text-xs font-semibold <?= $badgeClass ?>">
-                                        <?= $displayStatus ?>
-                                    </span>
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold <?= $badgeClass ?>"><?= $displayStatus ?></span>
                                 </td>
                                 <td class="px-5 py-4">
                                     <button onclick="openTracker(<?= htmlspecialchars(json_encode($req), ENT_QUOTES) ?>)"
@@ -317,40 +234,99 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
             </div>
         </div>
 
+        <!-- Mobile Cards (below md) -->
+        <div class="md:hidden overflow-y-auto flex flex-col gap-3" style="max-height:65vh; padding-right:2px;" id="mobile-cards">
+            <?php if (empty($requests)): ?>
+                <div class="bg-white rounded-xl border border-slate-100 py-16 text-center text-slate-400">
+                    <div class="text-4xl mb-2"><i class="fas fa-inbox"></i></div>
+                    <div class="text-sm">No budget requests found.</div>
+                </div>
+            <?php endif; ?>
+            <?php foreach ($requests as $req): ?>
+                <?php
+                $status = $req['status'];
+                $hasVoucher = !empty($req['voucher_id']);
+                $vStatus = $req['voucher_status'] ?? '';
+
+                if ($hasVoucher && $vStatus === 'released') {
+                    $badgeClass = 'badge-received'; $displayStatus = 'Released';
+                } elseif ($hasVoucher && !empty($req['v_received_at'])) {
+                    $badgeClass = 'badge-received'; $displayStatus = 'Received';
+                } elseif ($hasVoucher) {
+                    $badgeClass = 'badge-voucher';
+                    $displayStatus = 'Voucher: ' . ucfirst(str_replace('_', ' ', $vStatus));
+                } else {
+                    $badgeClass = match ($status) {
+                        'approved' => 'badge-approved',
+                        'rejected' => 'badge-rejected',
+                        default    => 'badge-pending',
+                    };
+                    $displayStatus = ucfirst($status);
+                }
+                ?>
+                <div class="bg-white rounded-xl border border-slate-100 shadow-sm px-4 py-4 request-row"
+                    data-id="<?= $req['id'] ?>"
+                    data-status="<?= $status ?>"
+                    data-category="<?= $req['request_category'] ?>"
+                    data-search="<?= strtolower(($req['control_no'] ?? '') . ' ' . ($req['requestor_name'] ?? '') . ' ' . ($req['purpose'] ?? '')) ?>">
+
+                    <!-- Top row: control no + status -->
+                    <div class="flex items-start justify-between gap-2 mb-2">
+                        <span class="font-mono font-bold text-slate-700 text-sm"><?= htmlspecialchars($req['control_no'] ?? '—') ?></span>
+                        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold <?= $badgeClass ?> shrink-0"><?= $displayStatus ?></span>
+                    </div>
+
+                    <!-- Purpose -->
+                    <p class="text-sm text-slate-700 font-medium truncate mb-1"><?= htmlspecialchars($req['purpose'] ?? '—') ?></p>
+
+                    <!-- Meta row -->
+                    <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400 mb-3">
+                        <span><i class="fas fa-user mr-1"></i><?= htmlspecialchars($req['requestor_name'] ?? '—') ?></span>
+                        <span><i class="fas fa-tag mr-1"></i><?= htmlspecialchars($req['request_category'] ?? '—') ?></span>
+                        <span><i class="fas fa-calendar mr-1"></i><?= $req['date_requested'] ? date('M d, Y', strtotime($req['date_requested'])) : '—' ?></span>
+                    </div>
+
+                    <!-- Track button -->
+                    <button onclick="openTracker(<?= htmlspecialchars(json_encode($req), ENT_QUOTES) ?>)"
+                        class="w-full text-center bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold py-2 rounded-lg transition-colors">
+                        <i class="fas fa-route mr-1"></i> View Tracking
+                    </button>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
     </main>
 
     <!-- Tracker Modal -->
     <div id="trackerModal"
         class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm p-4"
         style="overflow:hidden;">
-        <div class="modal-inner bg-white w-full max-w-lg"
+        <div class="modal-inner bg-white w-full max-w-lg rounded-2xl"
             style="max-height:90vh; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; scrollbar-color:#cbd5e1 transparent;">
 
             <!-- Modal Header -->
-            <div class="px-6 py-5 sticky top-0 z-10" style="background:#1e293b;">
-
+            <div class="px-5 py-5 sticky top-0 z-10 rounded-t-2xl" style="background:#1e293b;">
                 <div class="flex justify-between items-start">
-                    <div>
+                    <div class="min-w-0 flex-1 pr-4">
                         <p class="text-slate-400 text-xs uppercase tracking-widest mb-1">Budget Request</p>
-                        <h2 class="text-white font-bold text-lg" id="modal-control-no">—</h2>
-                        <p class="text-slate-300 text-sm mt-1" id="modal-purpose">—</p>
+                        <h2 class="text-white font-bold text-base leading-tight" id="modal-control-no">—</h2>
+                        <p class="text-slate-300 text-sm mt-1 line-clamp-2" id="modal-purpose">—</p>
                     </div>
-                    <button onclick="closeTracker()" class="text-slate-400 hover:text-white ml-4 mt-1">
+                    <button onclick="closeTracker()" class="text-slate-400 hover:text-white shrink-0 mt-1">
                         <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
-                <div class="flex flex-wrap gap-3 mt-4 text-xs text-slate-300">
+                <div class="flex flex-wrap gap-x-3 gap-y-1 mt-3 text-xs text-slate-300">
                     <span><i class="fas fa-user mr-1"></i><span id="modal-requestor">—</span></span>
-                    <span>·</span>
+                    <span class="hidden sm:inline">·</span>
                     <span><i class="fas fa-calendar mr-1"></i><span id="modal-date">—</span></span>
-                    <span>·</span>
-                    <span id="modal-category-badge"
-                        class="px-2 py-0.5 rounded-full bg-slate-600 text-slate-200">—</span>
+                    <span class="hidden sm:inline">·</span>
+                    <span id="modal-category-badge" class="px-2 py-0.5 rounded-full bg-slate-600 text-slate-200">—</span>
                 </div>
             </div>
 
             <!-- Tracker Steps -->
-            <div class="px-6 py-6">
+            <div class="px-5 py-5">
                 <p class="text-xs text-slate-400 uppercase tracking-widest mb-5 font-semibold">
                     <i class="fas fa-stream mr-1"></i> Request Timeline
                 </p>
@@ -358,19 +334,16 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
             </div>
 
             <!-- Reject Comment -->
-            <div id="reject-block" class="hidden mx-6 mb-4 rounded-xl bg-red-50 border border-red-100 px-4 py-3">
+            <div id="reject-block" class="hidden mx-5 mb-4 rounded-xl bg-red-50 border border-red-100 px-4 py-3">
                 <p class="text-xs font-semibold text-red-500 mb-1"><i class="fas fa-ban mr-1"></i> Rejection Reason</p>
                 <p class="text-sm text-red-700" id="modal-reject-comment">—</p>
             </div>
 
             <!-- Footer -->
-            <div class="px-6 pb-5" style="border-radius:0 0 1.5rem 1.5rem; overflow:hidden;">
-
-                <div class="bg-slate-50 rounded-xl px-4 py-3 text-xs text-slate-400 flex justify-between">
-                    <span><i class="fas fa-hashtag mr-1"></i> Ref: <span id="modal-reference"
-                            class="text-slate-600 font-medium">—</span></span>
-                    <span><i class="fas fa-paper-plane mr-1"></i> Sent to: <span id="modal-sent-to"
-                            class="text-slate-600 font-medium">—</span></span>
+            <div class="px-5 pb-5">
+                <div class="bg-slate-50 rounded-xl px-4 py-3 text-xs text-slate-400 flex flex-col sm:flex-row sm:justify-between gap-1">
+                    <span><i class="fas fa-hashtag mr-1"></i> Ref: <span id="modal-reference" class="text-slate-600 font-medium">—</span></span>
+                    <span><i class="fas fa-paper-plane mr-1"></i> Sent to: <span id="modal-sent-to" class="text-slate-600 font-medium">—</span></span>
                 </div>
             </div>
 
@@ -421,15 +394,12 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
                     label: 'Request Submitted',
                     sub: r.requestor_name || '—',
                     time: fdt(r.created_at),
-                    done: true,
-                    active: false,
+                    done: true, active: false,
                     icon: 'fa-file-alt'
                 },
                 {
                     label: isRejected ? 'Request Rejected' : 'Approved by Accounting',
-                    sub: isRejected
-                        ? (r.reject_comment ? 'See rejection reason below' : 'No comment')
-                        : (r.approved_by_name || 'Awaiting approval'),
+                    sub: isRejected ? (r.reject_comment ? 'See rejection reason below' : 'No comment') : (r.approved_by_name || 'Awaiting approval'),
                     time: (isApproved || isRejected) ? fdt(r.approved_at) : null,
                     done: isApproved || isRejected,
                     active: !isApproved && !isRejected,
@@ -487,16 +457,14 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
             ];
         }
 
-
-
         function renderSteps(steps) {
             const container = document.getElementById('tracker-steps');
             container.innerHTML = '';
 
             steps.forEach((step, i) => {
                 const isLast = i === steps.length - 1;
-
                 let dotBg, dotText, lineColor;
+
                 if (step.rejected) {
                     dotBg = 'bg-red-100'; dotText = 'text-red-500'; lineColor = '#fecaca';
                 } else if (step.done) {
@@ -509,27 +477,27 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
                 const pulseClass = (step.active && !step.done) ? 'pulse-dot' : '';
                 const labelColor = step.done ? 'text-slate-800' : step.rejected ? 'text-red-600' : 'text-slate-400';
-                const subColor = step.done ? 'text-slate-500' : 'text-slate-300';
+                const subColor   = step.done ? 'text-slate-500' : 'text-slate-300';
 
                 const el = document.createElement('div');
-                el.className = 'flex gap-4';
+                el.className = 'flex gap-3';
                 el.innerHTML = `
-            <div class="flex flex-col items-center">
-                <div class="step-dot ${dotBg} ${dotText} ${pulseClass}">
-                    <i class="fas ${step.icon}"></i>
-                </div>
-                ${!isLast ? `<div class="w-0.5 flex-1 mt-1 mb-1 min-h-[24px]" style="background:${lineColor}"></div>` : ''}
-            </div>
-            <div class="pb-5 flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-2">
-                    <div>
-                        <p class="font-semibold text-sm ${labelColor}">${step.label}</p>
-                        <p class="text-xs ${subColor} mt-0.5">${step.sub}</p>
+                    <div class="flex flex-col items-center">
+                        <div class="step-dot ${dotBg} ${dotText} ${pulseClass}">
+                            <i class="fas ${step.icon}"></i>
+                        </div>
+                        ${!isLast ? `<div class="w-0.5 flex-1 mt-1 mb-1 min-h-[24px]" style="background:${lineColor}"></div>` : ''}
                     </div>
-                    ${step.time ? `<span class="text-xs text-slate-400 whitespace-nowrap shrink-0 mt-0.5">${step.time}</span>` : ''}
-                </div>
-            </div>
-        `;
+                    <div class="pb-5 flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-2 flex-wrap">
+                            <div class="min-w-0">
+                                <p class="font-semibold text-sm ${labelColor} leading-tight">${step.label}</p>
+                                <p class="text-xs ${subColor} mt-0.5 truncate">${step.sub}</p>
+                            </div>
+                            ${step.time ? `<span class="text-[10px] text-slate-400 whitespace-nowrap shrink-0 mt-0.5">${step.time}</span>` : ''}
+                        </div>
+                    </div>
+                `;
                 container.appendChild(el);
             });
         }
@@ -544,23 +512,24 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
             if (e.target === this) closeTracker();
         });
 
-        // Search & filter
+        // Search & filter — works on both table rows AND mobile cards
         function filterTable() {
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const status = document.getElementById('statusFilter').value;
+            const search   = document.getElementById('searchInput').value.toLowerCase();
+            const status   = document.getElementById('statusFilter').value;
             const category = document.getElementById('categoryFilter').value;
+
             document.querySelectorAll('.request-row').forEach(row => {
-                const ok = (!search || row.dataset.search.includes(search))
-                    && (!status || row.dataset.status === status)
-                    && (!category || row.dataset.category === category);
+                const ok = (!search   || row.dataset.search.includes(search))
+                        && (!status   || row.dataset.status === status)
+                        && (!category || row.dataset.category === category);
                 row.style.display = ok ? '' : 'none';
             });
         }
+
         document.getElementById('searchInput').addEventListener('input', filterTable);
         document.getElementById('statusFilter').addEventListener('change', filterTable);
         document.getElementById('categoryFilter').addEventListener('change', filterTable);
     </script>
 
 </body>
-
 </html>

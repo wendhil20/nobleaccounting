@@ -33,7 +33,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
 <body class="bg-slate-100">
 
-    <main class="ml-56 min-h-screen p-8">
+    <main id="main-content" class="md:ml-56 pt-20 md:pt-5 min-h-screen p-4 md:p-8 transition-all duration-300">
 
         <!-- Page Header -->
         <div class="mb-6">

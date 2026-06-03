@@ -20,93 +20,104 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 </head>
 
 <body class="bg-slate-100">
-    <main id="main-content" class="ml-56 min-h-screen p-8 transition-all duration-300">
+    <main id="main-content" class="md:ml-56 pt-20 md:pt-5 min-h-screen p-4 md:p-8 transition-all duration-300">
 
-        <!-- Header -->
-        <div class="mb-6 flex items-center justify-between flex-wrap gap-4">
-            <div>
-                <h1 class="text-xl font-bold text-gray-800">Petty Cash — Department Sheet</h1>
-                <p class="text-sm text-gray-400 mt-1">Entries from Sheet Two, filtered by department</p>
-            </div>
-            <div class="flex items-center gap-3 flex-wrap">
-                <!-- Sheet Tabs -->
-                <div class="flex items-center bg-white border border-gray-200 rounded-lg p-1 shadow-sm gap-1">
-                    <a id="tab-general" href="<?= BASE_URL ?>/accountingcustodianpettycash"
-                        class="text-xs font-semibold text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-100 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-arrow-left text-[9px]"></i> General Sheet
-                    </a>
-                    <a id="tab-custodian" href="<?= BASE_URL ?>/accountingcustodianpettycashtwo"
-                        class="text-xs font-semibold text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-100 transition flex items-center gap-1.5">
-                        General Sheet Two <i class="fa-solid fa-arrow-right text-[9px]"></i>
-                    </a>
-                    <span class="text-xs font-bold text-white bg-orange-500 px-3 py-1.5 rounded-md">Department Sheet</span>
-                </div>
-                <!-- Month Filter -->
-                <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm">
-                    <i class="fa-solid fa-calendar text-orange-400 text-xs"></i>
-                    <input type="month" id="filter-month"
-                        class="text-xs font-semibold text-gray-600 outline-none border-none bg-transparent"
-                        value="<?= date('Y-m') ?>">
-                </div>
-            </div>
+       <!-- Header -->
+<div class="mb-4 flex items-start justify-between flex-wrap gap-2">
+    <div>
+        <h1 class="text-base font-bold text-gray-800">Petty Cash — Department Sheet</h1>
+        <p class="text-[11px] text-gray-400 mt-0.5">Entries from Sheet Two, filtered by department</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+        <!-- Sheet Tabs -->
+        <div class="flex items-center bg-white border border-gray-200 rounded-lg p-0.5 shadow-sm gap-0.5">
+            <a id="tab-general" href="<?= BASE_URL ?>/accountingcustodianpettycash"
+                class="text-[10px] font-semibold text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100 transition flex items-center gap-1">
+                <i class="fa-solid fa-arrow-left text-[8px]"></i>
+                <span class="hidden sm:inline">General Sheet</span>
+                <span class="sm:hidden">General</span>
+            </a>
+            <a id="tab-custodian" href="<?= BASE_URL ?>/accountingcustodianpettycashtwo"
+                class="text-[10px] font-semibold text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100 transition flex items-center gap-1">
+                <span class="hidden sm:inline">General Sheet Two</span>
+                <span class="sm:hidden">Sheet Two</span>
+                <i class="fa-solid fa-arrow-right text-[8px]"></i>
+            </a>
+            <span class="text-[10px] font-bold text-white bg-orange-500 px-2 py-1 rounded-md">
+                <span class="hidden sm:inline">Department Sheet</span>
+                <span class="sm:hidden">Dept.</span>
+            </span>
         </div>
+        <!-- Month Filter -->
+        <div class="flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-2 py-1 shadow-sm">
+            <i class="fa-solid fa-calendar text-orange-400 text-[10px]"></i>
+            <input type="month" id="filter-month"
+                class="text-[10px] font-semibold text-gray-600 outline-none border-none bg-transparent"
+                value="<?= date('Y-m') ?>">
+        </div>
+    </div>
+</div>
 
         <!-- Summary Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Department</p>
-                <p id="card-dept" class="text-lg font-bold text-orange-500 truncate">—</p>
+        <div class="grid grid-cols-2 gap-2 mb-6">
+            <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-3">
+                <p class="text-[9px] font-medium uppercase tracking-wider text-gray-400 mb-0.5">Department</p>
+                <p id="card-dept" class="text-sm font-medium text-orange-500 truncate">—</p>
             </div>
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Total Actual</p>
-                <p id="card-actual" class="text-xl font-bold text-red-500">₱ 0.00</p>
+            <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-3">
+                <p class="text-[9px] font-medium uppercase tracking-wider text-gray-400 mb-0.5">Total Actual</p>
+                <p id="card-actual" class="text-sm font-medium text-red-500">₱ 0.00</p>
             </div>
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Total VATable</p>
-                <p id="card-vatable" class="text-xl font-bold text-purple-600">₱ 0.00</p>
+            <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-3">
+                <p class="text-[9px] font-medium uppercase tracking-wider text-gray-400 mb-0.5">Total VATable</p>
+                <p id="card-vatable" class="text-sm font-medium text-purple-600">₱ 0.00</p>
             </div>
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Total Entries</p>
-                <p id="card-entries" class="text-xl font-bold text-blue-600">0</p>
+            <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-3">
+                <p class="text-[9px] font-medium uppercase tracking-wider text-gray-400 mb-0.5">Total Entries</p>
+                <p id="card-entries" class="text-sm font-medium text-blue-600">0</p>
             </div>
         </div>
 
         <!-- Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
 
-            <!-- Filters row: Department dropdown + Account Title filter -->
-            <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 flex-wrap">
+           <!-- Filters row: Department dropdown + Account Title filter -->
+<div class="px-3 py-2.5 border-b border-gray-100">
+    <div class="flex flex-wrap gap-2">
 
-                <!-- Department Dropdown -->
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-building text-orange-400 text-xs"></i>
-                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Department</span>
-                    <select id="filter-department"
-                        class="text-xs font-semibold text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-orange-300 transition">
-                        <option value="">Loading...</option>
-                    </select>
-                </div>
+        <!-- Department Dropdown -->
+        <div class="flex items-center gap-1.5 min-w-0">
+            <i class="fa-solid fa-building text-orange-400 text-[10px] shrink-0"></i>
+            <span class="text-[9px] font-semibold text-gray-400 uppercase tracking-widest hidden sm:inline shrink-0">Department</span>
+            <select id="filter-department"
+                class="text-[10px] font-semibold text-gray-600 bg-gray-50 border border-gray-200 rounded-md px-2 py-1 outline-none cursor-pointer hover:border-orange-300 transition max-w-[130px] sm:max-w-none">
+                <option value="">Loading...</option>
+            </select>
+        </div>
 
-                <div class="w-px h-5 bg-gray-200"></div>
+        <div class="w-px h-5 bg-gray-200 self-center hidden sm:block"></div>
 
-                <!-- Account Title Dropdown -->
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-tag text-orange-400 text-xs"></i>
-                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Account Title</span>
-                    <select id="filter-account-title"
-                        class="text-xs font-semibold text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-orange-300 transition">
-                        <option value="">All Account Titles</option>
-                    </select>
-                </div>
+        <!-- Account Title Dropdown -->
+        <div class="flex items-center gap-1.5 min-w-0">
+            <i class="fa-solid fa-tag text-orange-400 text-[10px] shrink-0"></i>
+            <span class="text-[9px] font-semibold text-gray-400 uppercase tracking-widest hidden sm:inline shrink-0">Account Title</span>
+            <select id="filter-account-title"
+                class="text-[10px] font-semibold text-gray-600 bg-gray-50 border border-gray-200 rounded-md px-2 py-1 outline-none cursor-pointer hover:border-orange-300 transition max-w-[130px] sm:max-w-none">
+                <option value="">All Account Titles</option>
+            </select>
+        </div>
 
-                <!-- Active account title badge -->
-                <span id="filter-badge" class="hidden items-center gap-1 text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-200 rounded-full px-2.5 py-0.5">
-                    <span id="filter-badge-text"></span>
-                    <button onclick="clearAccountFilter()" class="ml-1 hover:text-orange-800 transition">
-                        <i class="fa-solid fa-xmark text-[9px]"></i>
-                    </button>
-                </span>
-            </div>
+        <!-- Active account title badge -->
+        <span id="filter-badge"
+            class="hidden items-center gap-1 text-[9px] font-bold text-orange-600 bg-orange-50 border border-orange-200 rounded-full px-2 py-0.5 self-center">
+            <span id="filter-badge-text" class="max-w-[80px] truncate"></span>
+            <button onclick="clearAccountFilter()" class="ml-0.5 hover:text-orange-800 transition shrink-0">
+                <i class="fa-solid fa-xmark text-[8px]"></i>
+            </button>
+        </span>
+
+    </div>
+</div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-sm border-collapse" style="min-width: 1800px;">
@@ -136,7 +147,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <tbody id="sheet-tbody">
                         <tr>
                             <td colspan="19" class="px-5 py-10 text-center text-gray-400 text-sm">
-                                <i class="fa-solid fa-building text-2xl mb-2 block"></i>Select a department to view entries
+                                <i class="fa-solid fa-building text-2xl mb-2 block"></i>Select a department to view
+                                entries
                             </td>
                         </tr>
                     </tbody>
@@ -146,19 +158,25 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                                 class="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-widest text-gray-500 border-r border-gray-200">
                                 Total</td>
                             <td id="foot-actual"
-                                class="px-4 py-3 text-right font-bold font-mono text-red-500 border-r border-gray-200 text-xs whitespace-nowrap"></td>
+                                class="px-4 py-3 text-right font-bold font-mono text-red-500 border-r border-gray-200 text-xs whitespace-nowrap">
+                            </td>
                             <td colspan="4" class="border-r border-gray-200"></td>
                             <td id="foot-vatable"
-                                class="px-4 py-3 text-right font-bold font-mono text-purple-600 border-r border-gray-200 text-xs whitespace-nowrap"></td>
+                                class="px-4 py-3 text-right font-bold font-mono text-purple-600 border-r border-gray-200 text-xs whitespace-nowrap">
+                            </td>
                             <td id="foot-vat"
-                                class="px-4 py-3 text-right font-bold font-mono text-gray-600 border-r border-gray-200 text-xs whitespace-nowrap"></td>
+                                class="px-4 py-3 text-right font-bold font-mono text-gray-600 border-r border-gray-200 text-xs whitespace-nowrap">
+                            </td>
                             <td id="foot-total"
-                                class="px-4 py-3 text-right font-bold font-mono text-gray-800 border-r border-gray-200 text-xs whitespace-nowrap"></td>
+                                class="px-4 py-3 text-right font-bold font-mono text-gray-800 border-r border-gray-200 text-xs whitespace-nowrap">
+                            </td>
                             <td id="foot-nonvat"
-                                class="px-4 py-3 text-right font-bold font-mono text-gray-600 border-r border-gray-200 text-xs whitespace-nowrap"></td>
+                                class="px-4 py-3 text-right font-bold font-mono text-gray-600 border-r border-gray-200 text-xs whitespace-nowrap">
+                            </td>
                             <td class="border-r border-gray-200"></td>
                             <td id="foot-vatexempt"
-                                class="px-4 py-3 text-right font-bold font-mono text-gray-600 text-xs whitespace-nowrap"></td>
+                                class="px-4 py-3 text-right font-bold font-mono text-gray-600 text-xs whitespace-nowrap">
+                            </td>
                         </tr>
                     </tfoot>
                 </table>
@@ -317,21 +335,21 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         function renderSummary(data) {
             let actual = 0, vatable = 0, vat = 0, total = 0, nonvat = 0, vatexempt = 0;
             data.forEach(row => {
-                actual    += parseFloat(row.actual || 0);
-                vatable   += parseFloat(row.vatable_amount || 0);
-                vat       += parseFloat(row.vat || 0);
-                total     += parseFloat(row.total || 0);
-                nonvat    += parseFloat(row.non_vat || 0);
+                actual += parseFloat(row.actual || 0);
+                vatable += parseFloat(row.vatable_amount || 0);
+                vat += parseFloat(row.vat || 0);
+                total += parseFloat(row.total || 0);
+                nonvat += parseFloat(row.non_vat || 0);
                 vatexempt += parseFloat(row.vat_exempt || 0);
             });
-            document.getElementById('card-actual').textContent    = fmt(actual);
-            document.getElementById('card-vatable').textContent   = fmt(vatable);
-            document.getElementById('card-entries').textContent   = data.length;
-            document.getElementById('foot-actual').textContent    = fmt(actual);
-            document.getElementById('foot-vatable').textContent   = fmt(vatable);
-            document.getElementById('foot-vat').textContent       = fmt(vat);
-            document.getElementById('foot-total').textContent     = fmt(total);
-            document.getElementById('foot-nonvat').textContent    = fmt(nonvat);
+            document.getElementById('card-actual').textContent = fmt(actual);
+            document.getElementById('card-vatable').textContent = fmt(vatable);
+            document.getElementById('card-entries').textContent = data.length;
+            document.getElementById('foot-actual').textContent = fmt(actual);
+            document.getElementById('foot-vatable').textContent = fmt(vatable);
+            document.getElementById('foot-vat').textContent = fmt(vat);
+            document.getElementById('foot-total').textContent = fmt(total);
+            document.getElementById('foot-nonvat').textContent = fmt(nonvat);
             document.getElementById('foot-vatexempt').textContent = fmt(vatexempt);
         }
 
@@ -362,4 +380,5 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
     </script>
 
 </body>
+
 </html>
