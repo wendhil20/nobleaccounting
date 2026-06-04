@@ -277,7 +277,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         <div class="flex items-center gap-2">
                             <span
                                 class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Payment
-                                For</span>
+                                Method</span>
                             <span class="text-gray-400">:</span>
                             <input id="v-purpose"
                                 class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent ml-2" />
@@ -286,7 +286,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex items-center gap-2">
                             <span
-                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Address</span>
+                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Payment For</span>
                             <span class="text-gray-400 mr-2">:</span>
                             <input id="v-address"
                                 class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent" />
