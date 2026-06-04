@@ -264,7 +264,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     </div>
                 </div>
 
-                <!-- Payee / Address / Payment For / Amount in Words -->
+                <!-- Payee / Payment For / Payment Method / Amount in Words -->
                 <div class="px-6 py-3 border-b border-gray-300 space-y-2">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex items-center gap-2">
@@ -277,19 +277,22 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         <div class="flex items-center gap-2">
                             <span
                                 class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Payment
-                                Method</span>
+                                For</span>
                             <span class="text-gray-400">:</span>
-                            <input id="v-purpose"
-                                class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent ml-2" />
+                            <select id="v-purpose"
+                                class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent ml-2">
+                                <option value="">— Select —</option>
+                            </select>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex items-center gap-2">
-                            <span
-                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Payment For</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Payment
+                                Method</span>
                             <span class="text-gray-400 mr-2">:</span>
-                            <input id="v-address"
-                                class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent" />
+                            <input id="v-payment-method"
+                                class="flex-1 border-b border-gray-400 text-sm pb-0.5 outline-none bg-transparent"
+                                placeholder="e.g. Cash, Check No." />
                         </div>
                         <div class="flex items-center gap-2">
                             <span
@@ -432,15 +435,19 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         <div>
                             <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Payment For
                             </p>
-                            <input id="v-purpose-m"
-                                class="w-full text-sm text-gray-700 border-b border-gray-300 pb-0.5 outline-none bg-transparent" />
+                            <select id="v-purpose-m"
+                                class="w-full text-sm text-gray-700 border-b border-gray-300 pb-0.5 outline-none bg-transparent">
+                                <option value="">— Select —</option>
+                            </select>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Address</p>
-                            <input id="v-address-m"
-                                class="w-full text-sm text-gray-700 border-b border-gray-300 pb-0.5 outline-none bg-transparent" />
+                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Payment
+                                Method</p>
+                            <input id="v-payment-method-m"
+                                class="w-full text-sm text-gray-700 border-b border-gray-300 pb-0.5 outline-none bg-transparent"
+                                placeholder="e.g. Cash, Check No." />
                         </div>
                         <div>
                             <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Amount in
@@ -568,21 +575,10 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
                         <hr class="border-gray-100">
 
-                        <!-- Voucher Title dropdown -->
+                        <!-- Department dropdown -->
                         <div class="space-y-1.5">
                             <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                Voucher Title (Account Title) <span class="text-red-400">*</span>
-                            </label>
-                            <select id="conf-title-select"
-                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400 transition-all">
-                                <option value="">— Select Account Title —</option>
-                            </select>
-                        </div>
-
-                        <!-- Second No. dropdown -->
-                        <div class="space-y-1.5">
-                            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                Second No. (Department) <span class="text-gray-300">(optional)</span>
+                                Department <span class="text-gray-300">(optional)</span>
                             </label>
                             <select id="conf-second-no-select"
                                 class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400 transition-all">
@@ -1296,14 +1292,33 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             const items = row.items ?? [];
             const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
 
-            document.getElementById('v-control-no').textContent = row.control_no;
+            document.getElementById('v-control-no').textContent = row.voucher_control_no ?? row.control_no;
             document.getElementById('v-date').textContent = row.date_requested;
-            document.getElementById('v-second-no').textContent = row.voucher_second_no ?? '—';
+            document.getElementById('v-second-no').textContent = row.voucher_payment_method ?? '—';
             document.getElementById('v-title').textContent = row.voucher_title ?? '';
             document.getElementById('v-payee').value = row.voucher_payee ?? '';
-            document.getElementById('v-address').value = row.voucher_address ?? '';
-            document.getElementById('v-purpose').value = row.voucher_purpose ?? '';
             document.getElementById('v-amount-words').value = numberToWords(total);
+            document.getElementById('v-payment-method').value = row.voucher_payment_method ?? '';
+            document.getElementById('v-payment-method-m').value = row.voucher_payment_method ?? '';
+
+            // Populate Payment For dropdown (account titles)
+            fetch('<?= BASE_URL ?>/fetchpettycashaccounttitles')
+                .then(r => r.json())
+                .then(titles => {
+                    const sel = document.getElementById('v-purpose');
+                    const selM = document.getElementById('v-purpose-m');
+                    sel.innerHTML = '<option value="">— Select —</option>';
+                    selM.innerHTML = '<option value="">— Select —</option>';
+                    titles.forEach(d => {
+                        const o = `<option value="${d.title}">${d.title}</option>`;
+                        sel.insertAdjacentHTML('beforeend', o);
+                        selM.insertAdjacentHTML('beforeend', o);
+                    });
+                    sel.value = row.voucher_purpose ?? '';
+                    selM.value = row.voucher_purpose ?? '';
+                });
+
+
             document.getElementById('v-total').textContent = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
 
             // Prepared — may signature
@@ -1422,10 +1437,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             document.getElementById('v-title-m').textContent = row.voucher_title ?? '';
             document.getElementById('v-control-no-m').textContent = row.voucher_control_no ?? row.control_no;
             document.getElementById('v-date-m').textContent = row.date_requested;
-            document.getElementById('v-second-no-m').textContent = row.voucher_second_no ?? '—';
+            document.getElementById('v-second-no-m').textContent = row.voucher_payment_method ?? '—';
             document.getElementById('v-payee-m').value = row.voucher_payee ?? '';
-            document.getElementById('v-address-m').value = row.voucher_address ?? '';
-            document.getElementById('v-purpose-m').value = row.voucher_purpose ?? '';
             document.getElementById('v-amount-words-m').value = numberToWords(total);
             document.getElementById('v-total-m').textContent = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
             document.getElementById('v-prepared-m').textContent = row.prepared_name ?? '';
@@ -1538,29 +1551,16 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 .join(', ');
             document.getElementById('prev-particulars').textContent = particularsPreview || purpose || '—';
             document.getElementById('prev-amount').textContent = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-            document.getElementById('prev-mode').textContent = purpose || '—'; // payment for → mode of payment
+            const paymentMethod = document.getElementById('v-payment-method').value.trim() || document.getElementById('v-payment-method-m').value.trim();
+            document.getElementById('prev-mode').textContent = paymentMethod || '—';
             document.getElementById('prev-reference').textContent = row.voucher_control_no ?? row.control_no ?? '—';
             document.getElementById('prev-payment-date').textContent = row.date_requested ?? '—';
             document.getElementById('prev-title').textContent = '—'; // updates when title is selected
 
             // Reset dropdowns
-            document.getElementById('conf-title-select').value = '';
             document.getElementById('conf-second-no-select').value = '';
             document.getElementById('conf-project-select').value = '';
 
-            // Fetch account titles
-            fetch('<?= BASE_URL ?>/fetchpettycashaccounttitles')
-                .then(r => r.json())
-                .then(data => {
-                    const sel = document.getElementById('conf-title-select');
-                    sel.innerHTML = '<option value="">— Select Account Title —</option>';
-                    data.forEach(d => {
-                        const opt = document.createElement('option');
-                        opt.value = d.title;
-                        opt.textContent = d.title;
-                        sel.appendChild(opt);
-                    });
-                });
 
             // Fetch departments
             fetch('<?= BASE_URL ?>/fetchpettycashdepartment')
@@ -1622,9 +1622,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
         // Live-update the preview title when dropdown changes
         document.addEventListener('change', function (e) {
-            if (e.target.id === 'conf-title-select') {
-                document.getElementById('prev-title').textContent = e.target.value || '—';
-            }
             if (e.target.id === 'conf-project-select') {
                 updateProjectNotice();
                 if (e.target.value) e.target.classList.remove('border-red-400');
@@ -1646,17 +1643,9 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         }
 
         async function submitWithTitle() {
-            const title = document.getElementById('conf-title-select').value.trim();
             const secondNo = document.getElementById('conf-second-no-select').value.trim();
             const projectId = document.getElementById('conf-project-select').value;
-
-            if (!title) {
-                document.getElementById('conf-title-select').classList.add('border-red-400');
-                return;
-            }
-            document.getElementById('conf-title-select').classList.remove('border-red-400');
-
-           const deptVal = document.getElementById('conf-second-no-select').value;
+            const deptVal = document.getElementById('conf-second-no-select').value;
             const projectSel = document.getElementById('conf-project-select');
 
             if (deptVal && !projectId) {
@@ -1685,9 +1674,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             const items = row.items ?? [];
             const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
             const payee = document.getElementById('v-payee').value.trim() || document.getElementById('v-payee-m').value.trim();
-            const address = document.getElementById('v-address').value.trim() || document.getElementById('v-address-m').value.trim();
             const purpose = document.getElementById('v-purpose').value.trim() || document.getElementById('v-purpose-m').value.trim();
-
+            const paymentMethod = document.getElementById('v-payment-method').value.trim() || document.getElementById('v-payment-method-m').value.trim();
             const submitBtn = document.querySelector('#voucher-confirm-modal button[onclick="submitWithTitle()"]');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> Submitting...';
@@ -1700,9 +1688,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     body: JSON.stringify({
                         request_id: row.id,
                         payee,
-                        address,
                         purpose,
-                        title,
+                        payment_method: paymentMethod,
                         second_no: secondNo
                     })
                 });
@@ -1733,10 +1720,10 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         body: JSON.stringify({
                             id: null,
                             project_id: parseInt(projectId),
-                            title: title,
+                            title: purpose,
                             particulars: particularsText || purpose,
                             amount: total,
-                            mode_of_payment: purpose,
+                            mode_of_payment: paymentMethod,
                             payment_date: row.date_requested ?? '',
                             reference: voucherNo,
                             remarks: ''
@@ -1749,7 +1736,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 }
                 allData = [];
                 fetchVouchers();
-                
+
             } catch (err) {
                 showToast('Network error. Please try again.', 'error');
                 submitBtn.disabled = false;

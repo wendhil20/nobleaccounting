@@ -7,7 +7,7 @@ include ROOT_PATH . '/network/cache-helper.php';
 
 header('Content-Type: application/json');
 
-$cached = getCache('custodian_received_requests', 60);
+$cached = getCache('custodian_received_requests', 30);
 if ($cached !== false) {
     echo $cached;
     exit;
@@ -39,6 +39,7 @@ $result = $conn->query("SELECT b.*,
     v.purpose as voucher_purpose,
     v.title as voucher_title,
     v.second_no as voucher_second_no,
+    v.payment_method as voucher_payment_method,
     prep.name as prepared_name,
     cert.name as certified_name,
     appr.name as approver_name,

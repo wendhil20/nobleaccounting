@@ -38,7 +38,8 @@ $position = $_SESSION['position'] ?? '';
                 <span class="text-sm font-semibold text-gray-700">Voucher Records</span>
                 <div class="flex items-center gap-2">
                     <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <i
+                            class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                         <input type="text" id="search-input" placeholder="Search..."
                             class="pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-full outline-none focus:border-amber-400 transition-all w-36 md:w-48">
                     </div>
@@ -83,7 +84,7 @@ $position = $_SESSION['position'] ?? '';
 
         </div>
 
-        <!-- ─── VOUCHER MODAL (shared) ────────────────────── -->
+        <!-- ─── VOUCHER MODAL ────────────────────── -->
         <div id="voucher-modal"
             class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-2 py-4 md:px-4 md:py-8 overflow-y-auto">
 
@@ -96,8 +97,10 @@ $position = $_SESSION['position'] ?? '';
                         <img src="<?= BASE_URL ?>/icon/logo.png" alt="Logo" class="w-12 h-12 object-contain">
                         <div>
                             <p class="font-bold text-sm uppercase">Noblehome Construction Corporation</p>
-                            <p class="text-[10px] text-gray-500">1181 MC Premiere Bldg., EDSA Bldg., EDSA Balintawak Quezon City</p>
-                            <p class="text-[10px] text-gray-500">noblehomeconsl.ph@gmail.com | Tel. No. 02-88221295 | Cell. No. 0968-591-6544</p>
+                            <p class="text-[10px] text-gray-500">1181 MC Premiere Bldg., EDSA Bldg., EDSA Balintawak
+                                Quezon City</p>
+                            <p class="text-[10px] text-gray-500">noblehomeconsl.ph@gmail.com | Tel. No. 02-88221295 |
+                                Cell. No. 0968-591-6544</p>
                         </div>
                     </div>
                     <div></div>
@@ -105,38 +108,51 @@ $position = $_SESSION['position'] ?? '';
                         <p class="font-bold text-lg uppercase tracking-widest text-gray-800">Cash Voucher</p>
                         <p id="v-title" class="text-[10px] text-gray-500 uppercase tracking-wider mb-1"></p>
                         <div class="grid grid-cols-2 mt-1">
-                            <div class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider text-center border-r border-orange-400">Voucher No.</div>
-                            <div class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider text-center">Date:</div>
+                            <div
+                                class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider text-center border-r border-orange-400">
+                                Voucher No.</div>
+                            <div
+                                class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider text-center">
+                                Date:</div>
                         </div>
                         <div class="grid grid-cols-2">
-                            <div id="v-control-no" class="border border-gray-300 text-xs font-mono px-3 py-1 text-center bg-gray-50 border-r-0"></div>
-                            <div id="v-date" class="border border-gray-300 text-xs font-mono px-3 py-1 text-center bg-gray-50"></div>
+                            <div id="v-control-no"
+                                class="border border-gray-300 text-xs font-mono px-3 py-1 text-center bg-gray-50 border-r-0">
+                            </div>
+                            <div id="v-date"
+                                class="border border-gray-300 text-xs font-mono px-3 py-1 text-center bg-gray-50"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Payee / Address / Payment For / Amount in Words -->
+                <!-- Payee / Payment For / Payment Method / Amount in Words -->
                 <div class="px-6 py-3 border-b border-gray-300 space-y-2">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Payee</span>
+                            <span
+                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Payee</span>
                             <span class="text-gray-400 mr-2">:</span>
                             <span id="v-payee" class="flex-1 text-sm text-gray-800"></span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Payment For</span>
+                            <span
+                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Payment
+                                For</span>
                             <span class="text-gray-400">:</span>
                             <span id="v-purpose" class="flex-1 text-sm text-gray-800 ml-2"></span>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Address</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 w-28">Payment
+                                Method</span>
                             <span class="text-gray-400 mr-2">:</span>
-                            <span id="v-address" class="flex-1 text-sm text-gray-800"></span>
+                            <span id="v-payment-method" class="flex-1 text-sm text-gray-800"></span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Amount in Words</span>
+                            <span
+                                class="text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">Amount
+                                in Words</span>
                             <span class="text-gray-400">:</span>
                             <span id="v-amount-words" class="flex-1 text-sm italic text-gray-700 ml-2"></span>
                         </div>
@@ -148,9 +164,15 @@ $position = $_SESSION['position'] ?? '';
                     <table class="w-full text-sm border-collapse">
                         <thead>
                             <tr class="bg-orange-500 text-white">
-                                <th class="w-12 px-3 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-wider">No.</th>
-                                <th class="px-4 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-widest">P A R T I C U L A R S</th>
-                                <th class="w-36 px-4 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-wider">Amount (P)</th>
+                                <th
+                                    class="w-12 px-3 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-wider">
+                                    No.</th>
+                                <th
+                                    class="px-4 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-widest">
+                                    P A R T I C U L A R S</th>
+                                <th
+                                    class="w-36 px-4 py-2 border border-orange-400 text-center text-[11px] uppercase tracking-wider">
+                                    Amount (P)</th>
                             </tr>
                         </thead>
                         <tbody id="v-items-tbody"></tbody>
@@ -159,11 +181,15 @@ $position = $_SESSION['position'] ?? '';
                                 <td colspan="3" class="border border-gray-300 p-0">
                                     <div class="flex items-center justify-between px-4 py-2">
                                         <div>
-                                            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Payment Method No:</span>
+                                            <span
+                                                class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Payment
+                                                Method No:</span>
                                             <span id="v-second-no" class="font-mono text-xs ml-2 text-gray-700"></span>
                                         </div>
                                         <div class="flex items-center gap-4">
-                                            <span class="font-bold text-xs uppercase tracking-widest text-gray-700">Total Amount:</span>
+                                            <span
+                                                class="font-bold text-xs uppercase tracking-widest text-gray-700">Total
+                                                Amount:</span>
                                             <span id="v-total" class="font-bold font-mono text-sm"></span>
                                         </div>
                                     </div>
@@ -175,27 +201,43 @@ $position = $_SESSION['position'] ?? '';
 
                 <!-- Signatures -->
                 <div class="grid grid-cols-4 border-t-2 border-orange-400">
-                    <div class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">Prepared By</div>
-                    <div class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">Certified Thru Correct</div>
-                    <div class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">Approved By</div>
-                    <div class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5">Received By</div>
+                    <div
+                        class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">
+                        Prepared By</div>
+                    <div
+                        class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">
+                        Certified Thru Correct</div>
+                    <div
+                        class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5 border-r border-orange-400">
+                        Approved By</div>
+                    <div
+                        class="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider text-center py-1.5">
+                        Received By</div>
                 </div>
                 <div class="grid grid-cols-4 border-b border-gray-200">
                     <div class="px-4 py-4 border-r border-gray-200">
-                        <p class="text-[10px] text-gray-500">Name: <span id="v-prepared" class="text-gray-800 font-semibold text-xs"></span></p>
-                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-prepared-at" class="text-gray-600 text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500">Name: <span id="v-prepared"
+                                class="text-gray-800 font-semibold text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-prepared-at"
+                                class="text-gray-600 text-xs"></span></p>
                     </div>
                     <div class="px-4 py-4 border-r border-gray-200">
-                        <p class="text-[10px] text-gray-500">Name: <span id="v-certified" class="text-gray-800 font-semibold text-xs"></span></p>
-                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-certified-at" class="text-gray-600 text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500">Name: <span id="v-certified"
+                                class="text-gray-800 font-semibold text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-certified-at"
+                                class="text-gray-600 text-xs"></span></p>
                     </div>
                     <div class="px-4 py-4 border-r border-gray-200">
-                        <p class="text-[10px] text-gray-500">Name: <span id="v-approver" class="text-gray-800 font-semibold text-xs"></span></p>
-                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-approved-at" class="text-gray-600 text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500">Name: <span id="v-approver"
+                                class="text-gray-800 font-semibold text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-approved-at"
+                                class="text-gray-600 text-xs"></span></p>
                     </div>
                     <div class="px-4 py-4">
-                        <p class="text-[10px] text-gray-500">Name: <span id="v-receiver" class="text-gray-800 font-semibold text-xs"></span></p>
-                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-received-at" class="text-gray-600 text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500">Name: <span id="v-receiver"
+                                class="text-gray-800 font-semibold text-xs"></span></p>
+                        <p class="text-[10px] text-gray-500 mt-3">Date: <span id="v-received-at"
+                                class="text-gray-600 text-xs"></span></p>
                     </div>
                 </div>
 
@@ -236,7 +278,7 @@ $position = $_SESSION['position'] ?? '';
                     </div>
                 </div>
 
-                <!-- Payee / Address / Purpose / Amount Words -->
+                <!-- Payee / Payment For / Payment Method / Amount Words -->
                 <div class="px-4 py-3 space-y-2.5 border-b border-gray-100">
                     <div class="grid grid-cols-2 gap-3">
                         <div>
@@ -244,17 +286,20 @@ $position = $_SESSION['position'] ?? '';
                             <p id="v-payee-m" class="text-sm font-semibold text-gray-800"></p>
                         </div>
                         <div>
-                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Payment For</p>
+                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Payment For
+                            </p>
                             <p id="v-purpose-m" class="text-sm text-gray-700"></p>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Address</p>
-                            <p id="v-address-m" class="text-sm text-gray-700"></p>
+                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Payment
+                                Method</p>
+                            <p id="v-payment-method-m" class="text-sm text-gray-700"></p>
                         </div>
                         <div>
-                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Amount in Words</p>
+                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Amount in
+                                Words</p>
                             <p id="v-amount-words-m" class="text-xs italic text-gray-600"></p>
                         </div>
                     </div>
@@ -270,7 +315,8 @@ $position = $_SESSION['position'] ?? '';
                     <div id="v-items-mobile" class="divide-y divide-gray-100"></div>
                     <div class="flex items-center justify-between px-3 py-2 bg-orange-50 border-t-2 border-orange-400">
                         <div>
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-gray-500">Payment Method No: </span>
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-gray-500">Payment Method
+                                No: </span>
                             <span id="v-second-no-m" class="font-mono text-xs text-gray-700"></span>
                         </div>
                         <div class="text-right">
@@ -286,7 +332,8 @@ $position = $_SESSION['position'] ?? '';
                         <span class="text-[9px] font-bold text-white uppercase tracking-wider">Prepared By</span>
                     </div>
                     <div class="border-b border-gray-100 bg-orange-500 py-1 text-center">
-                        <span class="text-[9px] font-bold text-white uppercase tracking-wider">Certified Thru Correct</span>
+                        <span class="text-[9px] font-bold text-white uppercase tracking-wider">Certified Thru
+                            Correct</span>
                     </div>
                     <div class="px-3 py-3 border-r border-b border-gray-100 min-h-[70px] flex flex-col justify-end">
                         <p id="v-prepared-m" class="text-xs font-semibold text-gray-800"></p>
@@ -312,9 +359,10 @@ $position = $_SESSION['position'] ?? '';
                     </div>
                 </div>
 
-                <!-- Mobile Footer note + buttons -->
+                <!-- Mobile Footer -->
                 <div class="px-4 py-3 bg-gray-50">
-                    <p class="text-[9px] italic text-gray-400 mb-2">Received the above stated amount in full settlement.</p>
+                    <p class="text-[9px] italic text-gray-400 mb-2">Received the above stated amount in full settlement.
+                    </p>
                     <div class="flex flex-col gap-2" id="v-footer-btns-m"></div>
                 </div>
             </div>
@@ -324,12 +372,51 @@ $position = $_SESSION['position'] ?? '';
     </main>
 
     <style>
-        .scrollbar-thin::-webkit-scrollbar { width: 4px; }
-        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-        .scrollbar-thin::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-        @keyframes badgePulse { 0%{transform:scale(1);opacity:1;} 50%{transform:scale(1.4);opacity:0.5;} 100%{transform:scale(1);opacity:1;} }
-        .highlight-badge { display:inline-block;width:10px;height:10px;background:#ef4444;border-radius:50%;animation:badgePulse 0.8s ease-in-out 6;margin-right:6px;vertical-align:middle;flex-shrink:0; }
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 999px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        @keyframes badgePulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.4);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .highlight-badge {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: badgePulse 0.8s ease-in-out 6;
+            margin-right: 6px;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
     </style>
 
     <script>
@@ -393,7 +480,6 @@ $position = $_SESSION['position'] ?? '';
                 return;
             }
 
-            // Desktop rows
             tbody.innerHTML = data.map(row => {
                 const items = row.items ?? [];
                 const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
@@ -420,7 +506,6 @@ $position = $_SESSION['position'] ?? '';
                 </tr>`;
             }).join('');
 
-            // Mobile cards — compact list style like custodian
             cards.innerHTML = data.map(row => {
                 const items = row.items ?? [];
                 const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
@@ -428,9 +513,9 @@ $position = $_SESSION['position'] ?? '';
                 const isPending = !row.voucher_status;
                 const barColor = isComplete ? 'bg-green-400'
                     : row.voucher_status === 'voucher_approval' ? 'bg-yellow-400'
-                    : row.voucher_status === 'ready_to_release' ? 'bg-blue-400'
-                    : 'bg-gray-200';
-                const rowBg = isComplete ? 'bg-green-50' : isPending ? 'bg-white' : 'bg-white';
+                        : row.voucher_status === 'ready_to_release' ? 'bg-blue-400'
+                            : 'bg-gray-200';
+                const rowBg = isComplete ? 'bg-green-50' : 'bg-white';
 
                 return `
                 <div data-id="${row.id}"
@@ -465,12 +550,12 @@ $position = $_SESSION['position'] ?? '';
             const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
 
             // ── Desktop fields ──
-            document.getElementById('v-control-no').textContent = row.control_no;
+            document.getElementById('v-control-no').textContent = row.voucher_control_no ?? row.control_no;
             document.getElementById('v-date').textContent = row.date_requested;
             document.getElementById('v-title').textContent = row.voucher_title ?? '';
-            document.getElementById('v-second-no').textContent = row.voucher_second_no ?? '—';
+            document.getElementById('v-second-no').textContent = row.voucher_payment_method ?? '—';
             document.getElementById('v-payee').textContent = row.voucher_payee ?? '';
-            document.getElementById('v-address').textContent = row.voucher_address ?? '';
+            document.getElementById('v-payment-method').textContent = row.voucher_payment_method ?? '';
             document.getElementById('v-purpose').textContent = row.voucher_purpose ?? '';
             document.getElementById('v-amount-words').textContent = numberToWords(total);
             document.getElementById('v-total').textContent = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
@@ -541,9 +626,9 @@ $position = $_SESSION['position'] ?? '';
             document.getElementById('v-title-m').textContent = row.voucher_title ?? '';
             document.getElementById('v-control-no-m').textContent = row.voucher_control_no ?? row.control_no;
             document.getElementById('v-date-m').textContent = row.date_requested;
-            document.getElementById('v-second-no-m').textContent = row.voucher_second_no ?? '—';
+            document.getElementById('v-second-no-m').textContent = row.voucher_payment_method ?? '—';
             document.getElementById('v-payee-m').textContent = row.voucher_payee ?? '';
-            document.getElementById('v-address-m').textContent = row.voucher_address ?? '';
+            document.getElementById('v-payment-method-m').textContent = row.voucher_payment_method ?? '';
             document.getElementById('v-purpose-m').textContent = row.voucher_purpose ?? '';
             document.getElementById('v-amount-words-m').textContent = numberToWords(total);
             document.getElementById('v-total-m').textContent = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
@@ -604,7 +689,6 @@ $position = $_SESSION['position'] ?? '';
                     }
                 }
             }
-            // Default status display
             if (row.voucher_status === 'released') {
                 return `<button onclick="printVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})"
                     class="flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
@@ -644,7 +728,6 @@ $position = $_SESSION['position'] ?? '';
                     }
                 }
             }
-            // Default status display
             if (row.voucher_status === 'released') {
                 return `<button onclick="printVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})"
                     class="w-full flex items-center justify-center gap-2 bg-gray-800 text-white text-sm font-semibold py-2.5 rounded-xl transition-all">
@@ -721,14 +804,14 @@ $position = $_SESSION['position'] ?? '';
                 </tr>`;
             }
 
-            const preparedAt  = row.prepared_at  ? new Date(row.prepared_at).toLocaleDateString('en-PH',  { year:'numeric', month:'long', day:'numeric' }) : '';
-            const certifiedAt = row.certified_at ? new Date(row.certified_at).toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' }) : '';
-            const approvedAt  = row.approved_at  ? new Date(row.approved_at).toLocaleDateString('en-PH',  { year:'numeric', month:'long', day:'numeric' }) : '';
+            const preparedAt = row.prepared_at ? new Date(row.prepared_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+            const certifiedAt = row.certified_at ? new Date(row.certified_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+            const approvedAt = row.approved_at ? new Date(row.approved_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
             const receiverName = row.manual_receiver_name || row.receiver_name || '';
             const receivedAt = row.manual_receiver_date
-                ? new Date(row.manual_receiver_date).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' })
+                ? new Date(row.manual_receiver_date).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
                 : row.received_at
-                    ? new Date(row.received_at.replace(' ', 'T')).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' })
+                    ? new Date(row.received_at.replace(' ', 'T')).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
                     : '';
 
             const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
@@ -780,9 +863,9 @@ $position = $_SESSION['position'] ?? '';
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                         <div style="display:flex;gap:6px;align-items:center;">
-                            <span style="font-size:9px;font-weight:bold;text-transform:uppercase;color:#555;width:90px;">Address</span>
+                            <span style="font-size:9px;font-weight:bold;text-transform:uppercase;color:#555;width:90px;">Payment Method</span>
                             <span style="color:#aaa;margin-right:4px;">:</span>
-                            <span style="border-bottom:1px solid #aaa;flex:1;font-size:11px;">${row.voucher_address ?? ''}</span>
+                            <span style="border-bottom:1px solid #aaa;flex:1;font-size:11px;">${row.voucher_payment_method ?? ''}</span>
                         </div>
                         <div style="display:flex;gap:6px;align-items:center;">
                             <span style="font-size:9px;font-weight:bold;text-transform:uppercase;color:#555;white-space:nowrap;">Amount in Words</span>
@@ -804,7 +887,9 @@ $position = $_SESSION['position'] ?? '';
                         <tr style="background:#fff7ed;border-top:2px solid #f97316;">
                             <td colspan="3" style="border:1px solid #e5e7eb;padding:0;">
                                 <div style="display:flex;justify-content:space-between;padding:6px 12px;">
-                                    <div style="font-size:9px;font-weight:bold;text-transform:uppercase;color:#888;">Payment Method No.: <span style="font-family:monospace;font-size:10px;color:#374151;">${row.voucher_second_no ?? '—'}</span></div>
+                                    <div style="font-size:9px;font-weight:bold;text-transform:uppercase;color:#888;">
+                                        Payment Method No.: <span style="font-family:monospace;font-size:10px;color:#374151;">${row.voucher_payment_method ?? '—'}</span>
+                                    </div>
                                     <div style="font-weight:bold;font-size:11px;">Total Amount: <span style="font-family:monospace;">${total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span></div>
                                 </div>
                             </td>
@@ -868,24 +953,22 @@ $position = $_SESSION['position'] ?? '';
         let previousCount = 0;
 
         function fetchVouchers() {
-            fetch('<?= BASE_URL ?>/cashvoucherfetchall')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.length === previousCount) return;
-                    previousCount = data.length;
-                    allData = data;
-                    const q = document.getElementById('search-input').value.toLowerCase();
-                    const filtered = q ? allData.filter(row =>
-                        row.control_no?.toLowerCase().includes(q) ||
-                        row.voucher_title?.toLowerCase().includes(q) ||
-                        row.voucher_payee?.toLowerCase().includes(q) ||
-                        row.purpose?.toLowerCase().includes(q)
-                    ) : allData;
-                    renderTable(filtered, q);
-                    document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH');
-                })
-                .catch(err => console.error('Fetch error:', err));
-        }
+    fetch('<?= BASE_URL ?>/cashvoucherfetchall')
+        .then(res => res.json())
+        .then(data => {
+            allData = data;  // tanggalin ang previousCount check
+            const q = document.getElementById('search-input').value.toLowerCase();
+            const filtered = q ? allData.filter(row =>
+                row.control_no?.toLowerCase().includes(q) ||
+                row.voucher_title?.toLowerCase().includes(q) ||
+                row.voucher_payee?.toLowerCase().includes(q) ||
+                row.purpose?.toLowerCase().includes(q)
+            ) : allData;
+            renderTable(filtered, q);
+            document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH');
+        })
+        .catch(err => console.error('Fetch error:', err));
+}
 
         document.getElementById('search-input').addEventListener('input', function () {
             const q = this.value.toLowerCase();
@@ -937,4 +1020,5 @@ $position = $_SESSION['position'] ?? '';
     </script>
 
 </body>
+
 </html>

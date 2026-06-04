@@ -15,6 +15,7 @@ $user_id = intval($_SESSION['account_id'] ?? 0);
 $purpose = trim($body['purpose'] ?? '');
 $title = trim($body['title'] ?? '');
 $second_no = trim($body['second_no'] ?? '');
+$payment_method = trim($body['payment_method'] ?? '');
 
 if (!$request_id || !$payee || !$user_id) {
     echo json_encode(['success' => false, 'error' => 'Invalid data']);
@@ -40,11 +41,11 @@ $sigPath = ($sigRow && $sigRow->num_rows) ? $sigRow->fetch_assoc()['path'] : nul
 
 // Then add certified_signature to your INSERT:
 $stmt = $conn->prepare("INSERT INTO noblevoucher 
-    (request_id, control_no, payee, address, purpose, title, second_no, 
+    (request_id, control_no, payee, address, purpose, title, second_no, payment_method,
      certified_by, certified_at, certified_signature, created_at, status) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, NOW(), 'voucher_approval')");
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, NOW(), 'voucher_approval')");
 $stmt->bind_param(
-    "issssssis",
+    "isssssssis",
     $request_id,
     $row['control_no'],
     $payee,
@@ -52,6 +53,7 @@ $stmt->bind_param(
     $purpose,
     $title,
     $second_no,
+    $payment_method,
     $user_id,
     $sigPath
 );
