@@ -1,4 +1,5 @@
 <?php
+// announcement-list.php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     $body = json_decode(file_get_contents('php://input'), true);
@@ -264,5 +265,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     fetchAnnouncements();
-    setInterval(fetchAnnouncements, 30000);
+    setInterval(fetchAnnouncements, 5000);
 </script>

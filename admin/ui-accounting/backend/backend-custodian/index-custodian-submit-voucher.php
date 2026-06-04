@@ -7,14 +7,14 @@ include ROOT_PATH . '/network/cache-helper.php';
 
 header('Content-Type: application/json');
 
-$body       = json_decode(file_get_contents('php://input'), true);
+$body = json_decode(file_get_contents('php://input'), true);
 $request_id = intval($body['request_id'] ?? 0);
-$payee      = trim($body['payee'] ?? '');
-$address    = trim($body['address'] ?? '');
-$user_id    = intval($_SESSION['account_id'] ?? 0);
-$purpose    = trim($body['purpose'] ?? '');
-$title      = trim($body['title'] ?? '');
-$second_no  = trim($body['second_no'] ?? '');
+$payee = trim($body['payee'] ?? '');
+$address = trim($body['address'] ?? '');
+$user_id = intval($_SESSION['account_id'] ?? 0);
+$purpose = trim($body['purpose'] ?? '');
+$title = trim($body['title'] ?? '');
+$second_no = trim($body['second_no'] ?? '');
 
 if (!$request_id || !$payee || !$user_id) {
     echo json_encode(['success' => false, 'error' => 'Invalid data']);
@@ -23,7 +23,10 @@ if (!$request_id || !$payee || !$user_id) {
 
 $req = $conn->query("SELECT control_no FROM noblebudgetrequest WHERE id = $request_id LIMIT 1");
 $row = $req->fetch_assoc();
-if (!$row) { echo json_encode(['success' => false, 'error' => 'Not found']); exit; }
+if (!$row) {
+    echo json_encode(['success' => false, 'error' => 'Not found']);
+    exit;
+}
 
 $check = $conn->query("SELECT id FROM noblevoucher WHERE request_id = $request_id LIMIT 1");
 if ($check->num_rows > 0) {
@@ -40,9 +43,17 @@ $stmt = $conn->prepare("INSERT INTO noblevoucher
     (request_id, control_no, payee, address, purpose, title, second_no, 
      certified_by, certified_at, certified_signature, created_at, status) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, NOW(), 'voucher_approval')");
-$stmt->bind_param("issssssis", 
-    $request_id, $row['control_no'], $payee, $address, $purpose, 
-    $title, $second_no, $user_id, $sigPath
+$stmt->bind_param(
+    "issssssis",
+    $request_id,
+    $row['control_no'],
+    $payee,
+    $address,
+    $purpose,
+    $title,
+    $second_no,
+    $user_id,
+    $sigPath
 );
 $success = $stmt->execute();
 
@@ -63,17 +74,62 @@ if ($success) {
     ");
 
     while ($a = $assistants->fetch_assoc()) {
-    $aid = intval($a['id']);
-    
-    $link = '/cashvoucherdashboard'; // ← page ng custoassistant
-    
-    $stmt2 = $conn->prepare("
+        $aid = intval($a['id']);
+
+        $link = '/cashvoucherdashboard'; // ← page ng custoassistant
+
+        $stmt2 = $conn->prepare("
         INSERT INTO noblenotification (user_id, request_id, message, is_read, created_at, sender_id, link)
         VALUES (?, ?, ?, 0, NOW(), ?, ?)
     ");
-    $stmt2->bind_param("iisis", $aid, $request_id, $message, $user_id, $link);
-    $stmt2->execute();
+        $stmt2->bind_param("iisis", $aid, $request_id, $message, $user_id, $link);
+        $stmt2->execute();
+    }
 }
+
+// Save to Sheet Two (noblepettycashcustodiantwo) if department is provided
+if ($success && $second_no) {
+    $reqDetails = $conn->query("
+        SELECT date_requested, items FROM noblebudgetrequest WHERE id = $request_id LIMIT 1
+    ")->fetch_assoc();
+
+    $items = json_decode($reqDetails['items'] ?? '[]', true);
+
+    // Build particulars from items
+    $particularsArr = [];
+    foreach ($items as $item) {
+        if (empty($item['description']))
+            continue;
+        $particularsArr[] = $item['description'] . (!empty($item['purpose']) ? ' — ' . $item['purpose'] : '');
+    }
+    $particulars = implode(', ', $particularsArr) ?: $purpose;
+
+    // Calculate total amount
+    $total = array_sum(array_map(fn($i) => floatval($i['amount'] ?? 0), $items));
+
+    $dateRequested = $reqDetails['date_requested'] ?? date('Y-m-d');
+    $voucherControlNo = $row['control_no'];
+
+    // Get custodian name for inserted_by
+    $userRow = $conn->query("SELECT name FROM nobleaccount WHERE id = $user_id LIMIT 1")->fetch_assoc();
+    $insertedBy = $userRow['name'] ?? '';
+
+    $stmt3 = $conn->prepare("
+        INSERT INTO noblepettycashcustodiantwo 
+        (date, reference_no, account_title, particulars, project_department, actual, inserted_by, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+    ");
+    $stmt3->bind_param(
+        "sssssds",
+        $dateRequested,
+        $voucherControlNo,
+        $title,
+        $particulars,
+        $second_no,
+        $total,
+        $insertedBy
+    );
+    $stmt3->execute();
 }
 
 echo json_encode(['success' => $success]);

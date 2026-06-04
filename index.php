@@ -61,7 +61,8 @@ $adminRoutes = [
     'saveannouncement',             
     'deleteannouncement',             
     'fetchannouncementsadmin',         
-    'generalannouncement',             
+    'generalannouncement',          
+    'cleanupannouncements',   
 
      // it
     'it',                               
@@ -80,6 +81,7 @@ $adminRoutes = [
     'accountinggeneralsheet',     
     'accountingpettycash',  
     'accountingpettycashtwo',   
+    'fetchnoblepettycashdepartment',
 
     //staffaccounting
     'accountingstaff',                  
@@ -203,6 +205,7 @@ $routes = [
     'deleteannouncement'               => 'admin/announcementcentral/deleteannouncement.php',
     'fetchannouncementsadmin'          => 'admin/announcementcentral/fetchannouncementsadmin.php',
     'generalannouncement'              => 'admin/announcementcentral/announcement-view.php',
+    'cleanupannouncements'             => 'admin/announcementcentral/cleanup-announcements.php',
 
     //user
     'myvouchers'                       => 'user/ui/index-my-vouchers.php',
@@ -242,6 +245,7 @@ $routes = [
     'markreceived'                     => 'admin/ui-accounting/backend/backend-staff/index-staff-mark-received.php',
     'fetchacknowledged'                => 'admin/ui-accounting/backend/backend-staff/index-staff-acknowledge.php',
     'accountingstaffannouncement'      => 'admin/ui-accounting/index-staff-announcement.php',
+    'fetchnoblepettycashdepartment'    => 'admin/ui-accounting/backend/backend-accounting/noble-fetch-pettycash-department.php',
 
     // custodian
     'accountingcustodian'              => 'admin/ui-accounting/index-custodian-main.php',

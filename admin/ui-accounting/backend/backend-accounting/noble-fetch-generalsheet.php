@@ -1,4 +1,5 @@
 <?php
+// noble-fetch-generalsheet.php
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
 
@@ -22,6 +23,8 @@ $stmt = $conn->prepare("
         payor,
         particulars,
         sales_person,
+        department,
+        reference_mode,
         amount,
         inserted_by,
         created_at
@@ -29,6 +32,7 @@ $stmt = $conn->prepare("
     WHERE DATE_FORMAT(payment_date, '%Y-%m') = ?
     ORDER BY payment_date ASC, id ASC
 ");
+
 $stmt->bind_param('s', $month);
 $stmt->execute();
 $result = $stmt->get_result();

@@ -296,6 +296,11 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                 <i class="fa-solid fa-sign-hanging w-4 text-center text-sm flex-shrink-0"></i>
                 <span class="sidebar-label">Announce List</span>
             </a>
+              <a href="<?= BASE_URL ?>/announcement" data-tooltip="Announce List"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/announcement') ?>">
+                <i class="fa-solid fa-sign-hanging w-4 text-center text-sm flex-shrink-0"></i>
+                <span class="sidebar-label">Announcement</span>
+            </a>
             <a href="<?= BASE_URL ?>/accountingmonitoring" data-tooltip="Monitoring Project"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingmonitoring') ?>">
                 <i class="fa-solid fa-file-circle-check w-4 text-center text-sm flex-shrink-0"></i>
@@ -692,6 +697,13 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
 
 <script>
     const BASE_URL = '<?= BASE_URL ?>';
+
+    // Auto-cleanup expired announcements — runs on every page load
+    fetch('<?= BASE_URL ?>/cleanupannouncements', { method: 'POST' });
+
+    setInterval(() => {
+        fetch('<?= BASE_URL ?>/cleanupannouncements', { method: 'POST' });
+    }, 3000);
 
     // ── Mobile Drawer ─────────────────────────────────────────
     function openMobileDrawer() {

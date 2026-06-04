@@ -35,6 +35,9 @@ include ROOT_PATH . '/admin/authentication/index-roles.php';
     </main>
 
     <script>
+        // Track all active countdown timers so we can clear them on re-render
+        let countdownTimers = [];
+
         function fetchAnnouncements() {
             fetch('<?= BASE_URL ?>/fetchannouncements')
                 .then(res => res.json())
@@ -49,7 +52,21 @@ include ROOT_PATH . '/admin/authentication/index-roles.php';
                         return;
                     }
 
-                    section.innerHTML = data.map(row => buildAnnHTML(row)).join('');
+                    const newHTML = data.map(row => buildAnnHTML(row)).join('');
+                    if (section.innerHTML !== newHTML) {
+                        // Clear old countdown timers before re-rendering
+                        countdownTimers.forEach(t => clearInterval(t));
+                        countdownTimers = [];
+
+                        section.innerHTML = newHTML;
+
+                        // Start countdowns for each announcement
+                        data.forEach(row => {
+                            if (row.expires_at) {
+                                startCountdown(row.id, row.expires_at);
+                            }
+                        });
+                    }
                 })
                 .catch(() => {
                     document.getElementById('announcements-section').innerHTML =
@@ -57,20 +74,68 @@ include ROOT_PATH . '/admin/authentication/index-roles.php';
                 });
         }
 
+        function startCountdown(id, expiresAt) {
+            const el = document.getElementById('countdown-' + id);
+            if (!el) return;
+
+            const expireDate = new Date(expiresAt.replace(' ', 'T'));
+
+            function tick() {
+                const now  = new Date();
+                const diff = expireDate - now;
+
+                if (diff <= 0) {
+                    el.innerHTML = `<span class="text-red-500 font-semibold">Expired</span>`;
+                    return;
+                }
+
+                const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours   = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                let parts = [];
+                if (days > 0)    parts.push(`${days}d`);
+                if (hours > 0)   parts.push(`${hours}h`);
+                if (minutes > 0) parts.push(`${minutes}m`);
+                parts.push(`${seconds}s`);
+
+                // Change color based on urgency
+                const colorClass = diff < 3600000
+                    ? 'text-red-500'       // less than 1 hour — red
+                    : diff < 86400000
+                        ? 'text-orange-500'  // less than 1 day — orange
+                        : 'text-gray-400';   // more than 1 day — gray
+
+                el.innerHTML = `
+                    <i class="fa-solid fa-clock text-[9px] mr-0.5"></i>
+                    <span class="${colorClass} font-semibold tabular-nums">
+                        Expires in ${parts.join(' ')}
+                    </span>`;
+            }
+
+            tick(); // run immediately
+            const timer = setInterval(tick, 1000);
+            countdownTimers.push(timer);
+        }
+
         function buildAnnHTML(row) {
             const rawDate = row.created_at.replace(' ', 'T');
             const dateObj = new Date(rawDate);
 
-            const date = dateObj.toLocaleDateString('en-PH', {
-                year: 'numeric', month: 'long', day: 'numeric'
-            });
-            const day = dateObj.getDate();
+            const date  = dateObj.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+            const day   = dateObj.getDate();
             const month = dateObj.toLocaleString('en-PH', { month: 'short' }).toUpperCase();
-            const year = dateObj.getFullYear();
+            const year  = dateObj.getFullYear();
+
+            // Countdown placeholder — filled by startCountdown()
+            const countdownEl = row.expires_at
+                ? `<span id="countdown-${row.id}" class="flex items-center gap-1 text-[10px] text-gray-400"></span>`
+                : '';
 
             const templates = {
                 1: `
-                    <div class="overflow-hidden shadow-sm rounded-xl" style="font-family: 'Inter', sans-serif;">
+                    <div class="overflow-hidden shadow-sm rounded-xl">
                         <div class="flex items-center gap-3 px-5 py-3 border-b border-gray-100 bg-orange-500 rounded-t-xl">
                             <div class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-calendar text-orange-400 text-xs"></i>
@@ -83,6 +148,7 @@ include ROOT_PATH . '/admin/authentication/index-roles.php';
                         </div>
                         <div class="px-5 py-4 bg-white rounded-b-xl">
                             <p class="text-sm text-gray-700 leading-relaxed">${row.body}</p>
+                            <div class="mt-3">${countdownEl}</div>
                         </div>
                     </div>`,
 
@@ -95,9 +161,10 @@ include ROOT_PATH . '/admin/authentication/index-roles.php';
                         <div class="px-5 py-4 bg-white border-l-4 border-red-500">
                             <h3 class="text-sm font-bold text-gray-800 mb-1">${row.title}</h3>
                             <p class="text-sm text-gray-600">${row.body}</p>
-                            <div class="flex items-center gap-2 mt-3">
+                            <div class="flex items-center gap-3 mt-3 flex-wrap">
                                 <span class="bg-red-100 text-red-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">Urgent</span>
                                 <span class="text-[10px] text-gray-400">${date}</span>
+                                ${countdownEl}
                             </div>
                         </div>
                     </div>`,
@@ -114,6 +181,7 @@ include ROOT_PATH . '/admin/authentication/index-roles.php';
                                 <p class="text-[10px] text-gray-400 uppercase tracking-widest">Event / Holiday</p>
                                 <h3 class="text-sm font-bold text-gray-800 mt-1 mb-1">${row.title}</h3>
                                 <p class="text-sm text-gray-600">${row.body}</p>
+                                <div class="mt-2">${countdownEl}</div>
                             </div>
                         </div>
                     </div>`
@@ -123,7 +191,10 @@ include ROOT_PATH . '/admin/authentication/index-roles.php';
                 <div class="bg-white rounded-xl border border-slate-200 px-5 py-4 shadow-sm">
                     <h3 class="text-sm font-bold text-gray-800 mb-1">${row.title}</h3>
                     <p class="text-sm text-gray-600">${row.body}</p>
-                    <p class="text-[10px] text-gray-400 mt-2">${date}</p>
+                    <div class="flex items-center justify-between mt-2">
+                        <p class="text-[10px] text-gray-400">${date}</p>
+                        ${countdownEl}
+                    </div>
                 </div>`;
         }
 

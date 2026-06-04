@@ -514,42 +514,149 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             </div>
         </div>
 
-        <!-- Title Modal -->
-        <div id="voucher-title-modal"
-            class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
-            <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+        <!-- ─── CONFIRMATION MODAL ───────────────────────────────── -->
+        <div id="voucher-confirm-modal"
+            class="hidden fixed inset-0 z-[60] flex items-start justify-center bg-black/50 px-2 py-4 md:px-4 md:py-6 overflow-y-auto">
+            <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl my-auto overflow-hidden">
+
+                <!-- Header -->
                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                     <div class="flex items-center gap-2">
                         <div class="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
-                            <i class="fa-solid fa-tag text-orange-500 text-xs"></i>
+                            <i class="fa-solid fa-circle-check text-orange-500 text-xs"></i>
                         </div>
-                        <h3 class="font-bold text-sm text-gray-800">Voucher Details</h3>
+                        <div>
+                            <h3 class="font-bold text-sm text-gray-800">Confirm Voucher Submission</h3>
+                            <p class="text-[10px] text-gray-400">Review before submitting</p>
+                        </div>
                     </div>
-                    <button onclick="document.getElementById('voucher-title-modal').classList.add('hidden')"
-                        class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <button onclick="closeConfirmModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
-                <div class="px-6 py-5 space-y-4">
-                    <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Voucher Title <span
-                                class="text-red-400">*</span></label>
-                        <input type="text" id="voucher-title-input" placeholder="e.g. Materials for Site A — May 2026"
-                            class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-orange-400 transition-all">
+
+                <!-- Body: side by side -->
+                <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+
+                    <!-- LEFT: Voucher Summary -->
+                    <div class="px-6 py-5 space-y-3">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-orange-500 mb-2">Voucher Details
+                        </p>
+
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-400 font-medium">Voucher No.</span>
+                                <span id="conf-voucher-no" class="font-mono font-bold text-gray-700"></span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-400 font-medium">Date</span>
+                                <span id="conf-date" class="font-mono text-gray-700"></span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-400 font-medium">Payee</span>
+                                <span id="conf-payee" class="text-gray-700 text-right max-w-[180px] truncate"></span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-400 font-medium">Payment For</span>
+                                <span id="conf-purpose" class="text-gray-700 text-right max-w-[180px] truncate"></span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-400 font-medium">Total Amount</span>
+                                <span id="conf-total" class="font-mono font-bold text-orange-600"></span>
+                            </div>
+                        </div>
+
+                        <hr class="border-gray-100">
+
+                        <!-- Voucher Title dropdown -->
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                Voucher Title (Account Title) <span class="text-red-400">*</span>
+                            </label>
+                            <select id="conf-title-select"
+                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400 transition-all">
+                                <option value="">— Select Account Title —</option>
+                            </select>
+                        </div>
+
+                        <!-- Second No. dropdown -->
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                Second No. (Department) <span class="text-gray-300">(optional)</span>
+                            </label>
+                            <select id="conf-second-no-select"
+                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400 transition-all">
+                                <option value="">— Select Department —</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Second No. <span
-                                class="text-gray-300">(optional)</span></label>
-                        <input type="text" id="voucher-second-no-input" placeholder="e.g. 9808971"
-                            class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-orange-400 transition-all">
+
+                    <!-- RIGHT: Mapped Expense Preview -->
+                    <div class="px-6 py-5 space-y-3">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-700 mb-2">
+                            <i class="fa-solid fa-receipt mr-1 text-gray-400"></i>Will also save to Costs / Expenses
+                        </p>
+
+                        <!-- Project picker -->
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                Link to Project <span class="text-gray-300">(optional)</span>
+                            </label>
+                            <select id="conf-project-select"
+                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400 transition-all">
+                                <option value="">— Select Project —</option>
+                            </select>
+                        </div>
+
+                        <hr class="border-gray-100">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Expense Entry
+                            Preview</p>
+
+                        <div class="bg-gray-50 rounded-lg border border-gray-100 divide-y divide-gray-100 text-xs">
+                            <div class="flex justify-between px-3 py-2">
+                                <span class="text-gray-400">Account Title</span>
+                                <span id="prev-title"
+                                    class="text-gray-700 font-medium text-right max-w-[180px] truncate">—</span>
+                            </div>
+                            <div class="flex justify-between px-3 py-2">
+                                <span class="text-gray-400">Particulars</span>
+                                <span id="prev-particulars"
+                                    class="text-gray-700 font-medium text-right max-w-[180px] truncate">—</span>
+                            </div>
+                            <div class="flex justify-between px-3 py-2">
+                                <span class="text-gray-400">Amount</span>
+                                <span id="prev-amount" class="font-mono font-bold text-gray-800">—</span>
+                            </div>
+                            <div class="flex justify-between px-3 py-2">
+                                <span class="text-gray-400">Mode of Payment</span>
+                                <span id="prev-mode" class="text-gray-700">—</span>
+                            </div>
+                            <div class="flex justify-between px-3 py-2">
+                                <span class="text-gray-400">Reference</span>
+                                <span id="prev-reference" class="font-mono text-gray-700">—</span>
+                            </div>
+                            <div class="flex justify-between px-3 py-2">
+                                <span class="text-gray-400">Payment Date</span>
+                                <span id="prev-payment-date" class="font-mono text-gray-700">—</span>
+                            </div>
+                        </div>
+
+                        <p class="text-[10px] text-gray-400 italic">
+                            <i class="fa-solid fa-info-circle mr-1"></i>
+                            This expense entry will be saved to the selected project automatically.
+                        </p>
                     </div>
                 </div>
-                <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
-                    <button onclick="document.getElementById('voucher-title-modal').classList.add('hidden')"
-                        class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all">Cancel</button>
+
+                <!-- Footer -->
+                <div class="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50">
+                    <button onclick="closeConfirmModal()"
+                        class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all border border-gray-200 bg-white">
+                        Cancel
+                    </button>
                     <button onclick="submitWithTitle()"
-                        class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all">
-                        <i class="fa-solid fa-paper-plane text-xs"></i>Submit Voucher
+                        class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-6 py-2 rounded-lg transition-all">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>Submit & Save Expense
                     </button>
                 </div>
             </div>
@@ -1398,51 +1505,256 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         }
 
         function confirmSubmit() {
-    const payee = (document.getElementById('v-payee').value.trim()
+            const payee = (document.getElementById('v-payee').value.trim()
                 || document.getElementById('v-payee-m').value.trim());
-    if (!payee) {
-        document.getElementById('v-payee').classList.add('border-red-400');
-        document.getElementById('v-payee-m').classList.add('border-red-400');
-        return;
-    }
-    document.getElementById('v-payee').classList.remove('border-red-400');
-    document.getElementById('v-payee-m').classList.remove('border-red-400');
-    document.getElementById('voucher-title-modal').classList.remove('hidden');
-}
+            if (!payee) {
+                document.getElementById('v-payee').classList.add('border-red-400');
+                document.getElementById('v-payee-m').classList.add('border-red-400');
+                return;
+            }
+            document.getElementById('v-payee').classList.remove('border-red-400');
+            document.getElementById('v-payee-m').classList.remove('border-red-400');
+            openConfirmModal();
+        }
 
-function submitWithTitle() {
-    const title = document.getElementById('voucher-title-input').value.trim();
-    const secondNo = document.getElementById('voucher-second-no-input').value.trim();
-    if (!title) {
-        document.getElementById('voucher-title-input').classList.add('border-red-400');
-        return;
-    }
-    document.getElementById('voucher-title-input').classList.remove('border-red-400');
-    document.getElementById('voucher-title-modal').classList.add('hidden');
+        function openConfirmModal() {
+            const row = currentRow;
+            const items = row.items ?? [];
+            const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+            const payee = document.getElementById('v-payee').value.trim() || document.getElementById('v-payee-m').value.trim();
+            const purpose = document.getElementById('v-purpose').value.trim() || document.getElementById('v-purpose-m').value.trim();
 
-    // Kukunin sa mobile kung wala sa desktop
-    const payee   = document.getElementById('v-payee').value.trim()
-                 || document.getElementById('v-payee-m').value.trim();
-    const address = document.getElementById('v-address').value.trim()
-                 || document.getElementById('v-address-m').value.trim();
-    const purpose = document.getElementById('v-purpose').value.trim()
-                 || document.getElementById('v-purpose-m').value.trim();
+            // Populate voucher summary
+            document.getElementById('conf-voucher-no').textContent = row.voucher_control_no ?? row.control_no ?? '—';
+            document.getElementById('conf-date').textContent = row.date_requested ?? '—';
+            document.getElementById('conf-payee').textContent = payee;
+            document.getElementById('conf-purpose').textContent = purpose;
+            document.getElementById('conf-total').textContent = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
 
-            fetch('<?= BASE_URL ?>/submitrequestvoucher', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ request_id: currentRow.id, payee, address, purpose, title, second_no: secondNo })
-            })
-                .then(res => res.json())
+            // Populate expense preview (static fields from voucher)
+            const particularsPreview = (items ?? [])
+                .filter(i => i.description)
+                .map(i => i.description + (i.purpose ? ' — ' + i.purpose : ''))
+                .join(', ');
+            document.getElementById('prev-particulars').textContent = particularsPreview || purpose || '—';
+            document.getElementById('prev-amount').textContent = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+            document.getElementById('prev-mode').textContent = purpose || '—'; // payment for → mode of payment
+            document.getElementById('prev-reference').textContent = row.voucher_control_no ?? row.control_no ?? '—';
+            document.getElementById('prev-payment-date').textContent = row.date_requested ?? '—';
+            document.getElementById('prev-title').textContent = '—'; // updates when title is selected
+
+            // Reset dropdowns
+            document.getElementById('conf-title-select').value = '';
+            document.getElementById('conf-second-no-select').value = '';
+            document.getElementById('conf-project-select').value = '';
+
+            // Fetch account titles
+            fetch('<?= BASE_URL ?>/fetchpettycashaccounttitles')
+                .then(r => r.json())
                 .then(data => {
-                    if (data.success) {
-                        closeVoucherModal();
-                        allData = [];
-                        fetchVouchers();
-                    } else {
-                        alert(data.error ?? 'Failed to submit.');
-                    }
+                    const sel = document.getElementById('conf-title-select');
+                    sel.innerHTML = '<option value="">— Select Account Title —</option>';
+                    data.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d.title;
+                        opt.textContent = d.title;
+                        sel.appendChild(opt);
+                    });
                 });
+
+            // Fetch departments
+            fetch('<?= BASE_URL ?>/fetchpettycashdepartment')
+                .then(r => r.json())
+                .then(data => {
+                    const sel = document.getElementById('conf-second-no-select');
+                    sel.innerHTML = '<option value="">— Select Department —</option>';
+                    data.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d.name;
+                        opt.textContent = d.name;
+                        sel.appendChild(opt);
+                    });
+                });
+
+            // Fetch projects
+            fetch('<?= BASE_URL ?>/fetchprojects')
+                .then(r => r.json())
+                .then(data => {
+                    window._allProjects = data; // store for validation
+                    const sel = document.getElementById('conf-project-select');
+                    sel.innerHTML = '<option value="">— Select Project —</option>';
+                    data.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.id;
+                        opt.textContent = p.project_name + (p.reference_no ? '  [' + p.reference_no + ']' : '');
+                        sel.appendChild(opt);
+                    });
+
+                    // Auto-select if request_reference matches a project reference_no
+                    if (row.request_reference) {
+                        const match = data.find(p => p.reference_no === row.request_reference);
+                        if (match) sel.value = match.id;
+                    }
+
+                    // Show notice if nothing is selected after auto-select attempt
+                    updateProjectNotice();
+                });
+
+            document.getElementById('voucher-confirm-modal').classList.remove('hidden');
+        }
+
+        function updateProjectNotice() {
+            const projectSel = document.getElementById('conf-project-select');
+            const deptSel = document.getElementById('conf-second-no-select');
+            let notice = document.getElementById('conf-project-notice');
+            if (!notice) {
+                notice = document.createElement('p');
+                notice.id = 'conf-project-notice';
+                notice.className = 'text-[10px] text-amber-500 mt-1 flex items-center gap-1';
+                notice.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-[9px]"></i> This department has no linked project. Please select one or proceed without linking.';
+                projectSel.parentNode.appendChild(notice);
+            }
+            // Show notice only when a department is selected BUT no project is chosen
+            const hasDept = deptSel.value !== '';
+            const hasProject = projectSel.value !== '';
+            notice.style.display = (hasDept && !hasProject) ? 'flex' : 'none';
+        }
+
+        // Live-update the preview title when dropdown changes
+        document.addEventListener('change', function (e) {
+            if (e.target.id === 'conf-title-select') {
+                document.getElementById('prev-title').textContent = e.target.value || '—';
+            }
+            if (e.target.id === 'conf-project-select') {
+                updateProjectNotice();
+                if (e.target.value) e.target.classList.remove('border-red-400');
+            }
+            if (e.target.id === 'conf-second-no-select') {
+                updateProjectNotice();
+                e.target.classList.remove('border-red-400'); // add this line
+            }
+        });
+
+        function closeConfirmModal() {
+            document.getElementById('voucher-confirm-modal').classList.add('hidden');
+            // Reset submit button state
+            const submitBtn = document.querySelector('#voucher-confirm-modal button[onclick="submitWithTitle()"]');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i>Submit & Save Expense';
+            }
+        }
+
+        async function submitWithTitle() {
+            const title = document.getElementById('conf-title-select').value.trim();
+            const secondNo = document.getElementById('conf-second-no-select').value.trim();
+            const projectId = document.getElementById('conf-project-select').value;
+
+            if (!title) {
+                document.getElementById('conf-title-select').classList.add('border-red-400');
+                return;
+            }
+            document.getElementById('conf-title-select').classList.remove('border-red-400');
+
+           const deptVal = document.getElementById('conf-second-no-select').value;
+            const projectSel = document.getElementById('conf-project-select');
+
+            if (deptVal && !projectId) {
+                projectSel.classList.add('border-red-400');
+                projectSel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                showToast('Please select a project for the selected department.', 'error');
+                return;
+            }
+
+            // Check if department matches project_name of selected project
+            if (deptVal && projectId) {
+                const projects = window._allProjects ?? [];
+                const selectedProject = projects.find(p => p.id == projectId);
+                if (selectedProject && selectedProject.project_name.toUpperCase() !== deptVal.toUpperCase()) {
+                    projectSel.classList.add('border-red-400');
+                    document.getElementById('conf-second-no-select').classList.add('border-red-400');
+                    showToast(`Department "${deptVal}" does not match project "${selectedProject.project_name}". Please select the correct project.`, 'error');
+                    return;
+                }
+            }
+
+            projectSel.classList.remove('border-red-400');
+            document.getElementById('conf-second-no-select').classList.remove('border-red-400');
+
+            const row = currentRow;
+            const items = row.items ?? [];
+            const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+            const payee = document.getElementById('v-payee').value.trim() || document.getElementById('v-payee-m').value.trim();
+            const address = document.getElementById('v-address').value.trim() || document.getElementById('v-address-m').value.trim();
+            const purpose = document.getElementById('v-purpose').value.trim() || document.getElementById('v-purpose-m').value.trim();
+
+            const submitBtn = document.querySelector('#voucher-confirm-modal button[onclick="submitWithTitle()"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> Submitting...';
+
+            try {
+                // 1. Submit the voucher
+                const voucherRes = await fetch('<?= BASE_URL ?>/submitrequestvoucher', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        request_id: row.id,
+                        payee,
+                        address,
+                        purpose,
+                        title,
+                        second_no: secondNo
+                    })
+                });
+                const voucherData = await voucherRes.json();
+
+                if (!voucherData.success) {
+                    showToast(voucherData.error ?? 'Failed to submit voucher.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i>Submit & Save Expense';
+                    return;
+                }
+
+                // 2. Save expense entry only if a project was selected
+                closeConfirmModal();
+                closeVoucherModal();
+
+                if (projectId) {
+                    const voucherNo = row.voucher_control_no ?? row.control_no ?? '';
+                    // Build particulars from actual items
+                    const particularsText = (row.items ?? [])
+                        .filter(i => i.description)
+                        .map(i => i.description + (i.purpose ? ' — ' + i.purpose : ''))
+                        .join(', ');
+
+                    const expenseRes = await fetch('<?= BASE_URL ?>/saveprojectexpense', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: null,
+                            project_id: parseInt(projectId),
+                            title: title,
+                            particulars: particularsText || purpose,
+                            amount: total,
+                            mode_of_payment: purpose,
+                            payment_date: row.date_requested ?? '',
+                            reference: voucherNo,
+                            remarks: ''
+                        })
+                    });
+                    const expenseData = await expenseRes.json();
+                    showToast(expenseData.success ? 'Voucher submitted & expense saved!' : 'Voucher submitted, but expense save failed.', expenseData.success ? 'success' : 'error');
+                } else {
+                    showToast('Voucher submitted successfully!');
+                }
+                allData = [];
+                fetchVouchers();
+                
+            } catch (err) {
+                showToast('Network error. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i>Submit & Save Expense';
+            }
         }
 
         function releaseVoucher(voucherId) {
@@ -1753,58 +2065,58 @@ function submitWithTitle() {
         }
 
         function checkHighlight() {
-    const params = new URLSearchParams(window.location.search);
-    const highlightId = params.get('highlight');
-    if (!highlightId) return;
+            const params = new URLSearchParams(window.location.search);
+            const highlightId = params.get('highlight');
+            if (!highlightId) return;
 
-    let tries = 0;
-    const interval = setInterval(() => {
-        tries++;
+            let tries = 0;
+            const interval = setInterval(() => {
+                tries++;
 
-        const isMobile = window.innerWidth < 768;
+                const isMobile = window.innerWidth < 768;
 
-        // Piliin ang tamang element depende sa viewport
-        const row = isMobile
-            ? document.querySelector(`#voucher-cards div[data-id="${highlightId}"]`)
-            : document.querySelector(`#voucher-tbody tr[data-id="${highlightId}"]`);
+                // Piliin ang tamang element depende sa viewport
+                const row = isMobile
+                    ? document.querySelector(`#voucher-cards div[data-id="${highlightId}"]`)
+                    : document.querySelector(`#voucher-tbody tr[data-id="${highlightId}"]`);
 
-        if (row) {
-            clearInterval(interval);
+                if (row) {
+                    clearInterval(interval);
 
-            // Scroll ang container
-            const container = row.closest('.overflow-y-auto');
-            if (container) {
-                const rowTop = row.offsetTop - container.offsetTop;
-                container.scrollTop = rowTop - 50;
-            } else {
-                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+                    // Scroll ang container
+                    const container = row.closest('.overflow-y-auto');
+                    if (container) {
+                        const rowTop = row.offsetTop - container.offsetTop;
+                        container.scrollTop = rowTop - 50;
+                    } else {
+                        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
 
-            if (!isMobile) {
-                // Desktop — red dot
-                const firstTd = row.querySelector('td:first-child');
-                const badge = document.createElement('span');
-                badge.className = 'highlight-badge';
-                if (firstTd) firstTd.prepend(badge);
-                setTimeout(() => badge.remove(), 5000);
-            } else {
-                // Mobile — flash
-                const originalBg = row.style.backgroundColor;
-                let on = true;
-                const flashInterval = setInterval(() => {
-                    row.style.backgroundColor = on ? '#fecaca' : '#fee2e2';
-                    on = !on;
-                }, 300);
-                setTimeout(() => {
-                    clearInterval(flashInterval);
-                    row.style.backgroundColor = originalBg;
-                }, 5000);
-            }
+                    if (!isMobile) {
+                        // Desktop — red dot
+                        const firstTd = row.querySelector('td:first-child');
+                        const badge = document.createElement('span');
+                        badge.className = 'highlight-badge';
+                        if (firstTd) firstTd.prepend(badge);
+                        setTimeout(() => badge.remove(), 5000);
+                    } else {
+                        // Mobile — flash
+                        const originalBg = row.style.backgroundColor;
+                        let on = true;
+                        const flashInterval = setInterval(() => {
+                            row.style.backgroundColor = on ? '#fecaca' : '#fee2e2';
+                            on = !on;
+                        }, 300);
+                        setTimeout(() => {
+                            clearInterval(flashInterval);
+                            row.style.backgroundColor = originalBg;
+                        }, 5000);
+                    }
+                }
+
+                if (tries >= 25) clearInterval(interval);
+            }, 200);
         }
-
-        if (tries >= 25) clearInterval(interval);
-    }, 200);
-}
 
         // ─── Init ────────────────────────────────────────────
         fetchVouchers();

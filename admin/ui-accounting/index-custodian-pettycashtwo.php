@@ -65,24 +65,33 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             </div>
         </div>
 
-       <!-- Summary Cards -->
-<div class="grid grid-cols-3 gap-1.5 md:gap-2 mb-4">
-    <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-2 md:p-3 flex flex-col items-center sm:items-start">
-        <p class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5 text-center sm:text-left">Cash Inflows</p>
-        <p id="card-inflows" class="text-xs md:text-sm font-bold text-green-600">₱ 0.00</p>
-        <p class="text-[8px] text-gray-400 mt-0.5 hidden sm:block">From General Sheet</p>
-    </div>
-    <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-2 md:p-3 flex flex-col items-center sm:items-start">
-        <p class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5 text-center sm:text-left">Total Actual</p>
-        <p id="card-actual" class="text-xs md:text-sm font-bold text-red-500">₱ 0.00</p>
-        <p class="text-[8px] text-gray-400 mt-0.5 hidden sm:block">Expenses</p>
-    </div>
-    <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-2 md:p-3 border-l-2 border-l-blue-400 flex flex-col items-center sm:items-start">
-        <p class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5 text-center sm:text-left">Remaining</p>
-        <p id="card-balance" class="text-xs md:text-sm font-bold text-blue-600">₱ 0.00</p>
-        <p class="text-[8px] text-gray-400 mt-0.5 hidden sm:block">→ Next month's beginning</p>
-    </div>
-</div>
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-3 gap-1.5 md:gap-2 mb-4">
+            <div
+                class="bg-white rounded-lg border border-gray-100 shadow-sm p-2 md:p-3 flex flex-col items-center sm:items-start">
+                <p
+                    class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5 text-center sm:text-left">
+                    Cash Inflows</p>
+                <p id="card-inflows" class="text-xs md:text-sm font-bold text-green-600">₱ 0.00</p>
+                <p class="text-[8px] text-gray-400 mt-0.5 hidden sm:block">From General Sheet</p>
+            </div>
+            <div
+                class="bg-white rounded-lg border border-gray-100 shadow-sm p-2 md:p-3 flex flex-col items-center sm:items-start">
+                <p
+                    class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5 text-center sm:text-left">
+                    Total Actual</p>
+                <p id="card-actual" class="text-xs md:text-sm font-bold text-red-500">₱ 0.00</p>
+                <p class="text-[8px] text-gray-400 mt-0.5 hidden sm:block">Expenses</p>
+            </div>
+            <div
+                class="bg-white rounded-lg border border-gray-100 shadow-sm p-2 md:p-3 border-l-2 border-l-blue-400 flex flex-col items-center sm:items-start">
+                <p
+                    class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5 text-center sm:text-left">
+                    Remaining</p>
+                <p id="card-balance" class="text-xs md:text-sm font-bold text-blue-600">₱ 0.00</p>
+                <p class="text-[8px] text-gray-400 mt-0.5 hidden sm:block">→ Next month's beginning</p>
+            </div>
+        </div>
 
         <!-- Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -122,27 +131,27 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <tfoot>
                         <tr class="bg-gray-50 border-t-2 border-gray-200">
                             <td colspan="7"
-                                class="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-widest text-gray-500 border-r border-gray-200">
+                                class="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-widest text-gray-500 border-r border-gray-200 whitespace-nowrap">
                                 Total</td>
                             <td id="foot-actual"
                                 class="px-4 py-3 text-right font-bold font-mono text-red-500 border-r border-gray-200 text-xs whitespace-nowrap">
                             </td>
                             <td colspan="4" class="border-r border-gray-200"></td>
                             <td id="foot-vatable"
-                                class="px-4 py-3 text-right font-bold font-mono text-purple-600 border-r border-gray-200 text-xs">
+                                class="px-4 py-3 text-right font-bold font-mono text-purple-600 border-r border-gray-200 text-xs whitespace-nowrap">
                             </td>
                             <td id="foot-vat"
-                                class="px-4 py-3 text-right font-bold font-mono text-gray-600 border-r border-gray-200 text-xs">
+                                class="px-4 py-3 text-right font-bold font-mono text-gray-600 border-r border-gray-200 text-xs whitespace-nowrap">
                             </td>
                             <td id="foot-total"
-                                class="px-4 py-3 text-right font-bold font-mono text-gray-800 border-r border-gray-200 text-xs">
+                                class="px-4 py-3 text-right font-bold font-mono text-gray-800 border-r border-gray-200 text-xs whitespace-nowrap">
                             </td>
                             <td id="foot-nonvat"
-                                class="px-4 py-3 text-right font-bold font-mono text-gray-600 border-r border-gray-200 text-xs">
+                                class="px-4 py-3 text-right font-bold font-mono text-gray-600 border-r border-gray-200 text-xs whitespace-nowrap">
                             </td>
                             <td class="border-r border-gray-200"></td>
                             <td id="foot-vatexempt"
-                                class="px-4 py-3 text-right font-bold font-mono text-gray-600 border-r border-gray-200 text-xs">
+                                class="px-4 py-3 text-right font-bold font-mono text-gray-600 border-r border-gray-200 text-xs whitespace-nowrap">
                             </td>
                             <td></td>
                         </tr>
@@ -778,6 +787,16 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             const month = document.getElementById('filter-month').value;
             document.getElementById('tab-general').href = `${BASE_URL_JS}/accountingcustodianpettycash?month=${month}`;
         }
+
+        document.getElementById('entry-total').addEventListener('input', function () {
+            const total = parseFloat(this.value) || 0;
+
+            const vatable = total / 1.12;
+            const vat = total * 12 / 112;
+
+            document.getElementById('entry-vatable').value = vatable.toFixed(2);
+            document.getElementById('entry-vat').value = vat.toFixed(2);
+        });
 
         document.getElementById('filter-month').addEventListener('change', () => { fetchEntries(); updateTabLinks(); });
         fetchEntries();
