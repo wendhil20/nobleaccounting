@@ -1,5 +1,4 @@
 <!-- top.php -->
-<!-- Loading Overlay -->
 <div id="nh-loader" class="fixed inset-0 z-[9999] flex items-center justify-center bg-white/10 backdrop-blur-sm">
     <div class="flex items-center flex-wrap justify-center" id="loader-letters"></div>
 </div>

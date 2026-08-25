@@ -1,11 +1,10 @@
 <?php
-
-
+//it-registration-department.php
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
 include ROOT_PATH . '/admin/authentication/index-roles.php';
 
-$allowedRoles = [ROLE_HR];
+$allowedRoles = [ROLE_IT];
 include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
 

@@ -64,8 +64,20 @@ $adminRoutes = [
     'generalannouncement',          
     'cleanupannouncements',   
 
-     // it
-    'it',                               
+     // IT page 1
+    'createaccount',            
+    'superad',                          
+    'department', 
+    // IT backend page1
+    'hrfetch',                          
+    'hrposition',
+    'hrupdate', 
+    'crudbranches',
+    'cruddepartments',    
+    'updateitbranch', 
+    
+    // IT page 2
+    'it', 
 
     // accounting
     'accounting',                       
@@ -82,6 +94,13 @@ $adminRoutes = [
     'accountingpettycash',  
     'accountingpettycashtwo',   
     'fetchnoblepettycashdepartment',
+
+    // crm accounting page 1
+    'crmaccounting',
+    'accountingcrmlistajax',
+    'accountingcrmdetail',
+    'accountingpaymentmethodsajax',
+    'accountingpaymentmethods',
 
     //staffaccounting
     'accountingstaff',                  
@@ -141,25 +160,40 @@ $adminRoutes = [
     'releasevoucher',                   
 
     // hr
-    'humanresource',                    
-    'superad',                          
-    'department',                       
-    'hrfetch',                          
-    'hrposition',                       
     'humanresourcerequest',    
-    'hrupdate',         
+           
 
     // operation
     'operation',                        
 
-    // sales & market
-    'salesmarket',                      
+    // sales page 1
+    'salesmarket', 
+
+    // sales page 2
+    'crmsales',
+
+    // sale page 3
+    'crmsaleslist',
+    
     // graphic design
-    'graphicdesign',                 
-    // designer
-    'designer',                         
+    'graphicdesign',
+
+    // designer page 1
+    'designer', 
+
+    // designer page 2
+    'crmdesigner',   
+    
+    
     // cutting list
-    'cuttinglist',           
+    'cuttinglist',     
+    
+    // super admin page 1
+    'crm-main',
+
+    // super admin backend page 1
+    'check2dquotationajax',
+
     
     'unauthorized',                    
     'fetchrequests',                   
@@ -178,6 +212,19 @@ $adminRoutes = [
     'setactivesignature',
     'deletesignature',
     'updatesignature',
+
+    // crm management page 1
+    'crmajax',
+
+    // crm management page 2
+    'crmlistajax',
+    'crm2dquotationajax',
+
+    // crm management page 3
+    'crmdesignerajax',
+    // crm management sub page 3
+    'crmsitevisit',     
+    'crm2dquotation',
 
 
 ];
@@ -217,48 +264,67 @@ $routes = [
     'requesthistory'                   => 'user/ui/index-my-request-history.php',
     'dashboard'                        => 'user/ui/index-main-dashboard.php',
 
-    // it
-    'it'                               => 'admin/ui-informationtech/index-it-main.php',
+    //IT page 1
+    'superad'                          => 'admin/ui-informationtech/page-1/it-registration-account.php',
+    'createaccount'                    => 'admin/ui-informationtech/page-1/createaccount-main.php',
+    'department'                       => 'admin/ui-informationtech/page-1/it-registration-department.php',
 
+    //IT backend page 1
+    'hrfetch'                          => 'admin/ui-informationtech/backend/page-1/itfetch.php',
+    'hrposition'                       => 'admin/ui-informationtech/backend/page-1/itposition.php',
+    'hrupdate'                         => 'admin/ui-informationtech/backend/page-1/itupdate.php',
+    'crudbranches'                     => 'admin/ui-informationtech/backend/page-1/crudbranches.php',
+    'cruddepartments'                  => 'admin/ui-informationtech/backend/page-1/cruddepartments.php',
+    'updateitbranch'                   => 'admin/ui-informationtech/backend/page-1/itbranch.php',
+
+    //IT page 2
+    'it'                               => 'admin/ui-informationtech/page-2/index-it-main.php',
+   
     // accounting
-    'accounting'                       => 'admin/ui-accounting/index-accounting-main.php',
-    'download-pdfbudgetrequest'        => 'admin/ui-accounting/backend/backend-accounting/download-pdfbudgetrequest.php',
-    'accountingdashboard'              => 'admin/ui-accounting/index-accounting-dashboard.php',
-    'announcementdashboard'            => 'admin/ui-accounting/index-accounting-dashboard.php',
-    'announcement'                     => 'admin/ui-accounting/index-accounting-announcement.php',
-    'accountingmonitoring'             => 'admin/ui-accounting/index-accounting-monitoring.php',
-    'accountinggraph'                  => 'admin/ui-accounting/index-accounting-graph.php',
-    'fetch-budget-graph-data'          => 'admin/ui-accounting/backend/backend-accounting/fetch-budget-graph-data.php',
-    'accountingsignatured'             => 'admin/ui-accounting/index-accounting-signatured.php',
-    'accountingtracking'               => 'admin/ui-accounting/index-accounting-tracking.php',
-    'accountinggeneralsheet'           => 'admin/ui-accounting/index-accounting-generalsheet.php',
-    'accountingpettycash'              => 'admin/ui-accounting/index-accounting-pettycash.php',
-    'savenoblegeneralsheet'            => 'admin/ui-accounting/backend/backend-accounting/noble-save-generalsheet.php',
-    'fetchnoblegeneralsheet'           => 'admin/ui-accounting/backend/backend-accounting/noble-fetch-generalsheet.php',
-    'deletenoblegeneralsheet'          => 'admin/ui-accounting/backend/backend-accounting/noble-delete-generalsheet.php',
-    
+    'accounting'                       => 'admin/ui-accounting/page-1/index-accounting-main.php',
+    'download-pdfbudgetrequest'        => 'admin/ui-accounting/page-1/backend/backend-page1/download-pdfbudgetrequest.php',
+    'accountingdashboard'              => 'admin/ui-accounting/page-1/index-accounting-dashboard.php',
+    'announcementdashboard'            => 'admin/ui-accounting/page-1/index-accounting-dashboard.php',
+    'announcement'                     => 'admin/ui-accounting/page-1/index-accounting-announcement.php',
+    'accountingmonitoring'             => 'admin/ui-accounting/page-1/index-accounting-monitoring.php',
+    'accountinggraph'                  => 'admin/ui-accounting/page-1/index-accounting-graph.php',
+    'fetch-budget-graph-data'          => 'admin/ui-accounting/backend/backend-page1/fetch-budget-graph-data.php',
+    'accountingsignatured'             => 'admin/ui-accounting/page-1/index-accounting-signatured.php',
+    'accountingtracking'               => 'admin/ui-accounting/page-1/index-accounting-tracking.php',
+    'accountinggeneralsheet'           => 'admin/ui-accounting/page-1/index-accounting-generalsheet.php',
+    'accountingpettycash'              => 'admin/ui-accounting/page-1/index-accounting-pettycash.php',
+    'savenoblegeneralsheet'            => 'admin/ui-accounting/backend/backend-page1/noble-save-generalsheet.php',
+    'fetchnoblegeneralsheet'           => 'admin/ui-accounting/backend/backend-page1/noble-fetch-generalsheet.php',
+    'deletenoblegeneralsheet'          => 'admin/ui-accounting/backend/backend-page1/noble-delete-generalsheet.php',
+
+    // crm accounting page 1
+    'crmaccounting'                    => 'admin/ui-accounting/page-1/index-accounting-crmlist.php',
+    'accountingcrmlistajax'            => 'admin/ui-accounting/backend/backend-page1/index-accounting-crmlistajax.php',
+    'accountingcrmdetail'              => 'admin/ui-accounting/page-1/index-accounting-crmdetail.php',
+    'accountingpaymentmethods'         => 'admin/ui-accounting/page-1/index-accounting-paymentmethods.php',
+    'accountingpaymentmethodsajax'     => 'admin/ui-accounting/backend/backend-page1/index-accounting-paymentmethodsajax.php',
     
     //staffaccounting
-    'accountingstaff'                  => 'admin/ui-accounting/index-staff-main.php',
-    'accountingstaffdashboard'         => 'admin/ui-accounting/index-staff-dashboard.php',
+    'accountingstaff'                  => 'admin/ui-accounting/page-4/index-staff-main.php',
+    'accountingstaffdashboard'         => 'admin/ui-accounting/page-4/index-staff-dashboard.php',
     'fetchapproved'                    => 'admin/ui-accounting/backend/backend-staff/index-staff-fetch-approved.php',
     'markreceived'                     => 'admin/ui-accounting/backend/backend-staff/index-staff-mark-received.php',
     'fetchacknowledged'                => 'admin/ui-accounting/backend/backend-staff/index-staff-acknowledge.php',
-    'accountingstaffannouncement'      => 'admin/ui-accounting/index-staff-announcement.php',
-    'fetchnoblepettycashdepartment'    => 'admin/ui-accounting/backend/backend-accounting/noble-fetch-pettycash-department.php',
+    'accountingstaffannouncement'      => 'admin/ui-accounting/page-4/index-staff-announcement.php',
+    'fetchnoblepettycashdepartment'    => 'admin/ui-accounting/backend/backend-page1/noble-fetch-pettycash-department.php',
 
     // custodian
-    'accountingcustodian'              => 'admin/ui-accounting/index-custodian-main.php',
-    'accountingcustodiandashboard'     => 'admin/ui-accounting/index-custodian-dashboard.php',
+    'accountingcustodian'              => 'admin/ui-accounting/page-3/index-custodian-main.php',
+    'accountingcustodiandashboard'     => 'admin/ui-accounting/page-3/index-custodian-dashboard.php',
     'fetchreceived'                    => 'admin/ui-accounting/backend/backend-custodian/index-custodian-fetch-received.php',
     'submitrequestvoucher'             => 'admin/ui-accounting/backend/backend-custodian/index-custodian-submit-voucher.php',
     'savegeneralsheet'                 => 'admin/ui-accounting/backend/backend-custodian/index-custodian-pettycashsavegeneralsheet.php',
     'fetchgeneralsheet'                => 'admin/ui-accounting/backend/backend-custodian/index-custodian-pettycashfetchgeneralsheet.php',
     'deletegeneralsheet'               => 'admin/ui-accounting/backend/backend-custodian/index-custodian-pettycashdeletegeneralsheet.php',
-    'accountingcustodianassistant'     => 'admin/ui-accounting/index-custodianassist-main.php',
-    'announcementcustodian'            => 'admin/ui-accounting/index-custodian-dashboard.php',
-    'accountingcustodianpettycash'     => 'admin/ui-accounting/index-custodian-pettycash.php',
-    'accountingcustodianpettycashtwo'  => 'admin/ui-accounting/index-custodian-pettycashtwo.php',
+    'accountingcustodianassistant'     => 'admin/ui-accounting/page-3/index-custodianassist-main.php',
+    'announcementcustodian'            => 'admin/ui-accounting/page-3/index-custodian-dashboard.php',
+    'accountingcustodianpettycash'     => 'admin/ui-accounting/page-3/index-custodian-pettycash.php',
+    'accountingcustodianpettycashtwo'  => 'admin/ui-accounting/page-3/index-custodian-pettycashtwo.php',
     'savecustodiansheetpettycashtwo'   => 'admin/ui-accounting/backend/backend-custodian/index-custodian-pettycashtwosavegeneralsheet.php',
     'fetchcustodiansheetpettycashtwo'  => 'admin/ui-accounting/backend/backend-custodian/index-custodian-pettycashtwofetchgeneralsheet.php',
     'deletecustodiansheetpettycashtwo' => 'admin/ui-accounting/backend/backend-custodian/index-custodian-pettycashtwodeletegeneralsheet.php',
@@ -268,15 +334,15 @@ $routes = [
     'fetchpettycashdepartment'         => 'admin/ui-accounting/backend/backend-custodian/pettycashtwo-fetch-department.php',
     'savepettycashdepartment'          => 'admin/ui-accounting/backend/backend-custodian/pettycashtwo-save-department.php',
     'deletepettycashdepartment'        => 'admin/ui-accounting/backend/backend-custodian/pettycashtwo-delete-department.php',
-    'pettycashdepartment'              => 'admin/ui-accounting/index-custodian-pettycash-department.php',
+    'pettycashdepartment'              => 'admin/ui-accounting/page-3/index-custodian-pettycash-department.php',
     'fetchprojectnames'                => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-fetchprojectname.php',
     'saveprojectname'                  => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-saveprojectname.php',
     'deleteprojectname'                => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-deleteprojectname.php',
 
 
     // custiodiansublink
-    'projectmonitor'                   => 'admin/ui-accounting/index-projectmonitor-main.php',
-    'projectdetail'                    => 'admin/ui-accounting/index-projectmonitor-details.php',
+    'projectmonitor'                   => 'admin/ui-accounting/page-3/index-projectmonitor-main.php',
+    'projectdetail'                    => 'admin/ui-accounting/page-3/index-projectmonitor-details.php',
     'fetchprojects'                    => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-fetchprojects.php',
     'saveproject'                      => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-saveproject.php',
     'fetchprojectbilling'              => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-fetchprojectbilling.php',
@@ -289,35 +355,47 @@ $routes = [
     'saveincomeloss'                   => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-saveincomeloss.php',
 
     //cashvoucher
-    'cashvoucherdashboard'             => 'admin/ui-accounting/index-cashvoucherdashboard.php',
+    'cashvoucherdashboard'             => 'admin/ui-accounting/page-2/index-cashvoucherdashboard.php',
     'cashvoucherapproved'              => 'admin/ui-accounting/backend/backend-cashvoucher/index-cashvoucherapproved.php',
     'cashvoucherprepared'              => 'admin/ui-accounting/backend/backend-cashvoucher/index-cashvoucherprepared.php',
     'cashvoucherfetchall'              => 'admin/ui-accounting/backend/backend-cashvoucher/index-cashvoucherfetchall.php',
     'releasevoucher'                   => 'admin/ui-accounting/backend/backend-cashvoucher/index-cashreleasevoucher.php',
 
     // hr
-    'humanresource'                    => 'admin/ui-humanresource/humanresource-main.php',
-    'superad'                          => 'admin/ui-humanresource/humanresource-registration-account.php',
-    'department'                       => 'admin/ui-humanresource/humanresource-registration-department.php',
-    'hrfetch'                          => 'admin/ui-humanresource/backend/backend-role/humanresource-hrfetch.php',
-    'hrposition'                       => 'admin/ui-humanresource/backend/backend-role/humanresource-hrposition.php',
     'humanresourcerequest'             => 'admin/ui-humanresource/humanresource-request.php',
-    'hrupdate'                         => 'admin/ui-humanresource/backend/backend-account/hrupdate.php',
+
 
     // operation
     'operation'                        => 'admin/ui-operation/index-operation-main.php',
 
-    // sales & market
-    'salesmarket'                      => 'admin/ui-salesmarket/index-sales-main.php',
+    // sales page 1
+    'salesmarket'                      => 'admin/ui-salesmarket/page-1/index-sales-main.php',
+
+    //sales page 2
+    'crmsales'                         => 'admin/ui-salesmarket/page-2/crmsales.php',
+
+    // sales page 3
+    'crmsaleslist'                     => 'admin/ui-salesmarket/page-3/crmsaleslist.php',
+
 
     // graphic design
     'graphicdesign'                    => 'admin/ui-graphicdesign/index-graphic-main.php',
 
-    // designer
-    'designer'                         => 'admin/ui-designer/index-designer-main.php',
+    // designer page 1
+    'designer'                         => 'admin/ui-designer/page-1/index-designer-main.php',
+
+    // designer page 2
+    'crmdesigner'                      => 'admin/ui-designer/page-2/crmdesigner.php',
+
 
     // cutting list
     'cuttinglist'                      => 'admin/ui-cuttinglist/index-cuttinglist-main.php',
+
+    // super admin page 1
+    'crm-main'                         => 'admin/ui-superad/page-1/check2dquotation.php',
+
+    // super admin backend page 1
+    'check2dquotationajax'             => 'admin/ui-superad/backend/page-1/check2dquotationajax.php',
 
     'unauthorized'                     => 'admin/authentication/index-unauthorized.php',
     'fetchrequests'                    => 'admin/requestcentral/fetch-requests.php',
@@ -341,6 +419,17 @@ $routes = [
     'setactivesignature'               => 'admin/navigation/settings/backend/backend-signatured/set-active-signature.php',
     'deletesignature'                  => 'admin/navigation/settings/backend/backend-signatured/delete-signature.php',
     'updatesignature'                  => 'admin/navigation/settings/backend/backend-signatured/update-signature.php',
+
+    // crm management page 1
+    'crmajax'                          => 'admin/crm-management/backend/page-1/crm-options-ajax.php',
+    // crm management page 2
+    'crmlistajax'                      => 'admin/crm-management/backend/page-2/crmlistajax.php',
+    'crm2dquotationajax'               => 'admin/crm-management/backend/page-2/crm2dquotationajax.php',
+    // crm management page 3
+    'crmdesignerajax'                  => 'admin/crm-management/backend/page-3/crmdesignerajax.php',
+    // crm management page 3
+    'crmsitevisit'                     => 'admin/crm-management/page-3/subpage-3/sitevisitform.php',
+    'crm2dquotation'                   => 'admin/crm-management/page-3/subpage-3/2d-and-quotation.php',
 ];
 
 

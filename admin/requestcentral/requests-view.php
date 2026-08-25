@@ -1,6 +1,7 @@
 <?php
 // admin/requestcentral/requests-view.php
 // Included sa bawat department main page — hindi standalone
+
 ?>
 
 <div class="mb-6 flex items-center justify-between flex-wrap gap-4">

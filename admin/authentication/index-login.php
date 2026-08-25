@@ -5,6 +5,42 @@ include ROOT_PATH . '/network/connect.php';
 
 $error = '';
 
+function getRouteFor($role, $position, $branch) {
+    $isMainBranch = (strtolower(trim($branch)) === 'main branch'); // i-adjust base sa actual value sa DB mo
+
+    if ($role === 'ACCOUNTING AND FINANCE DEPARTMENT') {
+        return match($position) {
+            'head'           => 'accounting',
+            'staff'          => 'accountingstaff',
+            'custodian'      => 'accountingcustodian',
+            'custoassistant' => 'accountingcustodianassistant',
+            default          => 'accounting',
+        };
+    }
+
+    if ($role === 'SALES AND MARKETING DEPARTMENT') {
+        return $isMainBranch ? 'salesmarket' : 'crmsales';
+    }
+
+    if ($role === 'DESIGN DEPARTMENT') {
+        return $isMainBranch ? 'designer' : 'crmdesigner';
+    }
+
+    if ($role === 'SUPER ADMIN') {
+        return $isMainBranch ? 'superadmin' : 'crm-main';
+    }
+
+    $roleRoutes = [
+        'IT DEPARTMENT'                            => 'it',
+        'HUMAN RESOURCES DEPARTMENT'               => 'humanresource',
+        'OPERATIONS DEPARTMENT'                    => 'operation',
+        'GRAPHIC DESIGN DEPARTMENT'                => 'graphicdesign',
+        'ORDER PROCESSING/CUTTING LIST DEPARTMENT' => 'cuttinglist',
+    ];
+
+    return $roleRoutes[$role] ?? 'loginadmin';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -27,31 +63,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['email']      = $account['email'];
             $_SESSION['role']       = $account['role'];
             $_SESSION['position']   = $account['position'];
+            $_SESSION['branch']     = $account['branch'];   // <-- IDINAGDAG
             $_SESSION['logged_in']  = true;
 
             $position = $account['position'] ?? '';
             $role     = $account['role'];
+            $branch   = $account['branch'] ?? '';
 
-            if ($role === 'ACCOUNTING AND FINANCE DEPARTMENT') {
-                $route = match($position) {
-                    'head'           => 'accounting',
-                    'staff'          => 'accountingstaff',
-                    'custodian'      => 'accountingcustodian',
-                    'custoassistant' => 'accountingcustodianassistant',
-                    default          => 'accounting',
-                };
-            } else {
-                $roleRoutes = [
-                    'IT DEPARTMENT'                            => 'it',
-                    'HUMAN RESOURCES DEPARTMENT'               => 'humanresource',
-                    'OPERATIONS DEPARTMENT'                    => 'operation',
-                    'SALES AND MARKETING DEPARTMENT'           => 'salesmarket',
-                    'GRAPHIC DESIGN DEPARTMENT'                => 'graphicdesign',
-                    'DESIGN DEPARTMENT'                        => 'designer',
-                    'ORDER PROCESSING/CUTTING LIST DEPARTMENT' => 'cuttinglist',
-                ];
-                $route = $roleRoutes[$role] ?? 'loginadmin';
-            }
+            $route = getRouteFor($role, $position, $branch);
 
             header('Location: ' . BASE_URL . '/' . $route);
             exit;
@@ -66,27 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (!empty($_SESSION['logged_in'])) {
     $position = $_SESSION['position'] ?? '';
     $role     = $_SESSION['role'] ?? '';
+    $branch   = $_SESSION['branch'] ?? '';
 
-    if ($role === 'ACCOUNTING AND FINANCE DEPARTMENT') {
-        $route = match($position) {
-            'head'           => 'accounting',
-            'staff'          => 'accountingstaff',
-            'custodian'      => 'accountingcustodian',
-            'custoassistant' => 'accountingcustodianassistant',
-            default          => 'accounting',
-        };
-    } else {
-        $roleRoutes = [
-            'IT DEPARTMENT'                            => 'it',
-            'HUMAN RESOURCES DEPARTMENT'               => 'humanresource',
-            'OPERATIONS DEPARTMENT'                    => 'operation',
-            'SALES AND MARKETING DEPARTMENT'           => 'salesmarket',
-            'GRAPHIC DESIGN DEPARTMENT'                => 'graphicdesign',
-            'DESIGN DEPARTMENT'                        => 'designer',
-            'ORDER PROCESSING/CUTTING LIST DEPARTMENT' => 'cuttinglist',
-        ];
-        $route = $roleRoutes[$role] ?? 'loginadmin';
-    }
+    $route = getRouteFor($role, $position, $branch);
 
     header('Location: ' . BASE_URL . '/' . $route);
     exit;

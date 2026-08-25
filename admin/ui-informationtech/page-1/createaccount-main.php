@@ -1,10 +1,10 @@
 <?php
-
+//createaccount-main.php
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
 include ROOT_PATH . '/admin/authentication/index-roles.php';
 
-$allowedRoles = [ROLE_HR];
+$allowedRoles = [ROLE_IT];
 include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 ?>
 <!DOCTYPE html>
@@ -44,15 +44,34 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                             <th class="px-5 py-3 text-left">ID</th>
                             <th class="px-5 py-3 text-left">Name</th>
                             <th class="px-5 py-3 text-left">Email</th>
-                            <th class="px-5 py-3 text-left">Role / Department</th>
+                            <th class="px-5 py-3 text-left">
+                                <div class="flex items-center gap-2">
+                                    <span>Role / Department</span>
+                                    <button onclick="openSettingsModal('department')"
+                                        title="Manage Departments"
+                                        class="text-gray-400 hover:text-amber-500 transition-colors">
+                                        <i class="fa-solid fa-gear text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
                             <th class="px-5 py-3 text-left">Position</th>
+                            <th class="px-5 py-3 text-left">
+                                <div class="flex items-center gap-2">
+                                    <span>Branch</span>
+                                    <button onclick="openSettingsModal('branch')"
+                                        title="Manage Branches"
+                                        class="text-gray-400 hover:text-amber-500 transition-colors">
+                                        <i class="fa-solid fa-gear text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
                             <th class="px-5 py-3 text-left">Created At</th>
                             <th class="px-5 py-3 text-left">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="accounts-tbody">
                         <tr>
-                            <td colspan="7" class="px-5 py-8 text-center text-gray-400 text-sm">
+                            <td colspan="8" class="px-5 py-8 text-center text-gray-400 text-sm">
                                 <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading...
                             </td>
                         </tr>
@@ -109,7 +128,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 </div>
 
                 <!-- Error message -->
-                <!-- Error message -->
                 <p id="edit-error" class="text-xs text-red-500 hidden"></p>
             </form>
 
@@ -126,8 +144,41 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         </div>
     </div>
 
+    <!-- Settings Modal (shared: Department / Branch) -->
+    <div id="settings-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
+            <div class="flex items-center justify-between mb-5">
+                <h2 id="settings-title" class="text-base font-bold text-gray-800">Manage Departments</h2>
+                <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Add new -->
+            <div class="flex gap-2 mb-4">
+                <input id="settings-new-name" type="text"
+                    class="flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+                    placeholder="New name">
+                <button onclick="addSettingsItem()"
+                    class="bg-amber-400 hover:bg-amber-500 text-white text-sm font-semibold px-4 rounded-lg transition">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <p id="settings-error" class="text-xs text-red-500 hidden mb-3"></p>
+
+            <!-- List -->
+            <div id="settings-list" class="space-y-2 max-h-72 overflow-y-auto">
+                <p class="text-xs text-gray-400 text-center py-4">Loading...</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         let previousCount = 0;
+        let branchList = []; // cached list of available branches for the per-row select
+
+        // ─── Accounts Table ───────────────────────────────────────────
 
         function renderAccounts(data) {
             const tbody = document.getElementById('accounts-tbody');
@@ -150,6 +201,14 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     <option value="head" ${row.position === 'head' ? 'selected' : ''}>Head</option>
                     <option value="custodian" ${row.position === 'custodian' ? 'selected' : ''}>Custodian</option>
                     <option value="custoassistant" ${row.position === 'custoassistant' ? 'selected' : ''}>Custodian Assistant</option>
+                    
+                </select>
+            </td>
+            <td class="px-5 py-3">
+                <select onchange="changeBranch(${row.id}, this.value)"
+                    class="bg-gray-100 text-gray-500 text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-wide border-none outline-none cursor-pointer transition-all">
+                    <option value="">-- None --</option>
+                    ${branchList.map(b => `<option value="${b.name}" ${row.branch === b.name ? 'selected' : ''}>${b.name}</option>`).join('')}
                 </select>
             </td>
             <td class="px-5 py-3 text-gray-400 text-xs font-mono">${row.created_at}</td>
@@ -174,7 +233,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                     const tbody = document.getElementById('accounts-tbody');
 
                     if (!data.length) {
-                        tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-gray-400">No accounts found.</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="8" class="px-5 py-8 text-center text-gray-400">No accounts found.</td></tr>`;
                         previousCount = 0;
                         return;
                     }
@@ -186,7 +245,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 })
                 .catch(() => {
                     document.getElementById('accounts-tbody').innerHTML =
-                        `<tr><td colspan="7" class="px-5 py-8 text-center text-red-400">Failed to load data.</td></tr>`;
+                        `<tr><td colspan="8" class="px-5 py-8 text-center text-red-400">Failed to load data.</td></tr>`;
                 });
         }
 
@@ -206,6 +265,22 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                         }
                     }
                 });
+        }
+
+        function changeBranch(id, newBranch) {
+            fetch('<?= BASE_URL ?>/updateitbranch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, branch: newBranch })
+            })
+                .then(res => res.json())
+                .catch(() => {});
+        }
+
+        function loadBranchesForSelect() {
+            return fetch('<?= BASE_URL ?>/crudbranches')
+                .then(res => res.json())
+                .then(data => { branchList = data; });
         }
 
         // ─── Edit Modal ───────────────────────────────────────────────
@@ -244,7 +319,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             const confirmPassword = document.getElementById('edit-confirm-password').value;
             const errorEl = document.getElementById('edit-error');
 
-            // Validation
             if (!name) {
                 errorEl.textContent = 'Name is required.';
                 errorEl.classList.remove('hidden');
@@ -271,7 +345,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 .then(data => {
                     if (data.success) {
                         closeEditModal();
-                        fetchAccounts(true); // Re-render with updated data
+                        fetchAccounts(true);
                     } else {
                         errorEl.textContent = data.message || 'Update failed. Try again.';
                         errorEl.classList.remove('hidden');
@@ -283,15 +357,169 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 });
         }
 
-        // Close modal on backdrop click
         document.getElementById('edit-modal').addEventListener('click', function (e) {
             if (e.target === this) closeEditModal();
         });
 
-        // Initial load
-        fetchAccounts(true);
+        // ─── Settings Modal (Department / Branch CRUD) ─────────────────
 
-        // Re-check on tab focus
+        let currentSettingsType = 'department'; // 'department' | 'branch'
+
+        const settingsConfig = {
+            department: { endpoint: '<?= BASE_URL ?>/cruddepartments', title: 'Manage Departments', placeholder: 'e.g. Human Resources' },
+            branch: { endpoint: '<?= BASE_URL ?>/crudbranches', title: 'Manage Branches', placeholder: 'e.g. Main Branch' }
+        };
+
+        function openSettingsModal(type) {
+            currentSettingsType = type;
+            const cfg = settingsConfig[type];
+            document.getElementById('settings-title').textContent = cfg.title;
+            document.getElementById('settings-new-name').value = '';
+            document.getElementById('settings-new-name').placeholder = cfg.placeholder;
+            document.getElementById('settings-error').classList.add('hidden');
+            document.getElementById('settings-modal').classList.remove('hidden');
+            document.getElementById('settings-modal').classList.add('flex');
+            fetchSettingsList();
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('hidden');
+            document.getElementById('settings-modal').classList.remove('flex');
+        }
+
+        document.getElementById('settings-modal').addEventListener('click', function (e) {
+            if (e.target === this) closeSettingsModal();
+        });
+
+        function fetchSettingsList() {
+            const cfg = settingsConfig[currentSettingsType];
+            const listEl = document.getElementById('settings-list');
+            listEl.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">Loading...</p>`;
+
+            fetch(cfg.endpoint)
+                .then(res => res.json())
+                .then(data => renderSettingsList(data))
+                .catch(() => {
+                    listEl.innerHTML = `<p class="text-xs text-red-400 text-center py-4">Failed to load list.</p>`;
+                });
+        }
+
+        function renderSettingsList(data) {
+            const listEl = document.getElementById('settings-list');
+
+            if (!data.length) {
+                listEl.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">No entries yet.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = data.map(item => `
+        <div class="flex items-center justify-between gap-2 border border-gray-100 rounded-lg px-3 py-2" data-id="${item.id}">
+            <span class="text-sm text-gray-700 settings-item-name flex-1">${item.name}</span>
+            <button onclick="startEditSettingsItem(${item.id}, this)" title="Edit"
+                class="text-gray-400 hover:text-amber-500 transition-colors">
+                <i class="fa-solid fa-pen text-xs"></i>
+            </button>
+            <button onclick="deleteSettingsItem(${item.id})" title="Delete"
+                class="text-gray-400 hover:text-red-500 transition-colors">
+                <i class="fa-solid fa-trash text-xs"></i>
+            </button>
+        </div>
+    `).join('');
+        }
+
+        function addSettingsItem() {
+            const cfg = settingsConfig[currentSettingsType];
+            const nameInput = document.getElementById('settings-new-name');
+            const name = nameInput.value.trim();
+            const errorEl = document.getElementById('settings-error');
+
+            if (!name) {
+                errorEl.textContent = 'Name is required.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            fetch(cfg.endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'add', name })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        nameInput.value = '';
+                        errorEl.classList.add('hidden');
+                        fetchSettingsList();
+                        if (currentSettingsType === 'branch') loadBranchesForSelect().then(() => fetchAccounts(true));
+                    } else {
+                        errorEl.textContent = data.message || 'Failed to add.';
+                        errorEl.classList.remove('hidden');
+                    }
+                });
+        }
+
+        function startEditSettingsItem(id, btn) {
+            const row = btn.closest('[data-id]');
+            const nameSpan = row.querySelector('.settings-item-name');
+            const currentName = nameSpan.textContent;
+
+            row.innerHTML = `
+        <input type="text" value="${currentName.replace(/"/g, '&quot;')}"
+            class="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400"
+            id="settings-edit-input-${id}">
+        <button onclick="confirmEditSettingsItem(${id})" title="Save" class="text-green-500 hover:text-green-600">
+            <i class="fa-solid fa-check text-xs"></i>
+        </button>
+        <button onclick="fetchSettingsList()" title="Cancel" class="text-gray-400 hover:text-gray-600">
+            <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+    `;
+        }
+
+        function confirmEditSettingsItem(id) {
+            const cfg = settingsConfig[currentSettingsType];
+            const input = document.getElementById(`settings-edit-input-${id}`);
+            const name = input.value.trim();
+
+            if (!name) return;
+
+            fetch(cfg.endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'edit', id, name })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchSettingsList();
+                        if (currentSettingsType === 'branch') loadBranchesForSelect().then(() => fetchAccounts(true));
+                    }
+                });
+        }
+
+        function deleteSettingsItem(id) {
+            if (!confirm('Delete this entry?')) return;
+
+            const cfg = settingsConfig[currentSettingsType];
+
+            fetch(cfg.endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete', id })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchSettingsList();
+                        if (currentSettingsType === 'branch') loadBranchesForSelect().then(() => fetchAccounts(true));
+                    }
+                });
+        }
+
+        // ─── Initial Load ───────────────────────────────────────────
+
+        loadBranchesForSelect().then(() => fetchAccounts(true));
+
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 fetchAccounts();

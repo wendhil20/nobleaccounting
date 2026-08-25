@@ -24,6 +24,37 @@ $onlineResult = $conn->query("
 $onlineRow = $onlineResult->fetch_assoc();
 $isOnline = $onlineRow && $onlineRow['last_active'] &&
     (time() - strtotime($onlineRow['last_active'])) < 60;
+
+/* =========================================================
+   MAIN BRANCH CHECK — used to gate Main-Branch-only menu items
+   (e.g. Budget Request list). Session stores the branch NAME,
+   so we look up noblebranch.is_main for that name.
+   ========================================================= */
+$sessionBranch = $_SESSION['branch'] ?? '';
+$isMainBranch = false;
+if ($sessionBranch !== '') {
+    $branchCheckStmt = $conn->prepare("SELECT is_main FROM noblebranch WHERE name = ? LIMIT 1");
+    $branchCheckStmt->bind_param("s", $sessionBranch);
+    $branchCheckStmt->execute();
+    $branchCheckStmt->bind_result($branchIsMainRaw);
+    if ($branchCheckStmt->fetch()) {
+        $isMainBranch = ((int) $branchIsMainRaw === 1);
+    }
+    $branchCheckStmt->close();
+}
+
+$roleColors = [
+    ROLE_IT => '#2563EB', // blue
+    ROLE_DESIGNER => '#0D9488', // teal
+    ROLE_ACCOUNTING => '#16A34A', // green
+    ROLE_CUTTING => '#CA8A04', // yellow/gold
+    ROLE_OPERATIONS => '#EA580C', // orange
+    ROLE_SALES => '#DC2626', // red
+    ROLE_GRAPHIC => '#DB2777', // pink/magenta
+    ROLE_HR => '#9333EA', // purple
+    ROLE_SUPERADMIN => '#1F2937', // neutral dark gray
+];
+$currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
 ?>
 
 <style>
@@ -54,9 +85,13 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
     }
 
     #sidebar.collapsed #sidebar-logo-area {
-        justify-content: center;
+        align-items: center;
         padding-left: 0;
         padding-right: 0;
+    }
+
+    #sidebar.collapsed #sidebar-logo-row {
+        justify-content: center;
     }
 
     #sidebar.collapsed #sidebar-user-block {
@@ -158,37 +193,53 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
     class="hidden md:flex fixed top-0 left-0 h-screen w-56 bg-white border-r border-gray-100 flex-col z-50 shadow-sm">
 
     <!-- Logo -->
-    <div id="sidebar-logo-area" class="px-4 py-4 border-b border-gray-100 flex items-center gap-2">
-        <div class="flex flex-col items-center gap-1 flex-shrink-0">
-            <img src="<?= BASE_URL ?>/icon/logo.png" alt="NobleHome Logo" class="h-8 w-auto object-contain">
-            <button id="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Sidebar"
-                class="w-5 h-5 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition-all">
-                <i class="fa-solid fa-chevron-left text-[8px]"></i>
-            </button>
+    <div id="sidebar-logo-area" class="px-4 py-4 border-b border-gray-100 flex flex-col gap-2">
+        <div id="sidebar-logo-row" class="flex items-center gap-2">
+            <div class="flex flex-col items-center gap-1 flex-shrink-0">
+                <img src="<?= BASE_URL ?>/icon/logo.png" alt="NobleHome Logo" class="h-8 w-auto object-contain">
+                <button id="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Sidebar"
+                    class="w-5 h-5 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition-all">
+                    <i class="fa-solid fa-chevron-left text-[8px]"></i>
+                </button>
+            </div>
+            <div class="sidebar-divider-v w-px h-10 bg-gray-300 sidebar-logo-text"></div>
+            <span
+                class="sidebar-logo-text text-base font-bold text-gray-800 tracking-tight whitespace-nowrap leading-tight">
+                Noble<span class="text-amber-500">Home</span><br>
+                <span class="text-gray-400 font-normal text-xs">Department</span>
+            </span>
         </div>
-        <div class="sidebar-divider-v w-px h-10 bg-gray-300 sidebar-logo-text"></div>
-        <span class="sidebar-logo-text text-base font-bold text-gray-800 tracking-tight whitespace-nowrap leading-tight">
-            Noble<span class="text-amber-500">Home</span><br>
-            <span class="text-gray-400 font-normal text-xs">Department</span>
-        </span>
+
+        <?php if (!empty($sessionBranch)): ?>
+            <div class="sidebar-label flex items-center gap-1.5 px-1">
+
+                <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wide truncate">
+                    <?= htmlspecialchars($sessionBranch) ?>
+                    <?php if ($isMainBranch): ?>
+                        <span class="text-amber-600">(Main)</span>
+                    <?php endif; ?>
+                </span>
+            </div>
+        <?php endif; ?>
     </div>
 
     <!-- Nav Links -->
     <nav class="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto overflow-x-hidden">
-        <p class="sidebar-section-label text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">Main</p>
+        <p class="sidebar-section-label text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">
+            Main</p>
 
         <?php $role = $_SESSION['role'] ?? ''; ?>
 
         <?php if ($role === ROLE_ACCOUNTING): ?>
-            <a href="<?= BASE_URL ?>/generalannouncement" data-tooltip="General Announce"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/generalannouncement') ?>">
-                <i class="fa-solid fa-bullhorn w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">General Announce</span>
-            </a>
-        <?php endif; ?>
 
-        <?php if ($role === ROLE_ACCOUNTING): ?>
+
             <?php if ($isHead): ?>
+
+                <a href="<?= BASE_URL ?>/generalannouncement" data-tooltip="General Announce"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/generalannouncement') ?>">
+                    <i class="fa-solid fa-bullhorn w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">General Announce</span>
+                </a>
                 <a href="<?= BASE_URL ?>/accountinggraph" data-tooltip="Dashboard"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountinggraph') ?>">
                     <i class="fa-solid fa-chart-line w-4 text-center text-sm flex-shrink-0"></i>
@@ -204,7 +255,55 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                     <i class="fa-solid fa-coins w-4 text-center text-sm flex-shrink-0"></i>
                     <span class="sidebar-label">Petty Cash</span>
                 </a>
+
+                <div class="sidebar-section-label pt-4">
+                    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">Manage</p>
+                </div>
+
+                <a href="<?= BASE_URL ?>/announcementdashboard" data-tooltip="Announce List"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/announcementdashboard') ?>">
+                    <i class="fa-solid fa-sign-hanging w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Announce List</span>
+                </a>
+                <a href="<?= BASE_URL ?>/announcement" data-tooltip="Announce List"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/announcement') ?>">
+                    <i class="fa-solid fa-pen-to-square w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Announcement</span>
+                </a>
+                <a href="<?= BASE_URL ?>/accountingmonitoring" data-tooltip="Monitoring Project"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingmonitoring') ?>">
+                    <i class="fa-solid fa-file-circle-check w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Monitoring Project</span>
+                </a>
+                <a href="<?= BASE_URL ?>/accountingtracking" data-tooltip="Accounting Tracking"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingtracking') ?>">
+                    <i class="fa-solid fa-timeline w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Tracking Req & Vouch</span>
+                </a>
+                <a href="<?= BASE_URL ?>/accountinggeneralsheet" data-tooltip="General Sheet"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountinggeneralsheet') ?>">
+                    <i class="fa-solid fa-clipboard-list w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">General Sheet</span>
+                </a>
+
+                <a href="<?= BASE_URL ?>/cashvoucherdashboard" data-tooltip="Approval Cash Voucher"
+                    class="flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-all <?= isActive('/cashvoucherdashboard') ?>">
+                    <i class="fa-solid fa-ticket-simple w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Approval Cash Voucher</span>
+                </a>
+
+                <div class="sidebar-section-label pt-4">
+                    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">CRM Manage</p>
+                </div>
+
+                <a href="<?= BASE_URL ?>/crmaccounting" data-tooltip="CRM List"
+                    class="flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-all <?= isActive('/crmaccounting') ?>">
+                    <i class="fa-solid fa-ticket-simple w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">CRM List</span>
+                </a>
+
             <?php endif; ?>
+
             <?php if ($isStaff): ?>
                 <a href="<?= BASE_URL ?>/accountingstaffdashboard" data-tooltip="Dashboard Records"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingstaffdashboard') ?>">
@@ -217,6 +316,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                     <span class="sidebar-label">Acknowledge Request</span>
                 </a>
             <?php endif; ?>
+
             <?php if ($isCustodian): ?>
                 <a href="<?= BASE_URL ?>/accountingcustodiandashboard" data-tooltip="Dashboard Records"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingcustodiandashboard') ?>">
@@ -233,15 +333,43 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                     <i class="fa-solid fa-coins w-4 text-center text-sm flex-shrink-0"></i>
                     <span class="sidebar-label">Petty Cash</span>
                 </a>
+
+                <div class="sidebar-section-label pt-4">
+                    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">Manage</p>
+                </div>
+
+
+
+                <a href="<?= BASE_URL ?>/projectmonitor" data-tooltip="Project Monitor"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/projectmonitor') ?>">
+                    <i class="fa-solid fa-file-circle-check w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Project Monitor</span>
+                </a>
+
+
+                <a href="<?= BASE_URL ?>/cashvoucherdashboard" data-tooltip="Approval Cash Voucher"
+                    class="flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-all <?= isActive('/cashvoucherdashboard') ?>">
+                    <i class="fa-solid fa-ticket-simple w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Approval Cash Voucher</span>
+                </a>
             <?php endif; ?>
+
+
+            <?php if ($isCustooAssistant): ?>
+                <div class="sidebar-section-label pt-4">
+                    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">Manage</p>
+                </div>
+
+                <a href="<?= BASE_URL ?>/cashvoucherdashboard" data-tooltip="Approval Cash Voucher"
+                    class="flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-all <?= isActive('/cashvoucherdashboard') ?>">
+                    <i class="fa-solid fa-ticket-simple w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Approval Cash Voucher</span>
+                </a>
+            <?php endif; ?>
+
         <?php endif; ?>
 
         <?php if (in_array($role, [ROLE_HR])): ?>
-            <a href="<?= BASE_URL ?>/humanresource" data-tooltip="Dashboard"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm transition-all <?= isActive('/humanresource') ?>">
-                <i class="fa-solid fa-chart-line w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Dashboard</span>
-            </a>
             <a href="<?= BASE_URL ?>/humanresourcerequest" data-tooltip="Request"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm transition-all <?= isActive('/humanresourcerequest') ?>">
                 <i class="fa-solid fa-address-book w-4 text-center text-sm flex-shrink-0"></i>
@@ -249,98 +377,104 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
             </a>
         <?php endif; ?>
 
-        <?php if (in_array($role, [ROLE_IT])): ?>
-            <a href="<?= BASE_URL ?>/it" data-tooltip="Dashboard"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm group transition-all <?= isActive('/informationtech') ?>">
-                <i class="fa-sharp fa-solid fa-chart-bar w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Dashboard</span>
+
+        <?php if ($role === ROLE_SALES): ?>
+            <?php if ($isMainBranch): ?>
+                <a href="<?= BASE_URL ?>/salesmarket" data-tooltip="Sales Market"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 hover:text-gray-800 font-medium text-sm group transition-all <?= isActive('/salesmarket') ?>">
+                    <i class="fa-solid fa-chart-line w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Budget Request list</span>
+                </a>
+            <?php endif; ?>
+
+            <a href="<?= BASE_URL ?>/crmsales" data-tooltip="CRM Main"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 hover:text-gray-800 font-medium text-sm group transition-all <?= isActive('/crmsales') ?>">
+                <i class="fa-solid fa-users w-4 text-center text-sm flex-shrink-0"></i>
+                <span class="sidebar-label">CRM Main</span>
+            </a>
+
+            <a href="<?= BASE_URL ?>/crmsaleslist" data-tooltip="CRM List"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 hover:text-gray-800 font-medium text-sm group transition-all <?= isActive('/crmsaleslist') ?>">
+                <i class="fa-solid fa-list-ol w-4 text-center text-sm flex-shrink-0"></i>
+                <span class="sidebar-label">CRM List</span>
             </a>
         <?php endif; ?>
 
-        <div class="sidebar-section-label pt-4">
-            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">Manage</p>
-        </div>
 
-        <?php if ($isStaff): ?>
-            <a href="<?= BASE_URL ?>/accountingstaffannouncement" data-tooltip="Insert Announcement"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingstaffannouncement') ?>">
-                <i class="fa-solid fa-bullhorn w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Insert-Announcement</span>
+        <?php if ($role === ROLE_DESIGNER): ?>
+            <?php if ($isMainBranch): ?>
+                <?php if ($isHead): ?>
+                    <a href="<?= BASE_URL ?>/designer" data-tooltip="Dashboard"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm group transition-all <?= isActive('/designer') ?>">
+                        <i class="fa-sharp fa-solid fa-chart-bar w-4 text-center text-sm flex-shrink-0"></i>
+                        <span class="sidebar-label">Budget Request</span>
+                    </a>
+                <?php endif; ?>
+            <?php endif; ?>
+
+            <div class="sidebar-section-label pt-4">
+                <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">Manage</p>
+            </div>
+
+            <a href="<?= BASE_URL ?>/crmdesigner" data-tooltip="CRM Designer"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm group transition-all <?= isActive('/crmdesigner') ?>">
+                <i class="fa-solid fa-list-ol w-4 text-center text-sm flex-shrink-0"></i>
+                <span class="sidebar-label">CRM Designer</span>
             </a>
+
         <?php endif; ?>
 
-        <?php if ($isCustooAssistant): ?>
-            <a href="<?= BASE_URL ?>/accountingcustodianassistant" data-tooltip="Insert Announcement"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingcustodianassistant') ?>">
-                <i class="fa-solid fa-bullhorn w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Insert-Announcement</span>
-            </a>
-        <?php endif; ?>
+        <?php if ($role === ROLE_SUPERADMIN): ?>
+            <?php if ($isMainBranch): ?>
+                <a href="<?= BASE_URL ?>/crm-main" data-tooltip="Dashboard"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm group transition-all <?= isActive('/crm-main') ?>">
+                    <i class="fa-sharp fa-solid fa-chart-bar w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Dashboard</span>
+                </a>
+            <?php endif; ?>
 
-        <?php if ($isCustodian): ?>
-            <a href="<?= BASE_URL ?>/announcementcustodian" data-tooltip="Insert Announcement"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/announcementcustodian') ?>">
-                <i class="fa-solid fa-bullhorn w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Insert-Announcement</span>
-            </a>
-            <a href="<?= BASE_URL ?>/projectmonitor" data-tooltip="Project Monitor"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/projectmonitor') ?>">
-                <i class="fa-solid fa-file-circle-check w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Project Monitor</span>
-            </a>
-        <?php endif; ?>
-
-        <?php if ($role === ROLE_ACCOUNTING && in_array($position, [POSITION_HEAD])): ?>
-            <a href="<?= BASE_URL ?>/announcementdashboard" data-tooltip="Announce List"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/announcementdashboard') ?>">
-                <i class="fa-solid fa-sign-hanging w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Announce List</span>
-            </a>
-              <a href="<?= BASE_URL ?>/announcement" data-tooltip="Announce List"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/announcement') ?>">
-                <i class="fa-solid fa-sign-hanging w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Announcement</span>
-            </a>
-            <a href="<?= BASE_URL ?>/accountingmonitoring" data-tooltip="Monitoring Project"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingmonitoring') ?>">
-                <i class="fa-solid fa-file-circle-check w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Monitoring Project</span>
-            </a>
-            <a href="<?= BASE_URL ?>/accountingtracking" data-tooltip="Accounting Tracking"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingtracking') ?>">
-                <i class="fa-solid fa-timeline w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Tracking Req & Vouch</span>
-            </a>
-            <a href="<?= BASE_URL ?>/accountinggeneralsheet" data-tooltip="General Sheet"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountinggeneralsheet') ?>">
-                <i class="fa-solid fa-clipboard-list w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">General Sheet</span>
-            </a>
-        <?php endif; ?>
-
-        <?php if ($role === ROLE_ACCOUNTING && in_array($position, [POSITION_HEAD, POSITION_CUSTODIAN, POSITION_CUSTOASSISTANT])): ?>
-            <a href="<?= BASE_URL ?>/cashvoucherdashboard" data-tooltip="Approval Cash Voucher"
-                class="flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-all <?= isActive('/cashvoucherdashboard') ?>">
-                <i class="fa-solid fa-ticket-simple w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Approval Cash Voucher</span>
-            </a>
-        <?php endif; ?>
-
-        <?php if (in_array($role, [ROLE_HR])): ?>
-            <a href="<?= BASE_URL ?>/superad" data-tooltip="Manage Accounts"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 hover:text-gray-800 font-medium text-sm group transition-all <?= isActive('/superad') ?>">
-                <i class="fa-solid fa-user-plus w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Manage Accounts</span>
-            </a>
-        <?php endif; ?>
-
-        <?php if (in_array($role, [ROLE_IT])): ?>
             <a href="#" data-tooltip="Maintenance"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 font-medium text-sm group transition-all">
                 <i class="fa-solid fa-wrench w-4 text-center text-sm flex-shrink-0"></i>
                 <span class="sidebar-label">Maintenance</span>
             </a>
+
+
         <?php endif; ?>
+
+
+        <?php if ($role === ROLE_IT): ?>
+            <?php if ($isMainBranch): ?>
+                <a href="<?= BASE_URL ?>/it" data-tooltip="Dashboard"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm group transition-all <?= isActive('/it') ?>">
+                    <i class="fa-sharp fa-solid fa-chart-bar w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Dashboard</span>
+                </a>
+            <?php endif; ?>
+
+            <a href="#" data-tooltip="Maintenance"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 font-medium text-sm group transition-all">
+                <i class="fa-solid fa-wrench w-4 text-center text-sm flex-shrink-0"></i>
+                <span class="sidebar-label">Maintenance</span>
+            </a>
+
+            <div class="sidebar-section-label pt-4">
+                <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">Manage</p>
+            </div>
+
+            <a href="<?= BASE_URL ?>/superad" data-tooltip="Manage Accounts"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 hover:text-gray-800 font-medium text-sm group transition-all <?= isActive('/superad') ?>">
+                <i class="fa-solid fa-user-plus w-4 text-center text-sm flex-shrink-0"></i>
+                <span class="sidebar-label">Create Account</span>
+            </a>
+
+            <a href="<?= BASE_URL ?>/createaccount" data-tooltip="Account Management"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 hover:text-gray-800 font-medium text-sm group transition-all <?= isActive('/createaccount') ?>">
+                <i class="fa-solid fa-user-gear w-4 text-center text-sm flex-shrink-0"></i>
+                <span class="sidebar-label">Account Management</span>
+            </a>
+        <?php endif; ?>
+
 
         <div class="sidebar-section-label pt-4">
             <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">Notifications</p>
@@ -353,8 +487,10 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                 <span id="sidebar-notif-badge"
                     class="hidden absolute -top-1.5 -right-1.5 min-w-[14px] h-3.5 bg-red-500 rounded-full text-[8px] font-bold text-white flex items-center justify-center px-0.5"></span>
             </div>
-            <span id="sidebar-notif-badge-wrap" class="sidebar-label flex-1 text-left flex items-center gap-2">Notifications</span>
-            <i class="fa-solid fa-chevron-right text-[9px] opacity-40 transition-transform duration-200 sidebar-label" id="sidebar-notif-chevron"></i>
+            <span id="sidebar-notif-badge-wrap"
+                class="sidebar-label flex-1 text-left flex items-center gap-2">Notifications</span>
+            <i class="fa-solid fa-chevron-right text-[9px] opacity-40 transition-transform duration-200 sidebar-label"
+                id="sidebar-notif-chevron"></i>
         </button>
 
         <div class="sidebar-section-label pt-4">
@@ -370,23 +506,36 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
         <?php endif; ?>
     </nav>
 
-    <!-- Desktop User Profile -->
-    <div class="px-3 py-4 border-t border-gray-100">
+    <!-- User Profile Block (Department + User Info, dikit) -->
+    <div class="border-t border-gray-100">
+        <?php if (!empty($_SESSION['role'])): ?>
+            <div class="px-5 py-1 text-center" style="background-color: <?= $currentRoleColor ?>15;">
+                <span class="text-[10px] font-bold uppercase tracking-wide inline-flex items-center justify-center gap-1"
+                    style="color: <?= $currentRoleColor ?>;">
+                    <?= htmlspecialchars($_SESSION['role']) ?> <i class="fa-solid fa-user-tag text-xs"></i>
+                </span>
+            </div>
+        <?php endif; ?>
+
         <div id="sidebar-user-block"
-            class="relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-all overflow-visible">
+            class="relative group flex items-center gap-3 px-3 py-3 hover:bg-gray-50 cursor-pointer transition-all overflow-visible">
             <div class="relative flex-shrink-0">
-                <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center">
-                    <i class="fa-sharp fa-solid fa-user-tie text-black text-xs"></i>
+                <div class="w-7 h-7 rounded-full flex items-center justify-center"
+                    style="background-color: <?= $currentRoleColor ?>1A; border: 1.5px solid <?= $currentRoleColor ?>;">
+                    <i class="fa-sharp fa-solid fa-user-tie text-xs" style="color: <?= $currentRoleColor ?>;"></i>
                 </div>
                 <span id="presence-dot"
                     class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 <?= $isOnline ? 'bg-green-400' : 'bg-gray-300' ?> border-2 border-white rounded-full"></span>
             </div>
             <div class="user-text flex-1 min-w-0">
-                <p class="text-xs font-semibold text-gray-800 truncate">
+                <p class="text-xs font-semibold truncate" style="color: <?= $currentRoleColor ?>;">
                     <?= isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Admin' ?>
                 </p>
                 <p class="text-[10px] text-gray-400 truncate">
                     <?= isset($_SESSION['position']) ? htmlspecialchars(ucfirst($_SESSION['position'])) . '  ' : '' ?>
+                    <?php if (!empty($_SESSION['branch'])): ?>
+                        &middot; <?= htmlspecialchars($_SESSION['branch']) ?>
+                    <?php endif; ?>
                 </p>
             </div>
             <a href="<?= BASE_URL ?>/logout"
@@ -395,6 +544,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
             </a>
         </div>
     </div>
+
 </aside>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
@@ -404,7 +554,8 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
     <div class="flex items-center justify-between px-4 h-14">
 
         <!-- Hamburger -->
-        <button onclick="openMobileDrawer()" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100 transition text-gray-600">
+        <button onclick="openMobileDrawer()"
+            class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100 transition text-gray-600">
             <i class="fa-solid fa-bars text-base"></i>
         </button>
 
@@ -424,7 +575,8 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
             </button>
             <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center relative">
                 <i class="fa-sharp fa-solid fa-user-tie text-black text-xs"></i>
-                <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 <?= $isOnline ? 'bg-green-400' : 'bg-gray-300' ?> border-2 border-white rounded-full"></span>
+                <span
+                    class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 <?= $isOnline ? 'bg-green-400' : 'bg-gray-300' ?> border-2 border-white rounded-full"></span>
             </div>
         </div>
     </div>
@@ -436,8 +588,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
 <div id="mobile-overlay" onclick="closeMobileDrawer()"
     class="md:hidden fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px]"></div>
 
-<div id="mobile-drawer"
-    class="md:hidden fixed top-0 left-0 h-screen w-72 bg-white z-[70] flex flex-col shadow-2xl">
+<div id="mobile-drawer" class="md:hidden fixed top-0 left-0 h-screen w-72 bg-white z-[70] flex flex-col shadow-2xl">
 
     <!-- Drawer Header -->
     <div class="flex items-center justify-between px-4 py-4 border-b border-gray-100">
@@ -461,7 +612,8 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                 <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
                     <i class="fa-sharp fa-solid fa-user-tie text-black text-sm"></i>
                 </div>
-                <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 <?= $isOnline ? 'bg-green-400' : 'bg-gray-300' ?> border-2 border-white rounded-full"></span>
+                <span
+                    class="absolute -bottom-0.5 -right-0.5 w-3 h-3 <?= $isOnline ? 'bg-green-400' : 'bg-gray-300' ?> border-2 border-white rounded-full"></span>
             </div>
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-gray-800 truncate">
@@ -469,7 +621,8 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                 </p>
                 <p class="text-[11px] text-gray-400">
                     <?= isset($_SESSION['position']) ? htmlspecialchars(ucfirst($_SESSION['position'])) : '' ?>
-                    <span class="ml-1.5 inline-flex items-center gap-1 <?= $isOnline ? 'text-green-500' : 'text-gray-400' ?>">
+                    <span
+                        class="ml-1.5 inline-flex items-center gap-1 <?= $isOnline ? 'text-green-500' : 'text-gray-400' ?>">
                         <span class="w-1.5 h-1.5 rounded-full <?= $isOnline ? 'bg-green-400' : 'bg-gray-300' ?>"></span>
                         <?= $isOnline ? 'Online' : 'Away' ?>
                     </span>
@@ -496,9 +649,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                 <i class="fa-solid fa-bullhorn w-4 text-center text-sm flex-shrink-0"></i>
                 General Announce
             </a>
-        <?php endif; ?>
 
-        <?php if ($role === ROLE_ACCOUNTING): ?>
             <?php if ($isHead): ?>
                 <a href="<?= BASE_URL ?>/accountinggraph" onclick="closeMobileDrawer()"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all <?= isActive('/accountinggraph') ?>">
@@ -516,6 +667,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                     Petty Cash
                 </a>
             <?php endif; ?>
+
             <?php if ($isStaff): ?>
                 <a href="<?= BASE_URL ?>/accountingstaffdashboard" onclick="closeMobileDrawer()"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all <?= isActive('/accountingstaffdashboard') ?>">
@@ -528,6 +680,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                     Acknowledge Request
                 </a>
             <?php endif; ?>
+
             <?php if ($isCustodian): ?>
                 <a href="<?= BASE_URL ?>/accountingcustodiandashboard" onclick="closeMobileDrawer()"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all <?= isActive('/accountingcustodiandashboard') ?>">
@@ -565,6 +718,22 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
                 class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all <?= isActive('/informationtech') ?>">
                 <i class="fa-sharp fa-solid fa-chart-bar w-4 text-center text-sm flex-shrink-0"></i>
                 Dashboard
+            </a>
+        <?php endif; ?>
+
+        <?php if (in_array($role, [ROLE_SALES])): ?>
+            <?php if ($isMainBranch): ?>
+                <a href="<?= BASE_URL ?>/salesmarket" onclick="closeMobileDrawer()"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all <?= isActive('/salesmarket') ?>">
+                    <i class="fa-solid fa-chart-line w-4 text-center text-sm flex-shrink-0"></i>
+                    Budget Request list
+                </a>
+            <?php endif; ?>
+
+            <a href="<?= BASE_URL ?>/crm-main" onclick="closeMobileDrawer()"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all <?= isActive('/crm-main') ?>">
+                <i class="fa-solid fa-chart-line w-4 text-center text-sm flex-shrink-0"></i>
+                CRM Main
             </a>
         <?php endif; ?>
 
@@ -675,7 +844,8 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
     <div class="flex items-center justify-between px-4 py-2 border-b border-gray-100 bg-gray-50">
         <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Recent</span>
         <button onclick="sidebarMarkAllRead()"
-            class="text-[10px] text-orange-500 hover:text-orange-600 font-semibold transition-colors">Mark all read</button>
+            class="text-[10px] text-orange-500 hover:text-orange-600 font-semibold transition-colors">Mark all
+            read</button>
     </div>
 
     <div id="sidebar-notif-list" class="overflow-y-auto divide-y divide-gray-100"
@@ -826,6 +996,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
         }
     }
 
+
     function sidebarFetchNotifications() {
         fetch('<?= BASE_URL ?>/fetchnotifications')
             .then(res => res.json())
@@ -858,6 +1029,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
 
                 list.innerHTML = data.map(n => {
                     const isPing = n.message.includes('');
+                    const typeLabel = sidebarNotifTypeLabel(n.type);
                     let message = n.message;
                     if (n.control_no) {
                         message = message.replace(n.control_no,
@@ -869,11 +1041,11 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
      class="flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-gray-50 ${n.is_read == 0
                             ? (isPing ? 'bg-red-50 border-l-[3px] border-red-400' : 'bg-orange-50 border-l-[3px] border-orange-400')
                             : 'border-l-[3px] border-transparent'}">
-    <div class="w-8 h-8 rounded-full ${n.is_read == 0 ? (isPing ? 'bg-red-100' : 'bg-orange-100') : 'bg-gray-100'} flex items-center justify-center shrink-0 mt-0.5">
-        <i class="fa-solid ${isPing ? 'fa-bell' : 'fa-file-invoice'} ${n.is_read == 0 ? (isPing ? 'text-red-500' : 'text-orange-500') : 'text-gray-400'} text-xs"></i>
-    </div>
     <div class="flex-1 min-w-0">
-        <p class="text-xs font-semibold ${n.is_read == 0 ? 'text-gray-900' : 'text-gray-700'}">${n.control_no ?? ''}</p>
+        <div class="flex items-center justify-between gap-2">
+            <p class="text-xs font-semibold ${n.is_read == 0 ? 'text-gray-900' : 'text-gray-700'}">${n.control_no ?? ''}</p>
+            ${typeLabel ? `<span class="shrink-0 text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${typeLabel === 'CRM' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}">${typeLabel}</span>` : ''}
+        </div>
         ${n.sender_name ? `<p class="text-[10px] ${isPing ? 'text-red-400' : 'text-orange-400'} font-medium mt-0.5">${n.sender_name}</p>` : ''}
         <p class="text-[11px] ${n.is_read == 0 ? 'text-gray-600' : 'text-gray-400'} leading-snug mt-0.5">${message}</p>
         <p class="text-[10px] text-gray-400 mt-1">${sidebarTimeAgo(n.created_at)}</p>
@@ -885,6 +1057,12 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
             .catch(err => console.error('Notif error:', err));
     }
 
+    function sidebarNotifTypeLabel(type) {
+        if (type === 'crm_inquiry' || type === 'crm_2dquotation') return 'CRM';
+        if (type === 'budget') return 'Budget';
+        return null;
+    }
+
     function sidebarClickNotif(id, link, requestId, requestDate) {
         console.log('link:', link, 'requestId:', requestId);
         fetch('<?= BASE_URL ?>/marknotificationsread', {
@@ -893,7 +1071,8 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
             body: JSON.stringify({ id })
         }).then(() => {
             if (link) {
-                let url = '<?= BASE_URL ?>' + link + '?highlight=' + requestId;
+                const separator = link.includes('?') ? '&' : '?';
+                let url = '<?= BASE_URL ?>' + link + separator + 'highlight=' + requestId;
                 if (requestDate) url += '&date=' + requestDate;
                 window.location.href = url;
             } else {
@@ -931,7 +1110,7 @@ $isOnline = $onlineRow && $onlineRow['last_active'] &&
             gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
             osc.start(ctx.currentTime);
             osc.stop(ctx.currentTime + 0.3);
-        } catch (e) {}
+        } catch (e) { }
     }
 
     sidebarFetchNotifications();

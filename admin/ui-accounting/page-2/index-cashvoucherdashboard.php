@@ -953,22 +953,22 @@ $position = $_SESSION['position'] ?? '';
         let previousCount = 0;
 
         function fetchVouchers() {
-    fetch('<?= BASE_URL ?>/cashvoucherfetchall')
-        .then(res => res.json())
-        .then(data => {
-            allData = data;  // tanggalin ang previousCount check
-            const q = document.getElementById('search-input').value.toLowerCase();
-            const filtered = q ? allData.filter(row =>
-                row.control_no?.toLowerCase().includes(q) ||
-                row.voucher_title?.toLowerCase().includes(q) ||
-                row.voucher_payee?.toLowerCase().includes(q) ||
-                row.purpose?.toLowerCase().includes(q)
-            ) : allData;
-            renderTable(filtered, q);
-            document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH');
-        })
-        .catch(err => console.error('Fetch error:', err));
-}
+            fetch('<?= BASE_URL ?>/cashvoucherfetchall')
+                .then(res => res.json())
+                .then(data => {
+                    allData = data;  // tanggalin ang previousCount check
+                    const q = document.getElementById('search-input').value.toLowerCase();
+                    const filtered = q ? allData.filter(row =>
+                        row.control_no?.toLowerCase().includes(q) ||
+                        row.voucher_title?.toLowerCase().includes(q) ||
+                        row.voucher_payee?.toLowerCase().includes(q) ||
+                        row.purpose?.toLowerCase().includes(q)
+                    ) : allData;
+                    renderTable(filtered, q);
+                    document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH');
+                })
+                .catch(err => console.error('Fetch error:', err));
+        }
 
         document.getElementById('search-input').addEventListener('input', function () {
             const q = this.value.toLowerCase();

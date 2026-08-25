@@ -1,10 +1,12 @@
 <?php
-// index-graphic-main.php
+// index-designer-main.php
+
+
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
 include ROOT_PATH . '/admin/authentication/index-roles.php';
 
-$allowedRoles = [ROLE_GRAPHIC];
+$allowedRoles = [ROLE_DESIGNER];
 include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
 

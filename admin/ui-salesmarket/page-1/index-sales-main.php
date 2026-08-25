@@ -1,12 +1,15 @@
 <?php
-// index-graphic-main.php
+// salesmarket.php
+
 include ROOT_PATH . '/network/connect.php';
-include ROOT_PATH . '/admin/authentication/index-authguard.php';
 include ROOT_PATH . '/admin/authentication/index-roles.php';
 
-$allowedRoles = [ROLE_GRAPHIC];
-include ROOT_PATH . '/admin/authentication/index-roleguard.php';
+$mainBranchOnly = true; // KAILANGAN NAKA-SET BAGO I-INCLUDE ANG AUTHGUARD
 
+include ROOT_PATH . '/admin/authentication/index-authguard.php';
+
+$allowedRoles = [ROLE_SALES];
+include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
 ?>
 <!DOCTYPE html>
@@ -15,7 +18,7 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graphic Design Dashboard</title>
+    <title>Sales & Market Dashboard</title>
     <?php include ROOT_PATH . '/link/top.php'; ?>
     <?php include ROOT_PATH . '/admin/navigation/sidebar.php'; ?>
 </head>
