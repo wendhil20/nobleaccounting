@@ -194,6 +194,13 @@ $adminRoutes = [
     // super admin backend page 1
     'check2dquotationajax',
 
+    // super admin page 2
+    'monitoring',
+    'monitoringcrmview',
+
+    // super admin backend page 2
+    'monitoringcrmajax',
+
     
     'unauthorized',                    
     'fetchrequests',                   
@@ -222,6 +229,7 @@ $adminRoutes = [
 
     // crm management page 3
     'crmdesignerajax',
+
     // crm management sub page 3
     'crmsitevisit',     
     'crm2dquotation',
@@ -396,6 +404,16 @@ $routes = [
 
     // super admin backend page 1
     'check2dquotationajax'             => 'admin/ui-superad/backend/page-1/check2dquotationajax.php',
+
+    // super admin page 2
+    'monitoring'                       => 'admin/ui-superad/page-2/monitoringcrm.php',
+    'monitoringcrmview'                => 'admin/ui-superad/page-2/monitoringcrmview.php',
+    
+
+    // super admin backend page 2
+    'monitoringcrmajax'                => 'admin/ui-superad/backend/page-2/monitoringcrmajax.php',
+  
+
 
     'unauthorized'                     => 'admin/authentication/index-unauthorized.php',
     'fetchrequests'                    => 'admin/requestcentral/fetch-requests.php',

@@ -13,6 +13,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 $svError = '';
 $svSuccess = false;
 $currentDesignerId = intval($_SESSION['account_id'] ?? 0);
+// NOTE: adjust this to whatever session key actually holds the designer's display name.
+$currentDesignerName = $_SESSION['account_name'] ?? $_SESSION['fullname'] ?? ('Designer #' . $currentDesignerId);
 
 $inquiryId = intval($_GET['id'] ?? $_POST['inquiry_id'] ?? 0);
 
@@ -21,7 +23,7 @@ if ($inquiryId <= 0) {
 } else {
     // Fetch the inquiry, making sure it belongs to the logged-in designer
     $stmt = $conn->prepare("
-        SELECT id, control_no, client_name, address, contact_number, status
+        SELECT id, control_no, client_name, address, contact_number, status, deadline
         FROM noblecrminquiry
         WHERE id = ? AND designer_id = ?
         LIMIT 1
@@ -53,6 +55,22 @@ if (empty($svError) && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['su
     $visitAddress = trim($_POST['visit_address'] ?? '');
     $visitDatetime = trim($_POST['visit_datetime'] ?? '');
     $visited = trim($_POST['visited'] ?? '');
+    $measurements = trim($_POST['measurements'] ?? '');
+    $siteConditions = trim($_POST['site_conditions'] ?? '');
+    $clientRequirements = trim($_POST['client_requirements'] ?? '');
+    $existingStructure = trim($_POST['existing_structure'] ?? '');
+
+    // Deadline for 2D & Quotation, set alongside the site visit record.
+    // Stored on the parent inquiry row (not per-visit) since only one
+    // deadline should be "active" per inquiry at a time.
+    $deadlineRaw = trim($_POST['deadline'] ?? '');
+    $deadline = null;
+    if ($deadlineRaw !== '') {
+        $d = DateTime::createFromFormat('Y-m-d', $deadlineRaw);
+        if ($d && $d->format('Y-m-d') === $deadlineRaw) {
+            $deadline = $deadlineRaw;
+        }
+    }
 
     if (empty($visitAddress) || empty($visitDatetime) || !in_array($visited, ['yes', 'no'], true)) {
         $svError = 'Please fill out all required fields.';
@@ -133,28 +151,34 @@ if (empty($svError) && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['su
 
         $stmt = $conn->prepare("
             INSERT INTO noblecrm_sitevisit
-                (inquiry_id, designer_id, address, visit_datetime, visited, photos, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, NOW())
+                (inquiry_id, designer_id, address, visit_datetime, visited, photos,
+                 measurements, site_conditions, client_requirements, existing_structure, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
         $stmt->bind_param(
-            "iissss",
+            "iissssssss",
             $inquiryId,
             $currentDesignerId,
             $visitAddress,
             $visitDatetime,
             $visited,
-            $photosCsv
+            $photosCsv,
+            $measurements,
+            $siteConditions,
+            $clientRequirements,
+            $existingStructure
         );
 
         if ($stmt->execute()) {
             $stmt->close();
 
-            // Mark the original inquiry as In Progress now that it has proceeded
+            // Mark the original inquiry as In Progress now that it has proceeded,
+            // and save the deadline for 2D & Quotation on the inquiry itself.
             $updateStmt = $conn->prepare("
-                UPDATE noblecrminquiry SET status = 'In Progress'
+                UPDATE noblecrminquiry SET status = 'In Progress', deadline = ?
                 WHERE id = ? AND designer_id = ?
             ");
-            $updateStmt->bind_param("ii", $inquiryId, $currentDesignerId);
+            $updateStmt->bind_param("sii", $deadline, $inquiryId, $currentDesignerId);
             $updateStmt->execute();
             $updateStmt->close();
 
@@ -177,7 +201,8 @@ if (!empty($_SESSION['sv_flash_success'])) {
 $svHistory = [];
 if (empty($svError) && $inquiryId > 0) {
     $histStmt = $conn->prepare("
-        SELECT id, address, visit_datetime, visited, photos, created_at
+        SELECT id, address, visit_datetime, visited, photos,
+               measurements, site_conditions, client_requirements, existing_structure, created_at
         FROM noblecrm_sitevisit
         WHERE inquiry_id = ? AND designer_id = ?
         ORDER BY created_at DESC
@@ -200,298 +225,396 @@ $crmDesignerListUrl = BASE_URL . '/crmdesigner';
     <title>Site Visit Record</title>
     <?php include ROOT_PATH . '/link/top.php'; ?>
     <?php include ROOT_PATH . '/admin/navigation/sidebar.php'; ?>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .sv-scope { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+        .sv-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; box-shadow: 0 1px 2px rgba(16,24,40,0.04); }
+        .sv-field { width: 100%; border: 1px solid #D1D5DB; border-radius: 8px; padding: 0.55rem 0.75rem; font-size: 14px; color: #111827; background: #fff; }
+        .sv-field:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+        .sv-field::placeholder { color: #9CA3AF; }
+        .sv-field-sm { padding: 0.4rem 0.6rem; font-size: 13px; }
+    </style>
 </head>
 
 <body class="bg-gray-50 font-['Barlow_Condensed']">
-    <main class="ml-56 min-h-screen p-6">
+    <main class="ml-56 min-h-screen p-7 sv-scope bg-[#F5F6FA]">
 
-        <div class="max-w-4xl mx-auto">
+        <div class="max-w-6xl mx-auto">
 
-            <!-- Document Sheet -->
-            <div class="bg-white border border-gray-300 shadow-sm">
+            <!-- Page header -->
+            <div class="flex items-start justify-between gap-4 mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Site Visit Record</h1>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Track site visit status, notes, and photos for this inquiry.
+                        <?php if (!empty($inquiry['control_no'])): ?>
+                            &nbsp;·&nbsp;Ref. <?= htmlspecialchars($inquiry['control_no']) ?>
+                        <?php endif; ?>
+                    </p>
+                </div>
+                <a href="<?= htmlspecialchars($crmDesignerListUrl) ?>"
+                    class="shrink-0 inline-flex items-center gap-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 transition-colors">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to assigned list
+                </a>
+            </div>
 
-                <!-- Letterhead -->
-                <div class="border-b-2 border-gray-800 px-7 pt-6 pb-5 flex items-start justify-between font-semibold">
-                    <div>
-                        <p class="text-[10px] tracking-[0.2em] uppercase text-gray-500 mb-1">Client Relationship Management</p>
-                        <h1 class="text-xl font-bold text-gray-900 tracking-wide">Site Visit Record</h1>
+            <?php if (!empty($svError)): ?>
+                <div class="sv-card px-5 py-4 flex items-start gap-3 border-red-200 bg-red-50">
+                    <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
+                    <p class="text-sm text-red-800"><?= htmlspecialchars($svError) ?></p>
+                </div>
+            <?php endif; ?>
+
+            <?php if (empty($svError) && $inquiry): ?>
+
+                <?php $svAlreadyDone = !empty($svHistory); ?>
+
+                <!-- Info cards row -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+
+                    <div class="sv-card p-4">
+                        <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-0.5">Client</p>
+                        <p class="text-sm font-semibold text-gray-900 truncate"><?= htmlspecialchars($inquiry['client_name']) ?></p>
                     </div>
-                    <a href="<?= htmlspecialchars($crmDesignerListUrl) ?>"
-                        class="text-xs font-medium text-gray-600 px-3 py-1.5 hover:bg-gray-100 transition-colors">
-                         Back to Assigned List
-                    </a>
+
+                    <div class="sv-card p-4">
+                        <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
+                           <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-0.5">Status</p>
+                        <p class="text-sm font-semibold text-gray-900 truncate"><?= htmlspecialchars($inquiry['status']) ?></p>
+                    </div>
+
+                    <div class="sv-card p-4">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-0.5">Contact no.</p>
+                        <p class="text-sm font-semibold text-gray-900 truncate"><?= htmlspecialchars($inquiry['contact_number']) ?></p>
+                    </div>
+
+                    <div class="sv-card p-4">
+                        <div class="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-pen-ruler"></i>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-0.5">Assigned designer</p>
+                        <p class="text-sm font-semibold text-gray-900 truncate"><?= htmlspecialchars($currentDesignerName) ?></p>
+                    </div>
+
                 </div>
 
-                <div class="px-7 py-6 text-sm">
+                <!-- Registered address strip -->
+                <div class="sv-card px-5 py-3.5 mb-6 flex items-center gap-3">
+                    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                    </svg>
+                    <p class="text-sm text-gray-700"><?= htmlspecialchars($inquiry['address']) ?></p>
+                </div>
 
-                    <?php if (!empty($svError)): ?>
-                        <div class="border border-gray-400 bg-gray-50 text-gray-800 text-sm px-4 py-2.5 mb-5">
-                            <strong class="uppercase text-[11px] tracking-wide">Notice:</strong>
-                            <?= htmlspecialchars($svError) ?>
-                        </div>
-                    <?php endif; ?>
+                <?php if (!empty($inquiry['deadline'])): ?>
+                    <?php
+                        $deadlineTs = strtotime($inquiry['deadline']);
+                        $isOverdue = $deadlineTs < strtotime('today') && $inquiry['status'] !== 'Approved';
+                    ?>
+                    <div class="sv-card px-5 py-3.5 mb-6 flex items-center gap-3 <?= $isOverdue ? 'bg-red-50 border-red-100' : '' ?>">
+                        <svg class="w-4 h-4 shrink-0 <?= $isOverdue ? 'text-red-500' : 'text-gray-400' ?>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                        </svg>
+                        <p class="text-sm <?= $isOverdue ? 'text-red-700 font-medium' : 'text-gray-700' ?>">
+                            Deadline for 2D &amp; Quotation:
+                            <?= htmlspecialchars(date('F d, Y', $deadlineTs)) ?>
+                            <?= $isOverdue ? ' — overdue' : '' ?>
+                        </p>
+                    </div>
+                <?php endif; ?>
 
-                    <?php if (empty($svError) && $inquiry): ?>
+                <?php if ($svAlreadyDone): ?>
 
-                        <?php $svAlreadyDone = !empty($svHistory); ?>
+                    <?php $latestVisit = $svHistory[0]; ?>
+                    <?php $latestPhotos = array_filter(explode(',', $latestVisit['photos'] ?? '')); ?>
+                    <?php $latestVisited = $latestVisit['visited'] === 'yes'; ?>
 
-                        <!-- Inquiry Summary -->
-                        <table class="w-full border border-gray-300 text-sm mb-6">
-                            <tbody>
-                                <tr class="border-b border-gray-200">
-                                    <td class="w-32 bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-gray-200">
-                                        Control No.
-                                    </td>
-                                    <td class="px-4 py-2.5 font-semibold text-gray-900">
-                                        <?= htmlspecialchars($inquiry['control_no']) ?>
-                                    </td>
-                                    <td class="w-28 bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-l border-gray-200">
-                                        Status
-                                    </td>
-                                    <td class="px-4 py-2.5 text-gray-900">
-                                        <?= htmlspecialchars($inquiry['status']) ?>
-                                    </td>
-                                </tr>
-                                <tr class="border-b border-gray-200">
-                                    <td class="bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-gray-200">
-                                        Client Name
-                                    </td>
-                                    <td class="px-4 py-2.5 text-gray-900">
-                                        <?= htmlspecialchars($inquiry['client_name']) ?>
-                                    </td>
-                                    <td class="bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-l border-gray-200">
-                                        Contact No.
-                                    </td>
-                                    <td class="px-4 py-2.5 text-gray-900">
-                                        <?= htmlspecialchars($inquiry['contact_number']) ?>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-gray-200 align-top">
-                                        Registered Address
-                                    </td>
-                                    <td class="px-4 py-2.5 text-gray-900" colspan="3">
-                                        <?= htmlspecialchars($inquiry['address']) ?>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="grid lg:grid-cols-3 gap-6">
 
-                        <?php if ($svAlreadyDone): ?>
+                        <!-- Left column -->
+                        <div class="lg:col-span-2 space-y-6">
 
-                            <?php $latestVisit = $svHistory[0]; ?>
-                            <?php $latestPhotos = array_filter(explode(',', $latestVisit['photos'] ?? '')); ?>
-                            <?php $latestVisited = $latestVisit['visited'] === 'yes'; ?>
-
-                            <!-- Status line -->
-                            <div class="flex items-center gap-2 border-l-4 border-gray-800 bg-gray-50 px-4 py-2.5 mb-6">
-                                <p class="text-sm text-gray-800">
-                                    <strong class="uppercase tracking-wide text-[11px]">Recorded:</strong>
-                                    A site visit has been logged for this inquiry.
-                                </p>
+                            <!-- Visit details -->
+                            <div class="sv-card p-5">
+                                <h2 class="text-sm font-semibold text-gray-900 mb-4">Visit details</h2>
+                                <div class="divide-y divide-gray-100">
+                                    <div class="grid grid-cols-[160px_1fr] gap-4 py-2.5 text-sm">
+                                        <p class="text-gray-500">Address visited</p>
+                                        <p class="text-gray-900"><?= htmlspecialchars($latestVisit['address']) ?></p>
+                                    </div>
+                                    <div class="grid grid-cols-[160px_1fr] gap-4 py-2.5 text-sm">
+                                        <p class="text-gray-500">Date &amp; time</p>
+                                        <p class="text-gray-900"><?= htmlspecialchars(date('F d, Y — g:i A', strtotime($latestVisit['visit_datetime']))) ?></p>
+                                    </div>
+                                    <div class="grid grid-cols-[160px_1fr] gap-4 py-2.5 text-sm items-center">
+                                        <p class="text-gray-500">Visited</p>
+                                        <span class="inline-flex w-fit items-center text-xs font-medium px-2.5 py-1 rounded-full <?= $latestVisited ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600' ?>">
+                                            <?= $latestVisited ? 'Yes — proceed to 2D & Quotation' : 'No — not visited' ?>
+                                        </span>
+                                    </div>
+                                    <?php if (!empty($inquiry['deadline'])): ?>
+                                        <div class="grid grid-cols-[160px_1fr] gap-4 py-2.5 text-sm">
+                                            <p class="text-gray-500">Deadline (2D &amp; Quotation)</p>
+                                            <p class="text-gray-900"><?= htmlspecialchars(date('F d, Y', strtotime($inquiry['deadline']))) ?></p>
+                                        </div>
+                                    <?php endif; ?>
+                                    <div class="grid grid-cols-[160px_1fr] gap-4 py-2.5 text-sm">
+                                        <p class="text-gray-500">Logged on</p>
+                                        <p class="text-gray-500"><?= htmlspecialchars(date('F d, Y / g:i A', strtotime($latestVisit['created_at']))) ?></p>
+                                    </div>
+                                </div>
                             </div>
 
-                            <h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 border-b border-gray-300 pb-2 mb-4 font-semibold">
-                                Latest Visit Details
-                            </h2>
-
-                            <table class="w-full border border-gray-300 text-sm mb-6">
-                                <tbody>
-                                    <tr class="border-b border-gray-200">
-                                        <td class="w-40 bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-gray-200">
-                                            Address Visited
-                                        </td>
-                                        <td class="px-4 py-2.5 text-gray-900">
-                                            <?= htmlspecialchars($latestVisit['address']) ?>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b border-gray-200">
-                                        <td class="bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-gray-200">
-                                            Date &amp; Time of Visit
-                                        </td>
-                                        <td class="px-4 py-2.5 text-gray-900">
-                                            <?= htmlspecialchars(date('F d, Y — g:i A', strtotime($latestVisit['visit_datetime']))) ?>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b border-gray-200">
-                                        <td class="bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-gray-200">
-                                            Visit Confirmed
-                                        </td>
-                                        <td class="px-4 py-2.5">
-                                            <span class="inline-block text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 border <?= $latestVisited ? 'border-green-800 text-green-800' : 'border-gray-400 text-gray-600' ?>">
-                                                <?= $latestVisited ? 'Yes — Visited / Proceed to 2D and Quotation' : 'No — Not Visited' ?>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-gray-200">
-                                            Logged On
-                                        </td>
-                                        <td class="px-4 py-2.5 text-gray-600 text-xs">
-                                            <?= htmlspecialchars(date('F d, Y / g:i A', strtotime($latestVisit['created_at']))) ?>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <!-- Photos -->
-                            <h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 border-b border-gray-300 pb-2 mb-4 font-semibold">
-                                Attached Photographs
-                                <?php if (!empty($latestPhotos)): ?>
-                                    <span class="text-gray-400 normal-case">(<?= count($latestPhotos) ?> file<?= count($latestPhotos) === 1 ? '' : 's' ?>)</span>
-                                <?php endif; ?>
-                            </h2>
-
-                            <?php if (empty($latestPhotos)): ?>
-                                <p class="text-sm text-gray-500 italic mb-6">No photographs were submitted for this visit.</p>
-                            <?php else: ?>
-                                <div class="grid grid-cols-4 sm:grid-cols-6 gap-2.5 mb-6">
-                                    <?php foreach ($latestPhotos as $photoPath): ?>
-                                        <a href="<?= htmlspecialchars(BASE_URL . '/' . $photoPath) ?>" target="_blank"
-                                            class="block aspect-square w-24 border border-gray-300 overflow-hidden hover:border-gray-800 transition-colors">
-                                            <img src="<?= htmlspecialchars(BASE_URL . '/' . $photoPath) ?>"
-                                                class="w-full h-full object-cover">
-                                        </a>
-                                    <?php endforeach; ?>
+                            <!-- Site notes -->
+                            <div class="sv-card p-5">
+                                <h2 class="text-sm font-semibold text-gray-900 mb-4">Site notes</h2>
+                                <div class="grid sm:grid-cols-2 gap-5">
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500 mb-1">Measurements</p>
+                                        <p class="text-sm text-gray-800 whitespace-pre-line">
+                                            <?= !empty($latestVisit['measurements']) ? nl2br(htmlspecialchars($latestVisit['measurements'])) : '<span class="text-gray-400 italic">None provided</span>' ?>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500 mb-1">Site conditions</p>
+                                        <p class="text-sm text-gray-800 whitespace-pre-line">
+                                            <?= !empty($latestVisit['site_conditions']) ? nl2br(htmlspecialchars($latestVisit['site_conditions'])) : '<span class="text-gray-400 italic">None provided</span>' ?>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500 mb-1">Client requirements</p>
+                                        <p class="text-sm text-gray-800 whitespace-pre-line">
+                                            <?= !empty($latestVisit['client_requirements']) ? nl2br(htmlspecialchars($latestVisit['client_requirements'])) : '<span class="text-gray-400 italic">None provided</span>' ?>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500 mb-1">Existing structure</p>
+                                        <p class="text-sm text-gray-800 whitespace-pre-line">
+                                            <?= !empty($latestVisit['existing_structure']) ? nl2br(htmlspecialchars($latestVisit['existing_structure'])) : '<span class="text-gray-400 italic">None provided</span>' ?>
+                                        </p>
+                                    </div>
                                 </div>
-                            <?php endif; ?>
+                            </div>
 
                             <!-- Prior entries -->
                             <?php if (count($svHistory) > 1): ?>
-                                <h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 border-b border-gray-300 pb-2 mb-4">
-                                    Prior Entries
-                                </h2>
-                                <table class="w-full border border-gray-300 text-sm mb-4">
-                                    <thead>
-                                        <tr class="bg-gray-50 text-[10px] uppercase tracking-wider text-gray-500">
-                                            <th class="text-left font-medium px-4 py-2 border-r border-b border-gray-200">Address</th>
-                                            <th class="text-left font-medium px-4 py-2 border-r border-b border-gray-200">Date</th>
-                                            <th class="text-left font-medium px-4 py-2 border-r border-b border-gray-200">Photos</th>
-                                            <th class="text-left font-medium px-4 py-2 border-b border-gray-200">Result</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach (array_slice($svHistory, 1) as $entry): ?>
-                                            <?php
-                                            $entryVisited = $entry['visited'] === 'yes';
-                                            $entryPhotos = array_filter(explode(',', $entry['photos'] ?? ''));
-                                            ?>
-                                            <tr class="border-b border-gray-200 last:border-b-0">
-                                                <td class="px-4 py-2 text-gray-800"><?= htmlspecialchars($entry['address']) ?></td>
-                                                <td class="px-4 py-2 text-gray-600 whitespace-nowrap">
-                                                    <?= htmlspecialchars(date('M d, Y g:i A', strtotime($entry['visit_datetime']))) ?>
-                                                </td>
-                                                <td class="px-4 py-2 text-gray-600">
-                                                    <?= count($entryPhotos) ?>
-                                                </td>
-                                                <td class="px-4 py-2">
-                                                    <span class="text-[11px] font-semibold uppercase tracking-wide <?= $entryVisited ? 'text-gray-900' : 'text-gray-500' ?>">
-                                                        <?= $entryVisited ? 'Visited' : 'Not Visited' ?>
-                                                    </span>
-                                                </td>
+                                <div class="sv-card p-5">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h2 class="text-sm font-semibold text-gray-900">Prior entries</h2>
+                                    </div>
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="text-left text-xs text-gray-500 border-b border-gray-100">
+                                                <th class="font-medium pb-2 pr-4">Address</th>
+                                                <th class="font-medium pb-2 pr-4">Date</th>
+                                                <th class="font-medium pb-2 pr-4">Photos</th>
+                                                <th class="font-medium pb-2">Result</th>
                                             </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100">
+                                            <?php foreach (array_slice($svHistory, 1) as $entry): ?>
+                                                <?php
+                                                $entryVisited = $entry['visited'] === 'yes';
+                                                $entryPhotos = array_filter(explode(',', $entry['photos'] ?? ''));
+                                                ?>
+                                                <tr>
+                                                    <td class="py-2.5 pr-4 text-gray-800"><?= htmlspecialchars($entry['address']) ?></td>
+                                                    <td class="py-2.5 pr-4 text-gray-500 whitespace-nowrap"><?= htmlspecialchars(date('M d, Y g:i A', strtotime($entry['visit_datetime']))) ?></td>
+                                                    <td class="py-2.5 pr-4 text-gray-500"><?= count($entryPhotos) ?></td>
+                                                    <td class="py-2.5">
+                                                        <span class="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full <?= $entryVisited ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600' ?>">
+                                                            <?= $entryVisited ? 'Visited' : 'Not visited' ?>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
                             <?php endif; ?>
 
-                        <?php else: ?>
+                        </div>
 
-                            <h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 border-b border-gray-300 pb-2 mb-4">
-                                No Prior Record
-                            </h2>
-                            <p class="text-sm text-gray-500 italic mb-6">No site visits have been recorded yet for this inquiry.</p>
+                        <!-- Right column -->
+                        <div class="space-y-6">
 
-                            <h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 border-b border-gray-300 pb-2 mb-4">
-                                Submit New Record
-                            </h2>
+                            <!-- Photos -->
+                            <div class="sv-card p-5">
+                                <h2 class="text-sm font-semibold text-gray-900 mb-4">
+                                    Photographs
+                                    <?php if (!empty($latestPhotos)): ?>
+                                        <span class="text-gray-400 font-normal">(<?= count($latestPhotos) ?>)</span>
+                                    <?php endif; ?>
+                                </h2>
+                                <?php if (empty($latestPhotos)): ?>
+                                    <p class="text-sm text-gray-400 italic">No photographs were submitted for this visit.</p>
+                                <?php else: ?>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <?php foreach ($latestPhotos as $photoPath): ?>
+                                            <a href="<?= htmlspecialchars(BASE_URL . '/' . $photoPath) ?>" target="_blank"
+                                                class="block aspect-square rounded-lg overflow-hidden border border-gray-200 hover:opacity-90 transition-opacity">
+                                                <img src="<?= htmlspecialchars(BASE_URL . '/' . $photoPath) ?>" class="w-full h-full object-cover">
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
 
-                            <!-- Site Visit Form -->
-                            <form method="POST" action="" enctype="multipart/form-data" class="space-y-5">
+                            <!-- Status alert -->
+                            <div class="sv-card p-5 <?= $latestVisited ? 'bg-emerald-50 border-emerald-100' : 'bg-amber-50 border-amber-100' ?>">
+                                <div class="flex items-start gap-3">
+                                    <svg class="w-5 h-5 shrink-0 mt-0.5 <?= $latestVisited ? 'text-emerald-600' : 'text-amber-600' ?>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <?php if ($latestVisited): ?>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        <?php else: ?>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                        <?php endif; ?>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">
+                                            <?= $latestVisited ? 'Ready to proceed' : 'Site not yet visited' ?>
+                                        </p>
+                                        <p class="text-sm text-gray-600 mt-0.5">
+                                            <?= $latestVisited
+                                                ? 'This inquiry can move forward to 2D layout and quotation.'
+                                                : 'Schedule a revisit so this inquiry can proceed.' ?>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
 
-                                <input type="hidden" name="inquiry_id" value="<?= (int) $inquiry['id'] ?>">
+                        </div>
 
+                    </div>
+
+                <?php else: ?>
+
+                    <div class="sv-card p-5 max-w-2xl">
+                        <h2 class="text-sm font-semibold text-gray-900 mb-0.5">New record</h2>
+                        <p class="text-xs text-gray-400 italic mb-4">No site visits have been recorded yet for this inquiry.</p>
+
+                        <!-- Site Visit Form -->
+                        <form method="POST" action="" enctype="multipart/form-data" class="space-y-3.5">
+
+                            <input type="hidden" name="inquiry_id" value="<?= (int) $inquiry['id'] ?>">
+
+                            <div class="grid sm:grid-cols-2 gap-3.5">
                                 <!-- Address -->
-                                <div>
-                                    <label class="block text-[11px] uppercase tracking-wide font-semibold text-gray-600 mb-1.5">
-                                        Address <span class="text-gray-400 normal-case">(required)</span>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">
+                                        Address <span class="text-red-500">*</span>
                                     </label>
-                                    <textarea name="visit_address" rows="2" required
-                                        class="w-full px-3 py-2 text-sm border border-gray-400 focus:outline-none focus:border-gray-800 bg-white"
+                                    <textarea name="visit_address" rows="1" required
+                                        class="sv-field sv-field-sm"
                                         placeholder="Site visit address"><?= htmlspecialchars($inquiry['address']) ?></textarea>
                                 </div>
 
                                 <!-- Date and Time -->
                                 <div>
-                                    <label class="block text-[11px] uppercase tracking-wide font-semibold text-gray-600 mb-1.5">
-                                        Date &amp; Time of Visit <span class="text-gray-400 normal-case">(required)</span>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">
+                                        Date &amp; time of visit <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="datetime-local" name="visit_datetime" required
-                                        class="w-full px-3 py-2 text-sm border border-gray-400 focus:outline-none focus:border-gray-800 bg-white">
+                                    <input type="datetime-local" name="visit_datetime" required class="sv-field sv-field-sm">
                                 </div>
 
                                 <!-- Visit Yes / No -->
                                 <div>
-                                    <label class="block text-[11px] uppercase tracking-wide font-semibold text-gray-600 mb-1.5">
-                                        Did the site visit happen? <span class="text-gray-400 normal-case">(required)</span>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">
+                                        Did the site visit happen? <span class="text-red-500">*</span>
                                     </label>
-                                    <div class="flex gap-2.5">
-                                        <label class="flex-1 cursor-pointer">
+                                    <div class="inline-flex rounded-lg border border-gray-300 overflow-hidden h-[34px]">
+                                        <label class="cursor-pointer">
                                             <input type="radio" name="visited" value="yes" class="peer sr-only" required>
-                                            <div class="text-center px-4 py-2 text-sm font-medium border border-gray-400 text-gray-600 peer-checked:border-gray-900 peer-checked:bg-gray-900 peer-checked:text-white transition-colors">
-                                                Yes
-                                            </div>
+                                            <span class="flex items-center h-[32px] px-4 text-xs text-gray-600 peer-checked:bg-blue-600 peer-checked:text-white transition-colors">Yes</span>
                                         </label>
-                                        <label class="flex-1 cursor-pointer">
+                                        <label class="cursor-pointer border-l border-gray-300">
                                             <input type="radio" name="visited" value="no" class="peer sr-only" required>
-                                            <div class="text-center px-4 py-2 text-sm font-medium border border-gray-400 text-gray-600 peer-checked:border-gray-900 peer-checked:bg-gray-900 peer-checked:text-white transition-colors">
-                                                No
-                                            </div>
+                                            <span class="flex items-center h-[32px] px-4 text-xs text-gray-600 peer-checked:bg-blue-600 peer-checked:text-white transition-colors">No</span>
                                         </label>
                                     </div>
                                 </div>
 
-                                <!-- Upload Picture -->
+                                <!-- Deadline for 2D & Quotation -->
                                 <div>
-                                    <label class="block text-[11px] uppercase tracking-wide font-semibold text-gray-600 mb-1.5">
-                                        Attach Photograph(s) <span class="text-gray-400 normal-case">(optional)</span>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">
+                                        Deadline for 2D &amp; Quotation
                                     </label>
-                                    <label for="sv_photos"
-                                        class="flex flex-col items-center justify-center gap-1.5 border-2 border-dashed border-gray-400 py-5 cursor-pointer hover:border-gray-800 hover:bg-gray-50 transition-colors">
-                                        <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <span class="text-sm text-gray-600">Click to upload photographs</span>
-                                        <span class="text-[11px] text-gray-400">JPG, PNG, or WEBP</span>
-                                    </label>
-                                    <input id="sv_photos" type="file" name="photos[]" accept="image/*" multiple class="hidden">
-                                    <div id="sv_photo_preview" class="mt-2.5 grid grid-cols-4 sm:grid-cols-6 gap-2"></div>
+                                    <input type="date" name="deadline" class="sv-field sv-field-sm"
+                                        min="<?= htmlspecialchars(date('Y-m-d')) ?>">
                                 </div>
 
-                                <div class="pt-3 border-t border-gray-200 flex justify-end">
-                                    <button type="submit" name="submit_sitevisit"
-                                        class="px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white bg-gray-900 hover:bg-gray-700 transition-colors">
-                                        Save Record
-                                    </button>
+                                <!-- Measurements -->
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Measurements</label>
+                                    <input type="text" name="measurements" class="sv-field sv-field-sm"
+                                        placeholder="Lot dimensions, floor area, ceiling height, etc.">
                                 </div>
-                            </form>
 
-                        <?php endif; ?>
+                                <!-- Site Conditions / Notes -->
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Site conditions / notes</label>
+                                    <textarea name="site_conditions" rows="2" class="sv-field sv-field-sm"
+                                        placeholder="Terrain, access, utilities, hazards..."></textarea>
+                                </div>
 
-                    <?php endif; ?>
+                                <!-- Client Requirements -->
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Client requirements</label>
+                                    <textarea name="client_requirements" rows="2" class="sv-field sv-field-sm"
+                                        placeholder="Preferences, budget notes, must-haves..."></textarea>
+                                </div>
 
-                </div>
-                <!-- /body padding -->
+                                <!-- Existing Structure Information -->
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Existing structure information</label>
+                                    <textarea name="existing_structure" rows="2" class="sv-field sv-field-sm"
+                                        placeholder="Age, condition, materials, any structures already on site..."></textarea>
+                                </div>
+                            </div>
 
-                <!-- Footer -->
-                <div class="border-t border-gray-300 px-7 py-3 text-[11px] text-gray-400 flex justify-between">
-                    <span>Generated on <?= date('F d, Y g:i A') ?></span>
-                    <span>Site Visit Record</span>
-                </div>
+                            <!-- Upload Picture -->
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Attach photograph(s)</label>
+                                <label for="sv_photos"
+                                    class="flex items-center gap-2 border border-dashed border-gray-300 rounded-lg px-3 py-2 cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors w-fit">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <span class="text-xs text-gray-600">Upload photographs (JPG, PNG, WEBP)</span>
+                                </label>
+                                <input id="sv_photos" type="file" name="photos[]" accept="image/*" multiple class="hidden">
+                                <div id="sv_photo_preview" class="mt-2 grid grid-cols-6 sm:grid-cols-8 gap-1.5"></div>
+                            </div>
 
-            </div>
-            <!-- /Document Sheet -->
+                            <div class="pt-1 flex justify-end">
+                                <button type="submit" name="submit_sitevisit"
+                                    class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                                    Save record
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                <?php endif; ?>
+
+            <?php endif; ?>
 
         </div>
 
@@ -504,17 +627,16 @@ $crmDesignerListUrl = BASE_URL . '/crmdesigner';
             function crmShowToast(message, type = 'success', duration = 4000) {
                 const container = document.getElementById('crmToastContainer');
                 const palette = type === 'success'
-                    ? { wrap: 'bg-white border-gray-800 text-gray-800', icon: 'bg-gray-800 text-white', symbol: '✓' }
-                    : { wrap: 'bg-white border-gray-400 text-gray-800', icon: 'bg-gray-400 text-white', symbol: '!' };
+                    ? { icon: 'bg-emerald-500', symbol: '✓' }
+                    : { icon: 'bg-amber-500', symbol: '!' };
 
                 const toast = document.createElement('div');
-                toast.className = `pointer-events-auto flex items-start gap-2.5 border rounded-none shadow-lg px-4 py-3 text-sm
-            ${palette.wrap}
+                toast.className = `pointer-events-auto flex items-start gap-2.5 bg-white border border-gray-200 rounded-xl shadow-lg px-4 py-3 text-sm text-gray-800
             translate-x-6 opacity-0 scale-95 transition-all duration-300 ease-out`;
                 toast.innerHTML = `
-            <span class="shrink-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold ${palette.icon}">${palette.symbol}</span>
+            <span class="shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold text-white ${palette.icon}">${palette.symbol}</span>
             <span class="flex-1 leading-relaxed">${message}</span>
-            <button type="button" class="shrink-0 text-current opacity-50 hover:opacity-100 text-base leading-none" aria-label="Close">&times;</button>
+            <button type="button" class="shrink-0 text-gray-400 hover:text-gray-600 text-base leading-none" aria-label="Close">&times;</button>
         `;
                 container.appendChild(toast);
                 requestAnimationFrame(() => toast.classList.remove('translate-x-6', 'opacity-0', 'scale-95'));
@@ -541,7 +663,7 @@ $crmDesignerListUrl = BASE_URL . '/crmdesigner';
                         const url = URL.createObjectURL(file);
                         const img = document.createElement('img');
                         img.src = url;
-                        img.className = 'w-full h-16 object-cover border border-gray-300';
+                        img.className = 'w-full h-16 object-cover rounded-md border border-gray-200';
                         preview.appendChild(img);
                     });
                 });

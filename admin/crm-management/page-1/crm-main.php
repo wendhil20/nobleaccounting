@@ -82,11 +82,12 @@ function generateCrmControlNo($conn, $branchId)
     $stmt->bind_param("s", $likePrefix);
     $stmt->execute();
 
-    $lastControlNo = null;
-    $stmt->bind_result($lastControlNo);
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $lastControlNo = $row['control_no'] ?? null;
 
     $nextNumber = 1;
-    if ($stmt->fetch() && $lastControlNo) {
+    if ($lastControlNo) {
         $lastNumberPart = (int) substr($lastControlNo, strlen($prefix));
         $nextNumber = $lastNumberPart + 1;
     }
@@ -94,6 +95,7 @@ function generateCrmControlNo($conn, $branchId)
 
     return $prefix . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
 }
+
 
 // --- Handle submit ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_inquiry'])) {

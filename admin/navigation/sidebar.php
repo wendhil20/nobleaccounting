@@ -58,6 +58,31 @@ $currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
 ?>
 
 <style>
+    nav {
+        scrollbar-width: thin;
+        /* Firefox */
+        scrollbar-color: #d1d5db transparent;
+        /* thumb / track */
+    }
+
+    nav::-webkit-scrollbar {
+        width: 4px;
+        /* Chrome/Edge/Safari */
+    }
+
+    nav::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    nav::-webkit-scrollbar-thumb {
+        background-color: #d1d5db;
+        border-radius: 9999px;
+    }
+
+    nav::-webkit-scrollbar-thumb:hover {
+        background-color: #9ca3af;
+    }
+
     /* ── Sidebar Desktop Transition ─────────────────────────── */
     #sidebar {
         transition: width 0.25s ease;
@@ -289,7 +314,7 @@ $currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
                 <a href="<?= BASE_URL ?>/cashvoucherdashboard" data-tooltip="Approval Cash Voucher"
                     class="flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-all <?= isActive('/cashvoucherdashboard') ?>">
                     <i class="fa-solid fa-ticket-simple w-4 text-center text-sm flex-shrink-0"></i>
-                    <span class="sidebar-label">Approval Cash Voucher</span>
+                    <span class="sidebar-label">Approval & Voucher</span>
                 </a>
 
                 <div class="sidebar-section-label pt-4">
@@ -298,7 +323,7 @@ $currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
 
                 <a href="<?= BASE_URL ?>/crmaccounting" data-tooltip="CRM List"
                     class="flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-all <?= isActive('/crmaccounting') ?>">
-                    <i class="fa-solid fa-ticket-simple w-4 text-center text-sm flex-shrink-0"></i>
+                    <i class="fa-solid fa-folder-tree w-4 text-center text-sm flex-shrink-0"></i>
                     <span class="sidebar-label">CRM List</span>
                 </a>
 
@@ -418,7 +443,7 @@ $currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
 
             <a href="<?= BASE_URL ?>/crmdesigner" data-tooltip="CRM Designer"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm group transition-all <?= isActive('/crmdesigner') ?>">
-                <i class="fa-solid fa-list-ol w-4 text-center text-sm flex-shrink-0"></i>
+                <i class="fa-solid fa-folder-tree w-4 text-center text-sm flex-shrink-0"></i>
                 <span class="sidebar-label">CRM Designer</span>
             </a>
 
@@ -426,20 +451,19 @@ $currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
 
         <?php if ($role === ROLE_SUPERADMIN): ?>
             <?php if ($isMainBranch): ?>
-                <a href="<?= BASE_URL ?>/crm-main" data-tooltip="Dashboard"
+                <a href="<?= BASE_URL ?>/crm-main" data-tooltip="2D & Quotation Approval"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm group transition-all <?= isActive('/crm-main') ?>">
-                    <i class="fa-sharp fa-solid fa-chart-bar w-4 text-center text-sm flex-shrink-0"></i>
-                    <span class="sidebar-label">Dashboard</span>
+                    <i class="fa-solid fa-file-circle-check w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">2D & Quotation</span>
                 </a>
             <?php endif; ?>
 
-            <a href="#" data-tooltip="Maintenance"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 font-medium text-sm group transition-all">
-                <i class="fa-solid fa-wrench w-4 text-center text-sm flex-shrink-0"></i>
-                <span class="sidebar-label">Maintenance</span>
+            <a href="<?= BASE_URL ?>/monitoring" data-tooltip="Monitoring"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm group transition-all <?= isActive('/monitoring') ?>">
+                <i class="fa-solid fa-chart-simple w-4 text-center text-sm flex-shrink-0"></i>
+                <span class="sidebar-label">Monitoring</span>
             </a>
-
-
+            
         <?php endif; ?>
 
 

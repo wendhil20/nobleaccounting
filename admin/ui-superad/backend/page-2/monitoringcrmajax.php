@@ -1,0 +1,323 @@
+<?php
+// monitoringcrmajax.php
+
+include ROOT_PATH . '/network/connect.php';
+include ROOT_PATH . '/admin/authentication/index-roles.php';
+
+$allowedRoles = [ROLE_SUPERADMIN];
+
+include ROOT_PATH . '/admin/authentication/index-authguard.php';
+include ROOT_PATH . '/admin/authentication/index-roleguard.php';
+
+header('Content-Type: application/json');
+
+$action = $_GET['action'] ?? $_POST['action'] ?? 'list';
+
+function monRoleLabel(?string $role): string
+{
+    if ($role === 'sales') return 'Sales';
+    if ($role === 'designer') return 'Designer';
+    return '—';
+}
+
+// Turns one 2D/Quotation cycle row into a human stage label + a coarse
+// "stage_group" used for the tab filters / badge color on the list page.
+// This is the single source of truth for "where is this inquiry right
+// now" — as more modules (Accounting, Production, Delivery...) get their
+// own tables, extend this function rather than duplicating the logic.
+function monStageInfo(?array $row): array
+{
+    if (!$row) {
+        return ['stage_label' => 'Not Started', 'stage_group' => 'draft'];
+    }
+
+    if ($row['status'] === 'Draft') {
+        return ['stage_label' => '2D & Quotation — Draft', 'stage_group' => 'draft'];
+    }
+    if ($row['status'] === 'Waiting for Approval') {
+        return ['stage_label' => 'Waiting for 2D & Quotation Approval', 'stage_group' => 'in_progress'];
+    }
+    if ($row['status'] === 'For Revision') {
+        return ['stage_label' => '2D & Quotation — For Revision', 'stage_group' => 'for_revision'];
+    }
+
+    // status === 'Approved' — main cycle is done, look at the 3D stage
+    // (or lack of one) to figure out what's actually next.
+    $stage3d = $row['design_3d_stage'] ?? 'Locked';
+    if ($stage3d === 'Draft') {
+        return ['stage_label' => 'Approved — 3D Upload Pending', 'stage_group' => 'in_progress'];
+    }
+    if ($stage3d === 'Waiting for Approval') {
+        return ['stage_label' => 'Waiting for 3D Approval', 'stage_group' => 'in_progress'];
+    }
+    if ($stage3d === 'For Revision') {
+        return ['stage_label' => '3D — For Revision', 'stage_group' => 'for_revision'];
+    }
+    if ($stage3d === 'Approved') {
+        return ['stage_label' => 'Fully Approved', 'stage_group' => 'completed'];
+    }
+
+    // No 3D involved at all ('Locked') — 2D & Quotation approved is the
+    // end of what this module tracks; next hand-off is Accounting.
+    return ['stage_label' => 'Approved — Awaiting Accounting', 'stage_group' => 'completed'];
+}
+
+if ($action === 'list') {
+
+    $search = trim($_GET['q'] ?? '');
+    $stageFilter = trim($_GET['stage'] ?? '');
+
+    // One row per inquiry: latest 2D/Quotation cycle (if any) joined in.
+    // LEFT JOIN so inquiries that haven't reached 2D/Quotation yet still
+    // show up (as "Not Started") — monitoring should track everything,
+    // not just what has an active submission.
+    $sql = "
+        SELECT
+            i.id AS inquiry_id, i.control_no, i.client_name, i.contact_number, i.project_type, i.branch,
+            i.created_at AS inquiry_created_at,
+            q.id AS q_id, q.status, q.include_3d, q.design_3d_stage,
+            q.submitted_at, q.reviewed_at, q.created_at AS q_created_at
+        FROM noblecrminquiry i
+        LEFT JOIN (
+            SELECT q1.*
+            FROM noblecrm_2dquotation q1
+            JOIN (
+                SELECT inquiry_id, MAX(id) AS max_id
+                FROM noblecrm_2dquotation
+                GROUP BY inquiry_id
+            ) latest ON latest.inquiry_id = q1.inquiry_id AND latest.max_id = q1.id
+        ) q ON q.inquiry_id = i.id
+        WHERE 1 = 1
+    ";
+    $types = '';
+    $params = [];
+
+    if ($search !== '') {
+        $sql .= " AND (i.control_no LIKE ? OR i.client_name LIKE ? OR i.contact_number LIKE ?) ";
+        $like = '%' . $search . '%';
+        $types .= "sss";
+        $params[] = $like;
+        $params[] = $like;
+        $params[] = $like;
+    }
+
+    $sql .= " ORDER BY COALESCE(q.reviewed_at, q.submitted_at, q.created_at, i.created_at) DESC LIMIT 200 ";
+
+    if ($types !== '') {
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    } else {
+        $result = $conn->query($sql);
+    }
+
+    $rows = [];
+    while ($row = $result->fetch_assoc()) {
+        $info = monStageInfo($row['q_id'] ? $row : null);
+
+        if ($stageFilter !== '' && $info['stage_group'] !== $stageFilter) {
+            continue;
+        }
+
+        $rows[] = [
+            'inquiry_id'     => (int) $row['inquiry_id'],
+            'control_no'     => $row['control_no'],
+            'client_name'    => $row['client_name'],
+            'contact_number' => $row['contact_number'],
+            'project_type'   => $row['project_type'],
+            'branch'         => $row['branch'],
+            'stage_label'    => $info['stage_label'],
+            'stage_group'    => $info['stage_group'],
+            'last_updated'   => $row['reviewed_at'] ?? $row['submitted_at'] ?? $row['q_created_at'] ?? $row['inquiry_created_at'],
+        ];
+    }
+    if (isset($stmt)) $stmt->close();
+
+    echo json_encode([
+        'success' => true,
+        'rows'    => $rows,
+        'count'   => count($rows),
+        'server_time' => date('c'),
+    ]);
+    exit;
+}
+
+if ($action === 'timeline') {
+
+    $inquiryId = intval($_GET['id'] ?? 0);
+    if ($inquiryId <= 0) {
+        echo json_encode(['success' => false, 'message' => 'Invalid record.']);
+        exit;
+    }
+
+    // Full inquiry document — everything captured on the crm-main.php intake
+    // form, so the tracking page's header can show the whole record, not
+    // just the identity fields. sales/designer are both rows in `noblerole`
+    // (same table the intake form's dropdown and auto-assign pull from).
+    // design_progress / design_confirmed(_at/_by) / clientstatus are the
+    // "Client Review & Approval" gate from 2d-and-quotation.php (step1) —
+    // confirmedby is also a noblerole id, same as sales/designer.
+    $stmt = $conn->prepare("
+        SELECT
+            i.id, i.control_no, i.client_name, i.address, i.contact_number,
+            i.project_type, i.project_scope, i.measuring_space, i.measurement_datetime,
+            i.contract_amount, i.branch, i.created_at, i.status AS inquiry_status,
+            i.sales_staff_id, i.designer_id,
+            i.design_progress, i.design_confirmed, i.design_confirmed_at, i.design_confirmed_by, i.clientstatus,
+            sales.name AS sales_staff_name,
+            designer.name AS designer_name,
+            confirmedby.name AS design_confirmed_by_name
+        FROM noblecrminquiry i
+        LEFT JOIN noblerole sales ON sales.id = i.sales_staff_id
+        LEFT JOIN noblerole designer ON designer.id = i.designer_id
+        LEFT JOIN noblerole confirmedby ON confirmedby.id = i.design_confirmed_by
+        WHERE i.id = ? LIMIT 1
+    ");
+    $stmt->bind_param("i", $inquiryId);
+    $stmt->execute();
+    $inquiry = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$inquiry) {
+        echo json_encode(['success' => false, 'message' => 'Inquiry not found.']);
+        exit;
+    }
+
+    // Site Visit history — crmsitevisit.php lets a designer log more than
+    // one visit per inquiry, so pull all of them (oldest first, same
+    // ordering convention as the 2D/Quotation cycles below).
+    $stmt = $conn->prepare("
+        SELECT sv.id, sv.address, sv.visit_datetime, sv.visited, sv.photos, sv.created_at,
+               d.name AS designer_name
+        FROM noblecrm_sitevisit sv
+        LEFT JOIN noblerole d ON d.id = sv.designer_id
+        WHERE sv.inquiry_id = ?
+        ORDER BY sv.id ASC
+    ");
+    $stmt->bind_param("i", $inquiryId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $siteVisits = [];
+    while ($row = $result->fetch_assoc()) {
+        $photos = array_values(array_filter(explode(',', $row['photos'] ?? '')));
+        $siteVisits[] = [
+            'id'            => (int) $row['id'],
+            'address'       => $row['address'],
+            'visit_datetime'=> $row['visit_datetime'],
+            'visited'       => $row['visited'] === 'yes',
+            'photos'        => array_map(fn($p) => BASE_URL . '/' . $p, $photos),
+            'designer_name' => $row['designer_name'] ?? '—',
+            'created_at'    => $row['created_at'],
+        ];
+    }
+    $stmt->close();
+
+    // Every 2D/Quotation cycle for this inquiry, oldest first — this is
+    // what actually makes it a "tracking" view: a revision cycle isn't
+    // hidden here the way it is on the approval queue (check2dquotation.php
+    // only ever surfaces the latest cycle).
+    $stmt = $conn->prepare("
+        SELECT
+            q.id, q.status, q.remarks, q.submitted_at, q.created_at, q.reviewed_at,
+            q.design_2d_path, q.design_2d_uploaded_role, q.design_2d_uploaded_at,
+            q.design_2d_review_status, q.design_2d_remarks,
+            q.quotation_path, q.quotation_uploaded_role, q.quotation_uploaded_at,
+            q.quotation_review_status, q.quotation_remarks,
+            q.include_3d, q.design_3d_stage, q.design_3d_path, q.design_3d_uploaded_role,
+            q.design_3d_uploaded_at, q.design_3d_review_status, q.design_3d_remarks, q.design_3d_reviewed_at,
+            d2u.name AS design_2d_uploader_name,
+            qtu.name AS quotation_uploader_name,
+            d3u.name AS design_3d_uploader_name
+        FROM noblecrm_2dquotation q
+        LEFT JOIN noblerole d2u ON d2u.id = q.design_2d_uploaded_by
+        LEFT JOIN noblerole qtu ON qtu.id = q.quotation_uploaded_by
+        LEFT JOIN noblerole d3u ON d3u.id = q.design_3d_uploaded_by
+        WHERE q.inquiry_id = ?
+        ORDER BY q.id ASC
+    ");
+    $stmt->bind_param("i", $inquiryId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $cycles = [];
+    while ($row = $result->fetch_assoc()) {
+        $info = monStageInfo($row);
+        $cycles[] = [
+            'id'                       => (int) $row['id'],
+            'status'                   => $row['status'],
+            'stage_label'              => $info['stage_label'],
+            'stage_group'              => $info['stage_group'],
+            'remarks'                  => $row['remarks'],
+            'submitted_at'             => $row['submitted_at'],
+            'created_at'               => $row['created_at'],
+            'reviewed_at'              => $row['reviewed_at'],
+            'design_2d_path'           => $row['design_2d_path'],
+            'design_2d_uploaded_role'  => monRoleLabel($row['design_2d_uploaded_role']),
+            'design_2d_uploader_name'  => $row['design_2d_uploader_name'] ?? '—',
+            'design_2d_uploaded_at'    => $row['design_2d_uploaded_at'],
+            'design_2d_review_status'  => $row['design_2d_review_status'] ?? 'Pending',
+            'design_2d_remarks'        => $row['design_2d_remarks'],
+            'quotation_path'           => $row['quotation_path'],
+            'quotation_uploaded_role'  => monRoleLabel($row['quotation_uploaded_role']),
+            'quotation_uploader_name'  => $row['quotation_uploader_name'] ?? '—',
+            'quotation_uploaded_at'    => $row['quotation_uploaded_at'],
+            'quotation_review_status'  => $row['quotation_review_status'] ?? 'Pending',
+            'quotation_remarks'        => $row['quotation_remarks'],
+            'include_3d'               => (bool) $row['include_3d'],
+            'design_3d_stage'          => $row['design_3d_stage'] ?? 'Locked',
+            'design_3d_path'           => $row['design_3d_path'],
+            'design_3d_uploaded_role'  => monRoleLabel($row['design_3d_uploaded_role']),
+            'design_3d_uploader_name'  => $row['design_3d_uploader_name'] ?? '—',
+            'design_3d_uploaded_at'    => $row['design_3d_uploaded_at'],
+            'design_3d_review_status'  => $row['design_3d_review_status'] ?? 'Pending',
+            'design_3d_remarks'        => $row['design_3d_remarks'],
+            'design_3d_reviewed_at'    => $row['design_3d_reviewed_at'],
+        ];
+    }
+    $stmt->close();
+
+    $latest = end($cycles) ?: null;
+    $overall = $latest
+        ? ['stage_label' => $latest['stage_label'], 'stage_group' => $latest['stage_group']]
+        : monStageInfo(null);
+
+    echo json_encode([
+        'success' => true,
+        'inquiry' => [
+            'inquiry_id'          => (int) $inquiry['id'],
+            'control_no'          => $inquiry['control_no'],
+            'client_name'         => $inquiry['client_name'],
+            'address'             => $inquiry['address'],
+            'contact_number'      => $inquiry['contact_number'],
+            'project_type'        => $inquiry['project_type'],
+            'project_scope'       => $inquiry['project_scope'],
+            'measuring_space'     => $inquiry['measuring_space'],
+            'measurement_datetime'=> $inquiry['measurement_datetime'],
+            'contract_amount'     => $inquiry['contract_amount'],
+            'branch'              => $inquiry['branch'],
+            'created_at'          => $inquiry['created_at'],
+            'inquiry_status'      => $inquiry['inquiry_status'],
+            'sales_staff_name'    => $inquiry['sales_staff_name'] ?? '—',
+            'designer_name'       => $inquiry['designer_name'] ?? '—',
+            'stage_label'         => $overall['stage_label'],
+            'stage_group'         => $overall['stage_group'],
+        ],
+        // step1 in 2d-and-quotation.php's terms — the design-progress /
+        // customer-confirmation gate that has to clear before 2D &
+        // Quotation upload slots even unlock.
+        'design_progress' => [
+            'progress'          => $inquiry['design_progress'] ?? '0',
+            'confirmed'         => (bool) ($inquiry['design_confirmed'] ?? 0),
+            'confirmed_at'      => $inquiry['design_confirmed_at'],
+            'confirmed_by_name' => $inquiry['design_confirmed_by_name'] ?? '—',
+            'client_status'     => $inquiry['clientstatus'],
+        ],
+        'site_visits' => $siteVisits,
+        'cycles'  => $cycles,
+    ]);
+    exit;
+}
+
+echo json_encode(['success' => false, 'message' => 'Unknown action.']);

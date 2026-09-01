@@ -39,8 +39,11 @@ if (in_array($action, ['save_slot', 'unlock_slot'], true) && !in_array($slot, ['
 }
 
 // Verify the inquiry belongs to the current user (sales or designer, depending on role)
+// NEW-STEP1: also pull design_progress / design_confirmed(_at/_by) so the
+// state action and the two new actions below don't need a second query.
 $stmt = $conn->prepare("
-    SELECT id, control_no, client_name, status
+    SELECT id, control_no, client_name, status,
+           design_progress, design_confirmed, design_confirmed_at, design_confirmed_by, clientstatus
     FROM noblecrminquiry
     WHERE id = ? AND {$ownerColumn} = ?
     LIMIT 1
@@ -564,11 +567,24 @@ if ($action === 'state') {
         'toggle_editable'      => (bool) ($activeDraftRow && $activeDraftRow['status'] === 'Draft'),
     ] : null;
 
+    // NEW-STEP1: 0%/50%/100% progress + staff-marked customer confirmation.
+    // Habang hindi pa naka-confirm, ito lang ang ipapakita sa frontend —
+    // gate bago ma-unlock yung Step 2 (2D & Quotation) content.
+    $step1Json = [
+    'progress'          => $inquiry['design_progress'] ?? '0',
+    'confirmed'         => (bool) ($inquiry['design_confirmed'] ?? 0),
+    'confirmed_at'      => !empty($inquiry['design_confirmed_at'])
+        ? date('F d, Y g:i A', strtotime($inquiry['design_confirmed_at'])) : null,
+    'confirmed_by_name' => q2dAccountName($conn, $inquiry['design_confirmed_by'] ? (int) $inquiry['design_confirmed_by'] : null),
+    'client_status'     => $inquiry['clientstatus'] ?? null, // NEW
+];
+
     q2dRespond(true, '', [
         'inquiry' => [
             'control_no'  => $inquiry['control_no'],
             'client_name' => $inquiry['client_name'],
         ],
+        'step1'           => $step1Json, // NEW-STEP1
         'active_draft'    => $activeDraftJson,
         'completed_entry' => $completedEntryJson,
         'revision_entry'  => $revisionEntryJson,
@@ -576,6 +592,57 @@ if ($action === 'state') {
         'design_3d'       => $design3dJson,
         'server_time'    => date('c'),
     ]);
+}
+
+// ═══════════════════════════════════════════════════════════
+// save_progress — manual update ng 0/50/100% (NEW-STEP1).
+// Sales o Designer lang, at hindi na pwede kapag na-confirm na.
+// ═══════════════════════════════════════════════════════════
+if ($action === 'save_progress') {
+
+    if ((int) ($inquiry['design_confirmed'] ?? 0) === 1) {
+        q2dRespond(false, 'This has already been confirmed by the customer.');
+    }
+
+    $progress = $_POST['progress'] ?? '';
+    if (!in_array($progress, ['0', '50', '100'], true)) {
+        q2dRespond(false, 'Invalid progress value.');
+    }
+
+    $stmt = $conn->prepare("UPDATE noblecrminquiry SET design_progress = ? WHERE id = ?");
+    $stmt->bind_param("si", $progress, $inquiryId);
+    $stmt->execute();
+    $stmt->close();
+
+    q2dRespond(true, 'Progress updated.');
+}
+
+// ═══════════════════════════════════════════════════════════
+// confirm_customer — i-mamark na naaprubahan na ng customer
+// (NEW-STEP1). Staff lang ang pumipindot nito, walang customer
+// login. Kailangan muna 100% bago pwede i-confirm.
+// ═══════════════════════════════════════════════════════════
+if ($action === 'confirm_customer') {
+
+    if ((int) ($inquiry['design_confirmed'] ?? 0) === 1) {
+        q2dRespond(false, 'This has already been confirmed.');
+    }
+    if (($inquiry['design_progress'] ?? '0') !== '100') {
+        q2dRespond(false, 'Progress must be at 100% before confirming.');
+    }
+
+    $clientStatus = 'Client Review & Approval';
+
+    $stmt = $conn->prepare("
+        UPDATE noblecrminquiry
+        SET design_confirmed = 1, design_confirmed_at = NOW(), design_confirmed_by = ?, clientstatus = ?
+        WHERE id = ?
+    ");
+    $stmt->bind_param("isi", $currentUserId, $clientStatus, $inquiryId);
+    $stmt->execute();
+    $stmt->close();
+
+    q2dRespond(true, 'Confirmed by customer.');
 }
 
 // ═══════════════════════════════════════════════════════════
