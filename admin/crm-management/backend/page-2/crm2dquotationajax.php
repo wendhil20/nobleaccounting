@@ -41,9 +41,12 @@ if (in_array($action, ['save_slot', 'unlock_slot'], true) && !in_array($slot, ['
 // Verify the inquiry belongs to the current user (sales or designer, depending on role)
 // NEW-STEP1: also pull design_progress / design_confirmed(_at/_by) so the
 // state action and the two new actions below don't need a second query.
+// NEW-CONTRACT: also pull contract_amount so it can be shown on the page
+// and validated against on save_contract_amount.
 $stmt = $conn->prepare("
-    SELECT id, control_no, client_name, status,
-           design_progress, design_confirmed, design_confirmed_at, design_confirmed_by, clientstatus
+    SELECT id, control_no, client_name, status, mode,
+           design_progress, design_confirmed, design_confirmed_at, design_confirmed_by, clientstatus,
+           contract_amount
     FROM noblecrminquiry
     WHERE id = ? AND {$ownerColumn} = ?
     LIMIT 1
@@ -570,20 +573,34 @@ if ($action === 'state') {
     // NEW-STEP1: 0%/50%/100% progress + staff-marked customer confirmation.
     // Habang hindi pa naka-confirm, ito lang ang ipapakita sa frontend —
     // gate bago ma-unlock yung Step 2 (2D & Quotation) content.
-    $step1Json = [
-    'progress'          => $inquiry['design_progress'] ?? '0',
-    'confirmed'         => (bool) ($inquiry['design_confirmed'] ?? 0),
-    'confirmed_at'      => !empty($inquiry['design_confirmed_at'])
+ $isReadyForQuotation = ($inquiry['mode'] ?? 'site_visit') === 'ready_for_quotation';
+
+$step1Json = [
+    'progress'          => $isReadyForQuotation ? '100' : ($inquiry['design_progress'] ?? '0'),
+    'confirmed'         => $isReadyForQuotation ? true : (bool) ($inquiry['design_confirmed'] ?? 0),
+    'confirmed_at'      => (!$isReadyForQuotation && !empty($inquiry['design_confirmed_at']))
         ? date('F d, Y g:i A', strtotime($inquiry['design_confirmed_at'])) : null,
-    'confirmed_by_name' => q2dAccountName($conn, $inquiry['design_confirmed_by'] ? (int) $inquiry['design_confirmed_by'] : null),
-    'client_status'     => $inquiry['clientstatus'] ?? null, // NEW
+    'confirmed_by_name' => $isReadyForQuotation ? null : q2dAccountName($conn, $inquiry['design_confirmed_by'] ? (int) $inquiry['design_confirmed_by'] : null),
+    'client_status'     => $inquiry['clientstatus'] ?? null,
+    'auto_confirmed'    => $isReadyForQuotation, // para hindi ipakita ng frontend yung "confirmed by X at Y" badge line
 ];
+    // NEW-CONTRACT: quotation_done is exposed at the top level (not just
+    // buried inside active_draft/completed_entry/revision_entry) because
+    // the Contract Amount box needs to know "is the Quotation file marked
+    // Done" regardless of which of those three branches is currently
+    // rendering — it can be true even while status is still 'Draft'
+    // (quotation done, 2D not yet done) or 'For Revision' (quotation was
+    // approved in a prior cycle and carried over as done).
+    $quotationDone = (bool) ($latest['quotation_done'] ?? false);
 
     q2dRespond(true, '', [
         'inquiry' => [
-            'control_no'  => $inquiry['control_no'],
-            'client_name' => $inquiry['client_name'],
+            'control_no'      => $inquiry['control_no'],
+            'client_name'     => $inquiry['client_name'],
+            'contract_amount' => $inquiry['contract_amount'],
         ],
+        'is_sales'        => $isSales,
+        'quotation_done'  => $quotationDone,
         'step1'           => $step1Json, // NEW-STEP1
         'active_draft'    => $activeDraftJson,
         'completed_entry' => $completedEntryJson,
@@ -845,6 +862,44 @@ if ($action === 'unlock_slot') {
     $stmt->close();
 
     q2dRespond(true, 'Unlocked.');
+}
+
+// ═══════════════════════════════════════════════════════════
+// save_contract_amount — NEW-CONTRACT. Sales-only. Pwede lang
+// i-set/i-update ang Contract Amount kapag naka-mark na "Done" na
+// ang Quotation file sa pinaka-huling 2D & Quotation entry (hindi
+// pa kailangan Approved — pagka-Done na ng quotation, unlocked na).
+// Nakatira ang value sa noblecrminquiry.contract_amount (parehong
+// column na dati'y pinupunan sa initial CRM inquiry form — ngayon
+// dito na lang ito pinupunan, hindi na sa una).
+// ═══════════════════════════════════════════════════════════
+if ($action === 'save_contract_amount') {
+
+    if (!$isSales) {
+        q2dRespond(false, 'Only Sales can set the Contract Amount.');
+    }
+
+    $latest = q2dGetLatestEntry($conn, $inquiryId);
+    if (!$latest || !$latest['quotation_done']) {
+        q2dRespond(false, 'The Quotation file must be marked done first.');
+    }
+
+    $rawAmount = trim($_POST['contract_amount'] ?? '');
+    $cleanAmount = preg_replace('/[^0-9.]/', '', $rawAmount);
+
+    if ($cleanAmount === '' || !is_numeric($cleanAmount) || (float) $cleanAmount <= 0) {
+        q2dRespond(false, 'Please enter a valid contract amount.');
+    }
+
+    $stmt = $conn->prepare("
+        UPDATE noblecrminquiry SET contract_amount = ?
+        WHERE id = ? AND sales_staff_id = ?
+    ");
+    $stmt->bind_param("dii", $cleanAmount, $inquiryId, $currentUserId);
+    $stmt->execute();
+    $stmt->close();
+
+    q2dRespond(true, 'Contract amount saved.');
 }
 
 // ═══════════════════════════════════════════════════════════

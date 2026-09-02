@@ -23,7 +23,7 @@ function crmDesignerBaseQuery()
             i.id, i.control_no, i.client_name, i.address, i.project_type,
             i.project_scope, i.measuring_space, i.measurement_datetime,
             i.contact_number, i.contract_amount, i.branch, i.created_at,
-            i.status,
+            i.status, i.mode,
             s.name AS sales_name
         FROM noblecrminquiry i
         LEFT JOIN noblerole s ON s.id = i.sales_staff_id
@@ -45,6 +45,9 @@ function crmDesignerFormatRow($row)
         'contract_amount'      => $row['contract_amount'],
         'branch'               => $row['branch'],
         'status'               => $row['status'] ?: 'Pending',
+        // "site_visit" (default) o "ready_for_quotation" — ginagamit ng
+        // site.php para itago ang Site Visit button/step kapag ready_for_quotation.
+        'mode'                 => $row['mode'] ?: 'site_visit',
         'sales_name'           => $row['sales_name'] ?? '—',
         'created_at'           => $row['created_at'],
     ];

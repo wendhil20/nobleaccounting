@@ -1,10 +1,41 @@
 <?php
 //step2.php
+$postedMode = $_POST['inquiry_mode'] ?? 'site_visit';
 ?>
 <div class="crm-step-panel" id="crm-step-2">
     <p class="text-xs text-gray-400 mb-4">What the client needs and when to measure.</p>
 
     <div class="space-y-5">
+
+        <!-- Mode: Site Visit Needed vs Ready for Quotation -->
+        <div>
+            <label class="block text-xs font-semibold tracking-wide uppercase text-gray-500 mb-1.5">
+                Mode <span class="text-red-500">*</span>
+            </label>
+            <div class="inline-flex rounded-lg border border-gray-300 overflow-hidden h-[38px]">
+                <label class="cursor-pointer">
+                    <input type="radio" name="inquiry_mode" id="crm_mode_sitevisit" value="site_visit"
+                        class="peer sr-only" <?= $postedMode === 'site_visit' ? 'checked' : '' ?>>
+                    <span
+                        class="flex items-center h-[36px] px-4 text-xs text-gray-600 peer-checked:bg-amber-700 peer-checked:text-white transition-colors">
+                        Site Visit Needed
+                    </span>
+                </label>
+                <label class="cursor-pointer border-l border-gray-300">
+                    <input type="radio" name="inquiry_mode" id="crm_mode_ready" value="ready_for_quotation"
+                        class="peer sr-only" <?= $postedMode === 'ready_for_quotation' ? 'checked' : '' ?>>
+                    <span
+                        class="flex items-center h-[36px] px-4 text-xs text-gray-600 peer-checked:bg-amber-700 peer-checked:text-white transition-colors">
+                        Ready for Quotation (the client has provided the 2D)
+                    </span>
+                </label>
+            </div>
+            <p class="text-[11px] text-gray-400 mt-1.5">
+                Select "Ready for Quotation" if the client already has a 2D — the designer will go straight to
+                uploading the 2D &amp; Quotation, skipping the Site Visit step.
+            </p>
+        </div>
+
         <!-- Type of Project -->
         <div>
             <label class="block text-xs font-semibold tracking-wide uppercase text-gray-500 mb-1.5">
@@ -42,7 +73,7 @@
                     </label>
                 <?php endforeach; ?>
                 <?php if (empty($projectScopeOptions)): ?>
-                    <p class="text-xs text-gray-400">Wala pang options. I-click ang gear para magdagdag.</p>
+                    <p class="text-xs text-gray-400">No options yet. Click the gear icon to add one.</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -51,7 +82,7 @@
         <div>
             <div class="flex items-center justify-between mb-1.5">
                 <label class="block text-xs font-semibold tracking-wide uppercase text-gray-500">
-                    Measuring Space
+                    Scope area
                 </label>
                 <button type="button" onclick="openOptionsModal('measuring_space')"
                     class="text-gray-400 hover:text-amber-700 transition" title="Manage measuring space options">
@@ -73,7 +104,7 @@
                     </label>
                 <?php endforeach; ?>
                 <?php if (empty($measuringSpaceOptions)): ?>
-                    <p class="text-xs text-gray-400">Wala pang options. I-click ang gear para magdagdag.</p>
+                    <p class="text-xs text-gray-400">No options yet. Click the gear icon to add one.</p>
                 <?php endif; ?>
             </div>
         </div>

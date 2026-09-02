@@ -1,5 +1,5 @@
 <?php
-//site.php
+// site.php
 
 // Change this if your system uses a different route/path.
 $crmDesignerAjaxUrl = BASE_URL . '/crmdesignerajax';
@@ -258,23 +258,39 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
 
     // Action buttons now render UNDER the Control No. (its own dedicated
     // "Action" column was removed to save horizontal space).
+    //
+    // "mode" from the row (site_visit | ready_for_quotation) determines
+    // whether the Site Visit step is shown at all:
+    //   - site_visit           -> normal Proceed / View Site Visit button
+    //   - ready_for_quotation  -> no site visit step; client already has 2D,
+    //                             so only the 2D & Quotation button matters
+    //                             (and it's unlocked immediately since these
+    //                             rows are inserted straight into "In Progress").
     function crmActionCell(row) {
         const isDone = row.status === 'In Progress';
+        const isReadyForQuotation = row.mode === 'ready_for_quotation';
 
-        // Site Visit button: always clickable so the designer can still view
-        // (or continue filling out) what was uploaded, even after proceeding.
-        const siteVisitBtn = `
-            <button type="button" onclick="crmProceed(${row.id})"
-                class="px-2 py-1 text-[10px] font-medium rounded-md transition-colors whitespace-nowrap ${
-                    isDone
-                        ? 'text-amber-700 bg-white border border-amber-200 hover:bg-amber-50'
-                        : 'text-white bg-amber-700 hover:bg-amber-800'
-                }">
-                ${isDone ? 'View Site Visit' : 'Proceed'}
-            </button>
-        `;
+        const siteVisitBtn = isReadyForQuotation
+            ? `
+                <span class="px-2 py-1 text-[10px] font-medium text-gray-400 bg-gray-50 border border-gray-200 rounded-md whitespace-nowrap"
+                    title="Client already provided a 2D — no site visit needed">
+                    No Site Visit
+                </span>
+            `
+            : `
+                <button type="button" onclick="crmProceed(${row.id})"
+                    class="px-2 py-1 text-[10px] font-medium rounded-md transition-colors whitespace-nowrap ${
+                        isDone
+                            ? 'text-amber-700 bg-white border border-amber-200 hover:bg-amber-50'
+                            : 'text-white bg-amber-700 hover:bg-amber-800'
+                    }">
+                    ${isDone ? 'View Site Visit' : 'Proceed'}
+                </button>
+            `;
 
         // 2D & Quotation button: locked until the site visit has been completed
+        // (or unlocked immediately for "ready_for_quotation" rows, since those
+        // are already inserted with status = 'In Progress').
         const quotationBtn = isDone
             ? `<button type="button" onclick="crm2dQuotation(${row.id})"
                     class="px-2 py-1 text-[10px] font-medium text-white bg-blue-700 rounded-md hover:bg-blue-800 transition-colors whitespace-nowrap">
@@ -390,7 +406,10 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
                 return;
             }
 
-            const signature = JSON.stringify(data.rows.map(r => r.id + ':' + r.status));
+            // NOTE: crmdesignerajax.php's `action=list` response must include
+            // "mode" (site_visit | ready_for_quotation) per row for the
+            // signature + action-cell rendering below to reflect it correctly.
+            const signature = JSON.stringify(data.rows.map(r => r.id + ':' + r.status + ':' + r.mode));
             crmAllRows = data.rows;
             if (signature !== crmDesignerLastSignature) {
                 crmRenderRows();
@@ -460,6 +479,7 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
 
     // ═══════════════════════════════════════════════════════════
     // 2D & QUOTATION ACTION — only reachable once site visit is done
+    // (or immediately, for "ready_for_quotation" mode inquiries)
     // ═══════════════════════════════════════════════════════════
     function crm2dQuotation(id) {
         window.location.href = `${CRM_2D_QUOTATION_URL}?id=${id}`;
@@ -491,12 +511,15 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
         document.getElementById('crmDetailControlNo').textContent = 'Loading…';
         document.getElementById('crmDetailStatusBadge').innerHTML = '';
         siteVisitBtn.textContent = 'Proceed';
+        siteVisitBtn.style.display = '';
         quotationBtn.disabled = true;
         body.innerHTML = `<p class="text-sm text-gray-400 py-6 text-center">Fetching details…</p>`;
         modal.classList.remove('hidden');
         modal.classList.add('flex');
 
         try {
+            // NOTE: crmdesignerajax.php's `action=detail` response must also
+            // include "mode" on the record object.
             const res = await fetch(`${CRM_DESIGNER_AJAX_URL}?action=detail&id=${id}`);
             const data = await res.json();
 
@@ -507,21 +530,32 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
 
             const r = data.record;
             const isDone = r.status === 'In Progress';
+            const isReadyForQuotation = r.mode === 'ready_for_quotation';
 
             document.getElementById('crmDetailControlNo').textContent = r.control_no;
             document.getElementById('crmDetailStatusBadge').innerHTML = crmStatusBadge(r.status);
 
-            // Site Visit button stays enabled either way, so uploaded photos
-            // and details remain viewable even after the visit is logged.
-            siteVisitBtn.textContent = isDone ? 'View Site Visit' : 'Proceed';
+            // Site Visit button is hidden entirely for "ready_for_quotation"
+            // inquiries — there is no site visit step to view or proceed to.
+            if (isReadyForQuotation) {
+                siteVisitBtn.style.display = 'none';
+            } else {
+                siteVisitBtn.style.display = '';
+                // Site Visit button stays enabled either way, so uploaded photos
+                // and details remain viewable even after the visit is logged.
+                siteVisitBtn.textContent = isDone ? 'View Site Visit' : 'Proceed';
+            }
 
-            // 2D & Quotation only unlocks once the site visit is completed.
+            // 2D & Quotation only unlocks once the site visit is completed
+            // (or immediately for "ready_for_quotation", since those rows
+            // are inserted directly with status = 'In Progress').
             quotationBtn.disabled = !isDone;
 
             body.innerHTML = [
                 crmDetailRow('Client Name', crmEscapeHtml(r.client_name)),
                 crmDetailRow('Address', crmEscapeHtml(r.address) || '—'),
                 crmDetailRow('Contact Number', crmEscapeHtml(r.contact_number)),
+                crmDetailRow('Mode', isReadyForQuotation ? 'Ready for Quotation (No Site Visit)' : 'Site Visit Needed'),
                 crmDetailRow('Type of Project', crmEscapeHtml(r.project_type) || '—'),
                 crmDetailRow('Scope of Project', crmEscapeHtml(r.project_scope) || '—'),
                 crmDetailRow('Measuring Space', crmEscapeHtml(r.measuring_space) || '—'),

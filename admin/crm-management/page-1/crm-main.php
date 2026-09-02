@@ -103,8 +103,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_inquiry'])) {
     $contactNumber = trim($_POST['contact_number'] ?? '');
     $projectType = trim($_POST['project_type'] ?? '');
     $designerId = intval($_POST['designer_id'] ?? 0);
-    $contractAmount = trim($_POST['contract_amount'] ?? '');
     $measurementDatetime = trim($_POST['measurement_datetime'] ?? '');
+
+    // NOTE: contract_amount is intentionally NOT collected here anymore.
+    // It's left NULL on creation and gets set later by Sales, on the 2D &
+    // Quotation page, once the Quotation file is marked "Done"
+    // (see crm2dquotationajax.php -> action=save_contract_amount).
+
+    // Mode: "site_visit" (default) o "ready_for_quotation" — piliin ang huli
+    // kung may 2D na ang client mismo, kaya diretso na sa 2D & Quotation
+    // ang designer, hindi na dadaan sa Site Visit form.
+    $inquiryMode = trim($_POST['inquiry_mode'] ?? 'site_visit');
+    if (!in_array($inquiryMode, ['site_visit', 'ready_for_quotation'], true)) {
+        $inquiryMode = 'site_visit';
+    }
+
+    // Kapag "ready_for_quotation", i-treat na parang tapos na ang site visit
+    // step para deretso na ma-access ang 2D & Quotation (walang Proceed button
+    // na kakailanganin pang i-click sa Site Visit).
+    $initialStatus = ($inquiryMode === 'ready_for_quotation') ? 'In Progress' : 'Pending';
 
     // Address parts mula sa PSGC-driven region/province/city/barangay + house/street
     $houseStreet = trim($_POST['house_street'] ?? '');
@@ -143,15 +160,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_inquiry'])) {
         $controlNo = generateCrmControlNo($conn, $branchId);
 
         // meron itong DATETIME/VARCHAR column sa noblecrminquiry table.
+        // contract_amount ay hindi na kasama dito — NULL ito by default sa
+        // insert, at pupunan na lang mamaya via crm2dquotationajax.php.
         $stmt = $conn->prepare("
             INSERT INTO noblecrminquiry
                 (control_no, client_name, address, project_type, project_scope, measuring_space,
-                 measurement_datetime, contact_number, sales_staff_id, designer_id, contract_amount,
-                 branch, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                 measurement_datetime, contact_number, sales_staff_id, designer_id,
+                 branch, mode, status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
         $stmt->bind_param(
-            "ssssssssiiss",
+            "ssssssssiisss",
             $controlNo,
             $clientName,
             $address,
@@ -162,8 +181,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_inquiry'])) {
             $contactNumber,
             $currentSalesId,
             $designerId,
-            $contractAmount,
-            $branch
+            $branch,
+            $inquiryMode,
+            $initialStatus
         );
 
         if ($stmt->execute()) {
@@ -173,7 +193,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_inquiry'])) {
             // --- Notify ang naka-assign na designer tungkol sa bagong inquiry ---
             // Palitan ang link path kung iba ang route papunta sa designer's view ng CRM record.
             if ($designerId > 0) {
-                $notifMessage = "New inquiry from {$clientName} (Control No. {$controlNo}) has been assigned to you.";
+                $notifMessage = $inquiryMode === 'ready_for_quotation'
+                    ? "New inquiry from {$clientName} (Control No. {$controlNo}) — client already has 2D, ready for Quotation."
+                    : "New inquiry from {$clientName} (Control No. {$controlNo}) has been assigned to you.";
                 $notifLink = '/crmdesigner?id=' . $inquiryId;
 
                 $notifStmt = $conn->prepare("
@@ -212,6 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_inquiry'])) {
 // Ginagamit sa pag-check ng mga naka-checked na checkbox pagkatapos ng failed submit
 $postedMeasuringSpace = (array) ($_POST['measuring_space'] ?? []);
 $postedProjectScope = (array) ($_POST['project_scope'] ?? []);
+$postedMode = $_POST['inquiry_mode'] ?? 'site_visit';
 
 // Folder kung saan nakatago ang bawat step's markup (palitan kung iba ang gusto mong path)
 $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
@@ -649,6 +672,13 @@ $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
         });
     }
 
+    function crmSelectedModeLabel() {
+        const checked = document.querySelector('input[name="inquiry_mode"]:checked');
+        return (checked && checked.value === 'ready_for_quotation')
+            ? 'Ready for Quotation (No Site Visit)'
+            : 'Site Visit Needed';
+    }
+
     function crmBuildReview() {
         crmSyncAddressHiddenFields();
 
@@ -664,21 +694,19 @@ $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
         const designerSel = document.getElementById('crm_designer_id');
         const designerText = designerSel.options[designerSel.selectedIndex]?.text || '—';
 
-        const contractAmountVal = document.getElementById('crm_contract_amount').value;
-        const contractAmountFormatted = contractAmountVal
-            ? '₱' + Number(contractAmountVal).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-            : '—';
-
+        // NOTE: Contract Amount row removed from review — it's no longer
+        // collected in this form. It's set later by Sales on the 2D &
+        // Quotation page, once the Quotation file is marked "Done".
         const rows = [
             ['Client Name', document.getElementById('crm_client_name').value || '—'],
             ['Address', addressParts.join(', ') || '—'],
             ['Contact Number', document.getElementById('crm_contact_number').value || '—'],
+            ['Mode', crmSelectedModeLabel()],
             ['Type of Project', document.getElementById('crm_project_type').value || '—'],
             ['Scope of Project', crmCheckedValues('project_scope_checkboxes')],
             ['Measuring Space', crmCheckedValues('measuring_space_checkboxes')],
             ['Measurement Date & Time', crmFormatDateTime(document.getElementById('crm_measurement_datetime').value)],
             ['Designer Assign', designerText.startsWith('Select') ? '—' : designerText],
-            ['Contract Amount', contractAmountFormatted],
         ];
 
         document.getElementById('crm_review_content').innerHTML = rows.map(([label, val]) => `
@@ -690,43 +718,6 @@ $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
     }
 
     // ═══════════════════════════════════════════════════════════
-    // CONTRACT AMOUNT — comma formatting habang nagta-type
-    // ═══════════════════════════════════════════════════════════
-    function crmFormatNumberInput(rawValue) {
-        // Alisin muna ang lahat ng hindi digit/decimal point
-        let cleaned = rawValue.replace(/[^0-9.]/g, '');
-
-        // Isang decimal point lang ang pinapayagan
-        const parts = cleaned.split('.');
-        if (parts.length > 2) {
-            cleaned = parts[0] + '.' + parts.slice(1).join('');
-        }
-
-        const [intPart, decimalPart] = cleaned.split('.');
-        const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
-
-        if (decimalPart !== undefined) {
-            return formattedInt + '.' + decimalPart.slice(0, 2);
-        }
-        return formattedInt;
-    }
-
-    const crmContractDisplay = document.getElementById('crm_contract_amount_display');
-    const crmContractHidden = document.getElementById('crm_contract_amount');
-
-    crmContractDisplay.addEventListener('input', function () {
-        const cursorFromEnd = this.value.length - this.selectionStart;
-        this.value = crmFormatNumberInput(this.value);
-        // I-restore ang cursor position (approximate) para hindi lumukso
-        const newPos = this.value.length - cursorFromEnd;
-        this.setSelectionRange(newPos, newPos);
-
-        // I-sync ang hidden raw value (walang comma) para sa database submission
-        crmContractHidden.value = this.value.replace(/,/g, '');
-        crmSaveDraft();
-    });
-
-    // ═══════════════════════════════════════════════════════════
     // AUTO-SAVE DRAFT (localStorage) — para di mawala pag nag-refresh
     // ═══════════════════════════════════════════════════════════
     const CRM_DRAFT_KEY = 'crmInquiryDraft_v1';
@@ -735,10 +726,12 @@ $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
         const form = document.getElementById('crmInquiryForm');
         const data = {};
 
+        // NOTE: crm_contract_amount / crm_contract_amount_display removed —
+        // no longer part of this form.
         const simpleIds = [
             'crm_client_name', 'crm_house_street', 'crm_contact_number',
             'crm_project_type', 'crm_measurement_datetime', 'crm_designer_id',
-            'crm_contract_amount', 'crm_contract_amount_display', 'crm_region', 'crm_province', 'crm_city', 'crm_barangay'
+            'crm_region', 'crm_province', 'crm_city', 'crm_barangay'
         ];
         simpleIds.forEach(id => {
             const el = document.getElementById(id);
@@ -747,6 +740,7 @@ $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
 
         data.project_scope = Array.from(form.querySelectorAll('input[name="project_scope[]"]:checked')).map(cb => cb.value);
         data.measuring_space = Array.from(form.querySelectorAll('input[name="measuring_space[]"]:checked')).map(cb => cb.value);
+        data.inquiry_mode = (form.querySelector('input[name="inquiry_mode"]:checked') || {}).value || 'site_visit';
         data.step = crmCurrentStep;
 
         localStorage.setItem(CRM_DRAFT_KEY, JSON.stringify(data));
@@ -759,8 +753,10 @@ $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
         let data;
         try { data = JSON.parse(raw); } catch (e) { return; }
 
+        // NOTE: crm_contract_amount / crm_contract_amount_display removed
+        // from restore too.
         const simpleIds = ['crm_client_name', 'crm_house_street', 'crm_contact_number',
-            'crm_project_type', 'crm_measurement_datetime', 'crm_contract_amount', 'crm_contract_amount_display'];
+            'crm_project_type', 'crm_measurement_datetime'];
         simpleIds.forEach(id => {
             const el = document.getElementById(id);
             if (el && data[id] !== undefined) el.value = data[id];
@@ -804,6 +800,11 @@ $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
         if (data.crm_designer_id) {
             const designerSel = document.getElementById('crm_designer_id');
             if (designerSel) designerSel.value = data.crm_designer_id;
+        }
+
+        if (data.inquiry_mode) {
+            const modeInput = document.querySelector(`input[name="inquiry_mode"][value="${CSS.escape(data.inquiry_mode)}"]`);
+            if (modeInput) modeInput.checked = true;
         }
 
         (data.project_scope || []).forEach(val => {

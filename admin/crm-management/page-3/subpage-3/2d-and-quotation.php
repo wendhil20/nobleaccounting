@@ -61,36 +61,39 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
     <?php include ROOT_PATH . '/admin/navigation/sidebar.php'; ?>
 </head>
 
-<body class="bg-gray-50 font-['Barlow_Condensed']">
+<body class="bg-gray-100 font-['Barlow_Condensed']">
     <main class="ml-56 min-h-screen p-6">
 
         <div class="max-w-4xl mx-auto">
 
-            <div class="bg-white border border-gray-300 shadow-sm">
+            <div class="bg-white border border-gray-300 shadow-sm rounded-lg">
 
                 <!-- Letterhead -->
-                <div class="border-b-2 border-gray-800 px-7 pt-6 pb-5 flex items-start justify-between font-semibold">
+                <div class="px-8 pt-6 pb-5 flex items-start justify-between border-b border-gray-300">
                     <div>
-                        <p class="text-[10px] tracking-[0.2em] uppercase text-gray-500 mb-1">Client Relationship
+                        <p class="text-[10px] tracking-[0.25em] uppercase text-gray-500 mb-1 ">Client Relationship
                             Management</p>
-                        <h1 class="text-xl font-bold text-gray-900 tracking-wide">2D and Quotation</h1>
+                        <h1 class="text-xl font-bold text-[#0B2540] tracking-wide">2D and Quotation</h1>
                         <?php if (empty($qError) && !empty($inquiry['deadline'])): ?>
-                            <p class="text-xs font-medium mt-1.5 <?= $qDeadlineIsOverdue ? 'text-red-700' : 'text-gray-500' ?>">
+                            <p
+                                class="text-xs font-medium mt-1.5 <?= $qDeadlineIsOverdue ? 'text-red-700' : 'text-gray-500' ?>">
                                 Deadline: <?= htmlspecialchars(date('F d, Y', strtotime($inquiry['deadline']))) ?>
                                 <?= $qDeadlineIsOverdue ? ' — overdue' : '' ?>
                             </p>
                         <?php endif; ?>
                     </div>
                     <a href="<?= htmlspecialchars($crmBackUrl) ?>"
-                        class="text-xs font-medium text-gray-600 px-3 py-1.5 hover:bg-gray-100 transition-colors">
-                        Back to List
+                        class="text-xs font-medium text-gray-600 border border-gray-300 px-3 py-1.5 hover:bg-gray-50 transition-colors rounded-full">
+                        <i class="fa-solid fa-circle-arrow-left"></i> Back to List
                     </a>
                 </div>
 
-                <div class="px-7 py-6 text-sm">
+                <div class="h-[3px] bg-gray-200"></div>
+
+                <div class="px-8 py-6 text-sm">
 
                     <?php if (!empty($qError)): ?>
-                        <div class="border border-gray-400 bg-gray-50 text-gray-800 text-sm px-4 py-2.5 mb-5">
+                        <div class="border border-gray-400 bg-gray-50 text-gray-800 text-sm px-4 py-2.5">
                             <strong class="uppercase text-[11px] tracking-wide">Notice:</strong>
                             <?= htmlspecialchars($qError) ?>
                         </div>
@@ -99,9 +102,9 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                         <!-- Everything below is rendered/refreshed by JS from crm2dquotationajax.php?action=state -->
                         <div id="q2dRoot">
                             <div class="space-y-3 py-4">
-                                <div class="h-6 rounded bg-gray-100 animate-pulse w-1/3"></div>
-                                <div class="h-24 rounded bg-gray-100 animate-pulse"></div>
-                                <div class="h-24 rounded bg-gray-100 animate-pulse"></div>
+                                <div class="h-6 bg-gray-100 animate-pulse w-1/3"></div>
+                                <div class="h-24 bg-gray-100 animate-pulse"></div>
+                                <div class="h-24 bg-gray-100 animate-pulse"></div>
                             </div>
                         </div>
 
@@ -109,7 +112,7 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
 
                 </div>
 
-                <div class="border-t border-gray-300 px-7 py-3 text-[11px] text-gray-400 flex justify-between">
+                <div class="border-t border-gray-300 px-8 py-3 text-[11px] text-gray-400 flex justify-between">
                     <span>Generated on <?= date('F d, Y g:i A') ?></span>
                     <span id="q2dUpdatedAt">2D and Quotation</span>
                 </div>
@@ -119,7 +122,7 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
         </div>
 
         <div id="crmToastContainer"
-            class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-2.5 pointer-events-none w-full max-w-sm px-4 sm:px-0">
+            class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-2 pointer-events-none w-30 max-w-sm px-4 sm:px-0">
         </div>
 
         <?php if (empty($qError)): ?>
@@ -135,11 +138,11 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                 function crmShowToast(message, type = 'success', duration = 4000) {
                     const container = document.getElementById('crmToastContainer');
                     const palette = type === 'success'
-                        ? { wrap: 'bg-white border-gray-800 text-gray-800', icon: 'bg-gray-800 text-white', symbol: '✓' }
-                        : { wrap: 'bg-white border-gray-400 text-gray-800', icon: 'bg-gray-400 text-white', symbol: '!' };
+                        ? { wrap: 'bg-white border-green-900 text-gray-800 rounded-2xl', icon: 'bg-green-600 text-white rounded-lg', symbol: '✓' }
+                        : { wrap: 'bg-white border-red-700 text-gray-800 rounded-2xl', icon: 'bg-red-700 text-white rounded-lg', symbol: '!' };
 
                     const toast = document.createElement('div');
-                    toast.className = `pointer-events-auto flex items-start gap-2.5 border rounded-none shadow-lg px-4 py-3 text-sm
+                    toast.className = `pointer-events-auto flex items-start gap-2.5 border shadow-lg px-4 py-3 text-sm
             ${palette.wrap}
             translate-x-6 opacity-0 scale-95 transition-all duration-300 ease-out`;
                     toast.innerHTML = `
@@ -163,7 +166,7 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     return div.innerHTML;
                 }
 
-                const Q2D_UPLOAD_SVG = `<svg class="w-5 h-5 text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                const Q2D_UPLOAD_SVG = `<svg class="w-5 h-5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>`;
@@ -175,19 +178,24 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     return 'design_3d_file';
                 }
 
+                function q2dSectionLabel(text) {
+                    return `<h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 font-semibold border-b border-gray-300 pb-2 mb-4">${text}</h2>`;
+                }
 
                 function q2dSlotDoneView(fileData, showEdit, slot) {
                     return `
                     <div class="text-sm">
                         <a href="${q2dEscapeHtml(fileData.url)}" target="_blank"
-                            class="text-amber-700 hover:underline font-medium block mb-1">View File</a>
+                            class="text-[#0B2540] hover:text-[#A9822C] font-semibold underline underline-offset-2 block mb-1">
+                            View File
+                        </a>
                         <p class="text-[11px] text-gray-500">
                             Uploaded by: ${q2dEscapeHtml(fileData.uploaded_by_name)}
                             (${q2dEscapeHtml(fileData.uploaded_role_label)})
                         </p>
                         ${showEdit ? `
                             <button type="button" onclick="q2dUnlock('${slot}')"
-                                class="mt-2 text-xs font-medium text-gray-600 border border-gray-400 px-3 py-1.5 hover:bg-gray-100">
+                                class="mt-2.5 text-xs font-medium text-gray-600 border border-gray-400 px-3 py-1.5 hover:bg-gray-100">
                                 Edit
                             </button>
                         ` : ''}
@@ -200,18 +208,18 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     const hasCurrent = currentLabel.startsWith('Current: ');
                     return `
                     <label for="${inputId}"
-                        class="flex flex-col items-center justify-center gap-1.5 border-2 border-dashed border-gray-400 py-5 px-3 cursor-pointer hover:border-gray-800 hover:bg-gray-50 transition-colors">
+                        class="flex flex-col items-center justify-center gap-1.5 border border-dashed border-gray-400 py-5 px-3 cursor-pointer hover:border-[#0B2540] hover:bg-gray-50 transition-colors">
                         ${Q2D_UPLOAD_SVG}
                         <span id="${inputId}_label" class="text-sm text-gray-600 text-center w-full truncate px-1">${q2dEscapeHtml(currentLabel)}</span>
                         <span class="text-[11px] text-gray-400">PDF only, max 15MB</span>
                     </label>
                     <input id="${inputId}" type="file" accept="application/pdf" class="hidden">
                     <a id="${inputId}_preview" href="#" target="_blank" rel="noopener"
-                        class="hidden mt-1.5 items-center gap-1 text-xs font-medium text-amber-700 hover:underline">
+                        class="hidden mt-1.5 items-center gap-1 text-xs font-medium text-[#0B2540] hover:text-[#A9822C] hover:underline">
                         View selected PDF &rarr;
                     </a>
                     <button type="button" id="${inputId}_done_btn" onclick="q2dSaveSlot('${slot}')" ${hasCurrent ? '' : 'disabled'}
-                        class="mt-3 w-full px-4 py-2 text-sm font-semibold uppercase tracking-wide text-white bg-gray-900 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                        class="mt-3 w-full px-4 py-2 text-sm font-semibold uppercase tracking-wide text-white bg-[#0B2540] hover:bg-[#123564] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
                         Mark as Done
                     </button>
                 `;
@@ -223,18 +231,18 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     const hasCurrent = currentLabel.startsWith('Current: ');
                     return `
                     <label for="${inputId}"
-                        class="flex flex-col items-center justify-center gap-1.5 border-2 border-dashed border-gray-400 py-5 px-3 cursor-pointer hover:border-gray-800 hover:bg-gray-50 transition-colors">
+                        class="flex flex-col items-center justify-center gap-1.5 border border-dashed border-gray-400 py-5 px-3 cursor-pointer hover:border-[#0B2540] hover:bg-gray-50 transition-colors">
                         ${Q2D_UPLOAD_SVG}
                         <span id="${inputId}_label" class="text-sm text-gray-600 text-center w-full truncate px-1">${q2dEscapeHtml(currentLabel)}</span>
                         <span class="text-[11px] text-gray-400">PDF or image (JPG/PNG/WEBP), max 15MB</span>
                     </label>
                     <input id="${inputId}" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" class="hidden">
                     <a id="${inputId}_preview" href="#" target="_blank" rel="noopener"
-                        class="hidden mt-1.5 items-center gap-1 text-xs font-medium text-amber-700 hover:underline">
+                        class="hidden mt-1.5 items-center gap-1 text-xs font-medium text-[#0B2540] hover:text-[#A9822C] hover:underline">
                         View selected file &rarr;
                     </a>
                     <button type="button" id="${inputId}_done_btn" onclick="q2dSaveSlot('3d')" ${hasCurrent ? '' : 'disabled'}
-                        class="mt-3 w-full px-4 py-2 text-sm font-semibold uppercase tracking-wide text-white bg-gray-900 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                        class="mt-3 w-full px-4 py-2 text-sm font-semibold uppercase tracking-wide text-white bg-[#0B2540] hover:bg-[#123564] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
                         Mark as Done
                     </button>
                 `;
@@ -254,8 +262,8 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                 function q2dApprovedNoReuploadView(fileData) {
                     return `
                     <div class="text-sm">
-                        <span class="inline-block text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5  text-green-800 mb-2">Approved</span>
-                        ${fileData.url ? `<a href="${q2dEscapeHtml(fileData.url)}" target="_blank" class="text-amber-700 hover:underline font-medium block mb-1">View File</a>` : ''}
+                        <span class="inline-block text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 border border-green-700 text-green-800 mb-2">Approved</span>
+                        ${fileData.url ? `<a href="${q2dEscapeHtml(fileData.url)}" target="_blank" class="text-[#0B2540] hover:text-[#A9822C] font-semibold underline underline-offset-2 block mb-1">View File</a>` : ''}
                         <p class="text-[11px] text-gray-500">No re-upload needed.</p>
                     </div>
                 `;
@@ -268,7 +276,7 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     <label class="flex items-center gap-2.5 mb-5 text-sm text-gray-700 cursor-pointer select-none">
                         <input type="checkbox" id="q2dInclude3dToggle" ${checked}
                             onchange="q2dToggleInclude3d(this.checked)"
-                            class="w-4 h-4 accent-gray-900">
+                            class="w-4 h-4 accent-green-600">
                         Submit 3D together with 2D &amp; Quotation
                         <span class="text-[11px] text-gray-400 font-normal">
                             (off = 3D unlocks only after 2D &amp; Quotation are approved)
@@ -277,6 +285,22 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                 `;
                 }
 
+                function q2dFileTable(columns) {
+                    // columns: [{ label, contentHtml }, ...] — rendered as a single formal table row.
+                    const widthClass = columns.length === 3 ? 'w-1/3' : 'w-1/2';
+                    const heads = columns.map((c, i) =>
+                        `<th class="${widthClass} text-left font-semibold text-[11px] uppercase tracking-wide text-gray-600 px-4 py-2 border-r border-b border-gray-300 last:border-r-0">${q2dEscapeHtml(c.label)}</th>`
+                    ).join('');
+                    const cells = columns.map((c, i) =>
+                        `<td class="align-top px-4 py-4 border-r border-gray-300 last:border-r-0" data-slot-container="${c.slot}">${c.contentHtml}</td>`
+                    ).join('');
+                    return `
+        <table class="w-full table-fixed border border-gray-300 mb-6">
+            <thead><tr class="bg-gray-50">${heads}</tr></thead>
+            <tbody><tr>${cells}</tr></tbody>
+        </table>
+    `;
+                }
 
                 function q2dRenderCompletedView(completedEntry) {
                     const reviewedLine = completedEntry.reviewed_at
@@ -284,11 +308,11 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                         : '';
 
                     return `
-                    <div class="flex items-center justify-between border-l-4 border-gray-800 bg-gray-50 px-4 py-2.5 mb-6">
+                    <div class="flex items-center justify-between border-l-4 border-[#0B2540] bg-gray-50 px-4 py-2.5 mb-6">
                         <div>
                             <p class="text-sm text-gray-800">
                                 <strong class="uppercase tracking-wide text-[11px]">Status:</strong>
-                                <span class="inline-block text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5  ml-1 text-green-800">Approved</span>
+                                <span class="inline-block text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 border border-green-700 ml-1 text-green-800">Approved</span>
                             </p>
                             ${reviewedLine}
                         </div>
@@ -296,22 +320,16 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     <p class="text-sm text-gray-500 italic mb-6">
                         Both files have been approved. No further action is needed.
                     </p>
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="border border-gray-300 p-4" data-slot-container="2d">
-                            <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-600 mb-2">2D File</p>
-                            ${q2dSlotDoneView(completedEntry.design_2d, false, '2d')}
-                        </div>
-                        <div class="border border-gray-300 p-4" data-slot-container="quotation">
-                            <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-600 mb-2">Quotation File</p>
-                            ${q2dSlotDoneView(completedEntry.quotation, false, 'quotation')}
-                        </div>
-                    </div>
+                    ${q2dFileTable([
+                    { label: '2D File', slot: '2d', contentHtml: q2dSlotDoneView(completedEntry.design_2d, false, '2d') },
+                    { label: 'Quotation File', slot: 'quotation', contentHtml: q2dSlotDoneView(completedEntry.quotation, false, 'quotation') },
+                ])}
                 `;
                 }
 
                 function q2dRenderStatusBanner(activeDraft) {
                     return `
-                    <div class="flex items-center justify-between border-l-4 border-gray-800 bg-gray-50 px-4 py-2.5 mb-6">
+                    <div class="flex items-center justify-between border-l-4 border-[#0B2540] bg-gray-50 px-4 py-2.5 mb-6">
                         <p class="text-sm text-gray-800">
                             <strong class="uppercase tracking-wide text-[11px]">Status:</strong>
                             <span class="inline-block text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 border ml-1 ${activeDraft.status_class}">${q2dEscapeHtml(activeDraft.status_label)}</span>
@@ -340,35 +358,19 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                         ? q2dSlotDoneView(quot, !locked, 'quotation')
                         : q2dSlotUploadView('quotation', quot.path ? `Current: ${quot.filename}` : 'Click to upload Quotation PDF');
 
-                    let threeDBlock = '';
+                    const columns = [
+                        { label: '2D File', slot: '2d', contentHtml: twoDInner },
+                        { label: 'Quotation File', slot: 'quotation', contentHtml: quotInner },
+                    ];
+
                     if (include3d) {
                         const threeDInner = design3d.done
                             ? q2dSlotDoneView(design3d, !locked, '3d')
                             : q2dSlotUpload3dView(design3d.path ? `Current: ${design3d.filename}` : 'Click to upload 3D file');
-
-                        threeDBlock = `
-                        <div class="border border-gray-300 p-4" data-slot-container="3d">
-                            <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-600 mb-2">3D File</p>
-                            ${threeDInner}
-                        </div>
-                    `;
+                        columns.push({ label: '3D File', slot: '3d', contentHtml: threeDInner });
                     }
 
-                    const gridClass = include3d ? 'grid grid-cols-3 gap-4 mb-6' : 'grid grid-cols-2 gap-4 mb-6';
-
-                    return `
-                    <div class="${gridClass}">
-                        <div class="border border-gray-300 p-4" data-slot-container="2d">
-                            <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-600 mb-2">2D File</p>
-                            ${twoDInner}
-                        </div>
-                        <div class="border border-gray-300 p-4" data-slot-container="quotation">
-                            <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-600 mb-2">Quotation File</p>
-                            ${quotInner}
-                        </div>
-                        ${threeDBlock}
-                    </div>
-                `;
+                    return q2dFileTable(columns);
                 }
 
                 function q2dRenderSubmitBar(activeDraft, design3d) {
@@ -376,10 +378,10 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     const include3d = !!(design3d && design3d.include_3d);
                     const allDone = activeDraft.both_done && (!include3d || design3d.done);
                     return `
-                    <div class="pt-3 border-t border-gray-200 flex items-center justify-end gap-3">
+                    <div class="pt-3 border-t border-gray-300 flex items-center justify-end gap-3">
                         ${!allDone ? `<p class="text-xs text-gray-400">Complete ${include3d ? 'all three files' : 'both files'} first.</p>` : ''}
                         <button type="button" id="q2dSubmitBtn" onclick="q2dSubmitFinal()" ${allDone ? '' : 'disabled'}
-                            class="px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white bg-gray-900 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                            class="px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white bg-[#0B2540] hover:bg-[#123564] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
                             Submit for Approval
                         </button>
                     </div>
@@ -388,9 +390,7 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
 
                 function q2dRenderRevisionOrFreshSlots(revisionEntry) {
                     const headerBlock = revisionEntry ? `
-                    <h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 border-b border-gray-300 pb-2 mb-4">
-                        Re-upload Files
-                    </h2>
+                    ${q2dSectionLabel('Re-upload Files')}
                     <p class="text-sm text-gray-500 italic mb-6">
                         ${revisionEntry.design_2d_needs_revision && revisionEntry.quotation_needs_revision
                         ? 'Both the 2D and Quotation files need revision. Attach the corrected PDFs below.'
@@ -399,9 +399,7 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                             : 'Only the Quotation file needs revision. The 2D file was already approved and does not need to be re-uploaded.'}
                     </p>
                 ` : `
-                    <h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 border-b border-gray-300 pb-2 mb-4">
-                        No Active Submission
-                    </h2>
+                    ${q2dSectionLabel('No Active Submission')}
                     <p class="text-sm text-gray-500 italic mb-6">
                         No 2D and Quotation files have been submitted yet for this inquiry. Attach a PDF below to start.
                     </p>
@@ -417,16 +415,10 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
 
                     return `
                     ${headerBlock}
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="border border-gray-300 p-4" data-slot-container="2d">
-                            <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-600 mb-2">2D File</p>
-                            ${twoDInner}
-                        </div>
-                        <div class="border border-gray-300 p-4" data-slot-container="quotation">
-                            <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-600 mb-2">Quotation File</p>
-                            ${quotInner}
-                        </div>
-                    </div>
+                    ${q2dFileTable([
+                    { label: '2D File', slot: '2d', contentHtml: twoDInner },
+                    { label: 'Quotation File', slot: 'quotation', contentHtml: quotInner },
+                ])}
                 `;
                 }
 
@@ -435,7 +427,7 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     const reviewLine = fileData.review_status
                         ? `<span class="block text-[10px] font-semibold uppercase tracking-wide mt-0.5 ${fileData.review_class}">${q2dEscapeHtml(fileData.review_status)}</span>`
                         : '';
-                    return `<a href="${q2dEscapeHtml(fileData.url)}" target="_blank" class="text-amber-700 hover:underline">View File</a>${reviewLine}`;
+                    return `<a href="${q2dEscapeHtml(fileData.url)}" target="_blank" class="text-[#0B2540] hover:text-[#A9822C] underline underline-offset-2">View File</a>${reviewLine}`;
                 }
 
 
@@ -451,16 +443,16 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                             : (entry.remarks ? q2dEscapeHtml(entry.remarks).replace(/\n/g, '<br>') : '—');
 
                         const threeDCell = anyBundled3d
-                            ? `<td class="px-4 py-2">${entry.design_3d && entry.design_3d.included ? q2dFileCell(entry.design_3d) : '<span class="text-gray-300">—</span>'}</td>`
+                            ? `<td class="px-4 py-2 border-r border-gray-200">${entry.design_3d && entry.design_3d.included ? q2dFileCell(entry.design_3d) : '<span class="text-gray-300">—</span>'}</td>`
                             : '';
 
                         return `
                         <tr class="border-b border-gray-200 last:border-b-0">
-                            <td class="px-4 py-2">${q2dFileCell(entry.design_2d)}</td>
-                            <td class="px-4 py-2">${q2dFileCell(entry.quotation)}</td>
+                            <td class="px-4 py-2 border-r border-gray-200">${q2dFileCell(entry.design_2d)}</td>
+                            <td class="px-4 py-2 border-r border-gray-200">${q2dFileCell(entry.quotation)}</td>
                             ${threeDCell}
-                            <td class="px-4 py-2 text-gray-600 whitespace-nowrap">${entry.submitted_at ? q2dEscapeHtml(entry.submitted_at) : '—'}</td>
-                            <td class="px-4 py-2">
+                            <td class="px-4 py-2 border-r border-gray-200 text-gray-600 whitespace-nowrap">${entry.submitted_at ? q2dEscapeHtml(entry.submitted_at) : '—'}</td>
+                            <td class="px-4 py-2 border-r border-gray-200">
                                 <span class="text-[11px] font-semibold uppercase tracking-wide ${entry.status_class}">${q2dEscapeHtml(entry.status_label)}</span>
                             </td>
                             <td class="px-4 py-2 text-gray-600 max-w-[220px]">${remarksCell}</td>
@@ -469,7 +461,7 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     }).join('');
 
                     return `
-                    <h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 border-b border-gray-300 pb-2 mb-4 mt-8">
+                    <h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 font-semibold border-b border-gray-300 pb-2 mb-4 mt-8">
                         Prior Submissions
                     </h2>
                     <table class="w-full border border-gray-300 text-sm mb-4">
@@ -495,15 +487,11 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     let inner;
 
                     if (stage === 'Approved') {
-                        inner = `
-                        <div class="border border-gray-300 p-4" data-slot-container="3d">
-                            ${q2dSlotDoneView(design3d, false, '3d')}
-                        </div>
-                    `;
+                        inner = q2dFileTable([{ label: '3D File', slot: '3d', contentHtml: q2dSlotDoneView(design3d, false, '3d') }]);
                     } else if (stage === 'Waiting for Approval') {
                         inner = `
                         <p class="text-sm text-gray-500 italic mb-3">3D file submitted, waiting for approval.</p>
-                        <div class="border border-gray-300 p-4" data-slot-container="3d">${q2dSlotDoneView(design3d, false, '3d')}</div>
+                        ${q2dFileTable([{ label: '3D File', slot: '3d', contentHtml: q2dSlotDoneView(design3d, false, '3d') }])}
                     `;
                     } else {
                         // Draft (open for upload) or For Revision (re-upload)
@@ -513,14 +501,11 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                             ? q2dSlotDoneView(design3d, true, '3d')
                             : q2dSlotUpload3dView(design3d.path ? `Current: ${design3d.filename}` : 'Click to upload 3D file');
                         inner = `
-                        <div class="border border-gray-300 p-4" data-slot-container="3d">
-                            ${remarksBox}
-                            ${uploadInner}
-                        </div>
-                        <div class="pt-3 mt-3 border-t border-gray-200 flex items-center justify-end gap-3">
+                        ${q2dFileTable([{ label: '3D File', slot: '3d', contentHtml: remarksBox + uploadInner }])}
+                        <div class="pt-3 -mt-3 border-t border-gray-300 flex items-center justify-end gap-3">
                             ${!design3d.done ? `<p class="text-xs text-gray-400">Complete the 3D file first.</p>` : ''}
                             <button type="button" onclick="q2dSubmit3d()" ${design3d.done ? '' : 'disabled'}
-                                class="px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white bg-gray-900 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                                class="px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white bg-[#0B2540] hover:bg-[#123564] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
                                 Submit 3D for Approval
                             </button>
                         </div>
@@ -528,7 +513,7 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     }
 
                     return `
-                    <h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 border-b border-gray-300 pb-2 mb-4 mt-8">
+                    <h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 font-semibold border-b border-gray-300 pb-2 mb-4 mt-8">
                         3D File
                     </h2>
                     ${inner}
@@ -541,10 +526,10 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     // `action=state` response, from noblecrminquiry.deadline).
                     const deadlineRow = inquiry.deadline ? `
                         <tr>
-                            <td class="w-32 bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-gray-200">
+                            <td class="w-32 bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-t border-gray-200">
                                 Deadline
                             </td>
-                            <td class="px-4 py-2.5 ${inquiry.deadline_overdue ? 'text-red-700 font-semibold' : 'text-gray-900'}" colspan="3">
+                            <td class="px-4 py-2.5 border-t border-gray-200 ${inquiry.deadline_overdue ? 'text-red-700 font-semibold' : 'text-gray-900'}" colspan="3">
                                 ${q2dEscapeHtml(inquiry.deadline)}${inquiry.deadline_overdue ? ' — overdue' : ''}
                             </td>
                         </tr>
@@ -553,15 +538,15 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     return `
                     <table class="w-full border border-gray-300 text-sm mb-6">
                         <tbody>
-                            <tr class="border-b border-gray-200">
-                                <td class="w-32 bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-gray-200">
-                                    Control No.
+                            <tr>
+                                <td class="w-32 bg-amber-600 font-semibold text-[10px] uppercase tracking-wider text-white px-4 py-2.5 border-r border-gray-200">
+                                    Control No  :
                                 </td>
                                 <td class="px-4 py-2.5 font-semibold text-gray-900">
                                     ${q2dEscapeHtml(inquiry.control_no)}
                                 </td>
-                                <td class="w-28 bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-gray-500 px-4 py-2.5 border-r border-l border-gray-200">
-                                    Client
+                                <td class="w-28 bg-amber-600 font-semibold text-[10px] uppercase tracking-wider text-white px-4 py-2.5 border-r border-l border-gray-200">
+                                    Client Name :
                                 </td>
                                 <td class="px-4 py-2.5 text-gray-900">
                                     ${q2dEscapeHtml(inquiry.client_name)}
@@ -585,7 +570,7 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                         return `
                         <button type="button" onclick="q2dSaveProgress('${s.value}')"
                             class="flex-1 px-4 py-3 text-sm font-semibold uppercase tracking-wide border transition-colors
-                            ${active ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-400 hover:bg-gray-50'}">
+                            ${active ? 'bg-[#0B2540] text-white border-[#0B2540]' : 'bg-white text-gray-600 border-gray-400 hover:bg-gray-50'}">
                             ${s.label}
                         </button>
                     `;
@@ -594,17 +579,15 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     const canConfirm = step1.progress === '100';
 
                     return `
-                    <h2 class="text-[11px] uppercase tracking-[0.2em] text-gray-500 border-b border-gray-300 pb-2 mb-4">
-                        Design Progress
-                    </h2>
+                    ${q2dSectionLabel('Design Progress')}
                     <p class="text-sm text-gray-500 italic mb-4">
                         Update the progress below. The 2D &amp; Quotation step unlocks once the design is confirmed by the customer.
                     </p>
                     <div class="flex gap-2 mb-5">${buttons}</div>
-                    <div class="pt-3 border-t border-gray-200 flex items-center justify-end gap-3">
+                    <div class="pt-3 border-t border-gray-300 flex items-center justify-end gap-3">
                         ${!canConfirm ? `<p class="text-xs text-gray-400">Progress must reach 100% first.</p>` : ''}
                         <button type="button" onclick="q2dConfirmCustomer()" ${canConfirm ? '' : 'disabled'}
-                            class="px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white bg-gray-900 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                            class="px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white bg-[#0B2540] hover:bg-[#123564] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
                             Confirm Customer Approval
                         </button>
                     </div>
@@ -615,18 +598,136 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                 // confirmed, so it's always clear when/who confirmed it.
                 function q2dRenderStep1ConfirmedBadge(step1) {
                     return `
-        <div class="flex items-center justify-between border-l-4 border-green-800 bg-gray-50 px-4 py-2.5 mb-6">
+        <div class="flex items-center justify-between border-l-4 border-[#0B2540] bg-gray-50 px-4 py-2.5 mb-6">
             <p class="text-sm text-gray-800">
-                <strong class="uppercase tracking-wide text-[11px]">Design:</strong>
-                <span class="inline-block text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5  ml-1 text-green-800">Client Review & Approval</span>
+                <strong class="uppercase tracking-wide text-[11px]">Design Status:</strong>
+                <span class="inline-block text-[9px] font-semibold uppercase tracking-wide px-2 py-0.5 border border-green-700 ml-1 text-white bg-green-600 rounded-2xl">Client Review & Approval</span>
             </p>
             ${step1.confirmed_at ? `<p class="text-xs text-gray-400">${q2dEscapeHtml(step1.confirmed_at)} by ${q2dEscapeHtml(step1.confirmed_by_name)}</p>` : ''}
         </div>
     `;
                 }
 
+                // ═══════════════════════════════════════════════════════════
+                // CONTRACT AMOUNT — NEW-CONTRACT
+                // Unlocks once the Quotation file is marked "Done" (does NOT
+                // wait for approval). Sales-only can input/edit; Designer sees
+                // a read-only view once it's been set.
+                // ═══════════════════════════════════════════════════════════
+                function q2dFormatCurrency(value, withSymbol = true) {
+                    const num = Number(value);
+                    if (value === null || value === undefined || value === '' || isNaN(num)) {
+                        return withSymbol ? '—' : '';
+                    }
+                    const formatted = num.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    return withSymbol ? '₱' + formatted : formatted;
+                }
+
+                function q2dFormatNumberInput(rawValue) {
+                    let cleaned = rawValue.replace(/[^0-9.]/g, '');
+                    const parts = cleaned.split('.');
+                    if (parts.length > 2) cleaned = parts[0] + '.' + parts.slice(1).join('');
+                    const [intPart, decimalPart] = cleaned.split('.');
+                    const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
+                    return decimalPart !== undefined ? formattedInt + '.' + decimalPart.slice(0, 2) : formattedInt;
+                }
+
+                function q2dRenderContractAmount(state) {
+                    if (!state.quotation_done) return '';
+
+                    const amount = state.inquiry.contract_amount;
+                    const hasAmount = amount !== null && amount !== undefined && amount !== '' && Number(amount) > 0;
+
+                    if (!state.is_sales) {
+                        return `
+                        <table class="w-full border border-gray-300 text-md mb-6">
+                            <tbody><tr>
+                                <td class="w-40 bg-gray-50 font-semibold text-[10px] uppercase tracking-wider text-black px-4 py-2.5 border-r border-gray-200">Contract Amount :</td>
+                                <td class="px-4 py-2.5 text-gray-900">${hasAmount ? q2dFormatCurrency(amount) : '<span class="text-gray-400 italic">Not yet set by Sales.</span>'}</td>
+                            </tr></tbody>
+                        </table>
+                    `;
+                    }
+
+                    return `
+                    <div class="rounded-lg border border-gray-200 bg-white p-3 mb-6 shadow-sm">
+    <label for="q2dContractAmountInput" class="block text-md font-medium text-black mb-2">
+        Contract amount :
+    </label>
+    <div class="flex items-stretch gap-2">
+        <div class="relative flex-1">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">₱</span>
+            <input type="text" inputmode="decimal" id="q2dContractAmountInput"
+                value="${hasAmount ? q2dFormatCurrency(amount, false) : ''}" placeholder="0.00"
+                class="w-full pl-7 pr-2 py-2 text-sm rounded-lg border border-gray-300 text-gray-900
+                       focus:outline-none focus:ring-2 focus:ring-[#0B2540]/20 focus:border-[#0B2540]
+                       transition-colors">
+        </div>
+        <button type="button" onclick="q2dSaveContractAmount()"
+            class="px-4 py-2 text-md font-medium text-white bg-black rounded-lg
+                   hover:bg-[#123564] active:bg-[#0a1f36] transition-colors 
+                   focus:outline-none focus:ring-2 focus:ring-[#0B2540]/40 focus:ring-offset-1">
+            ${hasAmount ? 'Update' : 'Save'}
+        </button>
+    </div>
+</div>
+                `;
+                }
+
+                function q2dBindContractAmountInput() {
+                    const input = document.getElementById('q2dContractAmountInput');
+                    if (!input) return;
+                    input.addEventListener('input', function () {
+                        const cursorFromEnd = this.value.length - this.selectionStart;
+                        this.value = q2dFormatNumberInput(this.value);
+                        const newPos = this.value.length - cursorFromEnd;
+                        this.setSelectionRange(newPos, newPos);
+                    });
+                }
+
+                async function q2dSaveContractAmount() {
+                    const input = document.getElementById('q2dContractAmountInput');
+                    if (!input) return;
+                    const rawValue = input.value.replace(/,/g, '').trim();
+
+                    if (!rawValue || isNaN(Number(rawValue)) || Number(rawValue) <= 0) {
+                        crmShowToast('Please enter a valid contract amount.', 'error');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('action', 'save_contract_amount');
+                    formData.append('inquiry_id', Q2D_INQUIRY_ID);
+                    formData.append('contract_amount', rawValue);
+
+                    try {
+                        const res = await fetch(Q2D_AJAX_URL, { method: 'POST', body: formData });
+                        const data = await res.json();
+
+                        if (!data.success) {
+                            crmShowToast(data.message || 'Something went wrong.', 'error');
+                            return;
+                        }
+
+                        q2dLastSignature = '';
+                        crmShowToast(data.message || 'Saved.');
+                        await q2dFetchState();
+                    } catch (e) {
+                        console.error('q2dSaveContractAmount:', e);
+                        crmShowToast('Connection error. Please try again.', 'error');
+                    }
+                }
+
                 function q2dRenderRoot(state) {
                     const root = document.getElementById('q2dRoot');
+
+                    // Preserve any unsaved (not-yet-clicked-Save) contract amount typing
+                    // across re-renders triggered by other actions (e.g. toggling 3D).
+                    const existingAmountInput = document.getElementById('q2dContractAmountInput');
+                    const pendingAmountValue = existingAmountInput ? existingAmountInput.value : null;
+                    const pendingAmountWasFocused = existingAmountInput === document.activeElement;
+                    const pendingAmountCaret = pendingAmountWasFocused ? existingAmountInput.selectionStart : null;
+
                     if (!state.step1 || !state.step1.confirmed) {
                         root.innerHTML = q2dInquirySummary(state.inquiry) + q2dRenderStep1(state.step1);
                         return;
@@ -635,32 +736,47 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
                     const design3d = state.design_3d;
 
                     let body = q2dInquirySummary(state.inquiry);
-                    body += q2dRenderStep1ConfirmedBadge(state.step1); // NEW-STEP1
+                    body += q2dRenderStep1ConfirmedBadge(state.step1);
+                    body += q2dRenderContractAmount(state);
                     body += q2dRenderToggle(design3d);
 
                     if (state.active_draft) {
                         body += q2dRenderStatusBanner(state.active_draft);
-                        body += q2dRenderActiveDraftSlots(state.active_draft, design3d); // NEW-3D: pass design3d
-                        body += q2dRenderSubmitBar(state.active_draft, design3d); // NEW-3D: pass design3d
+                        body += q2dRenderActiveDraftSlots(state.active_draft, design3d);
+                        body += q2dRenderSubmitBar(state.active_draft, design3d);
                     } else if (state.completed_entry) {
                         body += q2dRenderCompletedView(state.completed_entry);
-                        body += q2dRender3dStandaloneSection(design3d); // NEW-3D
+                        body += q2dRender3dStandaloneSection(design3d);
                     } else {
                         body += q2dRenderRevisionOrFreshSlots(state.revision_entry);
-                        body += q2dRender3dStandaloneSection(design3d); // NEW-3D
+                        body += q2dRender3dStandaloneSection(design3d);
                     }
 
                     body += q2dRenderPastEntries(state.past_entries);
 
                     root.innerHTML = body;
 
-                    // Reset pending-selection tracking and (re)bind the upload
-                    // inputs that exist in the freshly rendered markup.
+                    // Restore whatever the user had typed but not yet saved.
+                    if (pendingAmountValue) {
+                        const newAmountInput = document.getElementById('q2dContractAmountInput');
+                        if (newAmountInput && newAmountInput.value !== pendingAmountValue) {
+                            newAmountInput.value = pendingAmountValue;
+                            if (pendingAmountWasFocused) {
+                                newAmountInput.focus();
+                                if (pendingAmountCaret !== null) {
+                                    newAmountInput.setSelectionRange(pendingAmountCaret, pendingAmountCaret);
+                                }
+                            }
+                        }
+                    }
+
                     q2dPendingSelection = { '2d': false, quotation: false, '3d': false };
                     q2dBindLabel('2d');
                     q2dBindLabel('quotation');
-                    q2dBindLabel('3d'); // NEW-3D
+                    q2dBindLabel('3d');
+                    q2dBindContractAmountInput();
                 }
+
 
                 // ── Filename label + preview link + enable "Mark as Done" once may napiling file ──
                 function q2dBindLabel(slot) {
@@ -730,7 +846,7 @@ if (empty($qError) && !empty($inquiry['deadline'])) {
 
                         const signature = JSON.stringify(data.step1) + JSON.stringify(data.active_draft) + JSON.stringify(data.completed_entry)
                             + JSON.stringify(data.revision_entry) + JSON.stringify(data.past_entries)
-                            + JSON.stringify(data.design_3d);
+                            + JSON.stringify(data.design_3d) + JSON.stringify(data.inquiry.contract_amount) + JSON.stringify(data.quotation_done);
                         if (signature !== q2dLastSignature) {
                             q2dRenderRoot(data);
                             q2dLastSignature = signature;

@@ -22,8 +22,10 @@ if ($inquiryId <= 0) {
     $svError = 'Missing or invalid inquiry reference.';
 } else {
     // Fetch the inquiry, making sure it belongs to the logged-in designer
+    // ("mode" is included so we can skip this page entirely when the client
+    // already provided a 2D — see redirect guard below).
     $stmt = $conn->prepare("
-        SELECT id, control_no, client_name, address, contact_number, status, deadline
+        SELECT id, control_no, client_name, address, contact_number, status, deadline, mode
         FROM noblecrminquiry
         WHERE id = ? AND designer_id = ?
         LIMIT 1
@@ -36,6 +38,15 @@ if ($inquiryId <= 0) {
     if (!$inquiry) {
         $svError = 'Inquiry not found, or not assigned to you.';
     }
+}
+
+// --- Redirect guard: "Ready for Quotation" inquiries skip Site Visit entirely ---
+// Kung ang mode ng inquiry ay "ready_for_quotation" (may 2D na ang client),
+// walang dapat gawing site visit form dito — deretso sa 2D & Quotation page,
+// kahit i-type pa ng designer ang URL ng site visit page nang manual.
+if (empty($svError) && $inquiry && ($inquiry['mode'] ?? 'site_visit') === 'ready_for_quotation') {
+    header('Location: ' . BASE_URL . '/crm2dquotation?id=' . $inquiryId);
+    exit;
 }
 
 // When this form is opened, mark the related notification as read
