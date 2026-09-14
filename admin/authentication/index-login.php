@@ -30,12 +30,15 @@ function getRouteFor($role, $position, $branch) {
         return $isMainBranch ? 'superadmin' : 'crm-main';
     }
 
+    if ($role === 'ORDER PROCESSING/CUTTING LIST DEPARTMENT') {
+        return $isMainBranch ? 'cuttinglist' : 'crmcuttinglist';
+    }
+
     $roleRoutes = [
         'IT DEPARTMENT'                            => 'it',
         'HUMAN RESOURCES DEPARTMENT'               => 'humanresource',
         'OPERATIONS DEPARTMENT'                    => 'operation',
         'GRAPHIC DESIGN DEPARTMENT'                => 'graphicdesign',
-        'ORDER PROCESSING/CUTTING LIST DEPARTMENT' => 'cuttinglist',
     ];
 
     return $roleRoutes[$role] ?? 'loginadmin';

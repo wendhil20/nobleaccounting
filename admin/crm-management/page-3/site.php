@@ -21,141 +21,96 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════
-         PENDING (left) + IN PROGRESS (right)
+         SINGLE MERGED TABLE (Pending + In Progress)
     ═══════════════════════════════════════════════════════════ -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4 items-start">
+    <div class="flex items-center gap-2 mb-2">
+        <span id="crmAllCount" class="text-[11px] text-gray-400"></span>
+    </div>
 
-        <!-- PENDING TABLE -->
-        <div>
-            <div class="flex items-center gap-2 mb-2">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border bg-amber-50 text-amber-700 border-amber-200">Pending</span>
-                <span id="crmPendingCount" class="text-[11px] text-gray-400"></span>
-            </div>
-
-            <!-- Search + Filter (Pending only) -->
-            <div class="flex items-center gap-2 mb-2">
-                <div class="relative flex-1 min-w-0">
-                    <input id="crmPendingSearch" type="text" placeholder="Search control no. / client / contact"
-                        class="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-amber-600 bg-white">
-                    <svg class="absolute left-2 top-1.5 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
-                    </svg>
-                </div>
-                <select id="crmPendingFilter"
-                    class="shrink-0 pl-2.5 pr-7 py-1.5 text-xs border border-gray-300 rounded-lg bg-white focus:outline-none focus:border-amber-600 text-gray-600">
-                    <option value="">All project types</option>
-                </select>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-xs">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-200 text-left text-[10px] uppercase tracking-wide text-gray-500">
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Control No.</th>
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Client Name</th>
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Contact No.</th>
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Project Type</th>
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Filed By</th>
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Status</th>
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Date Assigned</th>
-                            </tr>
-                        </thead>
-                        <tbody id="crmDesignerTbodyPending" class="divide-y divide-gray-100">
-                            <tr>
-                                <td colspan="7" class="px-4 py-8 text-center text-gray-400 text-xs">
-                                    Loading assigned inquiries…
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <!-- Search + Filter -->
+    <div class="flex items-center gap-2 mb-2">
+        <div class="relative flex-1 min-w-0 max-w-sm">
+            <input id="crmSearch" type="text" placeholder="Search control no. / client / contact"
+                class="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-amber-600 bg-white">
+            <svg class="absolute left-2 top-1.5 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+            </svg>
         </div>
+        <select id="crmStatusFilter"
+            class="shrink-0 pl-2.5 pr-7 py-1.5 text-xs border border-gray-300 rounded-lg bg-white focus:outline-none focus:border-amber-600 text-gray-600">
+            <option value="">All statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+        </select>
+        <select id="crmTypeFilter"
+            class="shrink-0 pl-2.5 pr-7 py-1.5 text-xs border border-gray-300 rounded-lg bg-white focus:outline-none focus:border-amber-600 text-gray-600">
+            <option value="">All project types</option>
+        </select>
+    </div>
 
-        <!-- IN PROGRESS TABLE -->
-        <div>
-            <div class="flex items-center gap-2 mb-2">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border bg-blue-50 text-blue-700 border-blue-200">In Progress</span>
-                <span id="crmProgressCount" class="text-[11px] text-gray-400"></span>
-            </div>
-
-            <!-- Search + Filter (In Progress only) -->
-            <div class="flex items-center gap-2 mb-2">
-                <div class="relative flex-1 min-w-0">
-                    <input id="crmProgressSearch" type="text" placeholder="Search control no. / client / contact"
-                        class="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600 bg-white">
-                    <svg class="absolute left-2 top-1.5 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
-                    </svg>
-                </div>
-                <select id="crmProgressFilter"
-                    class="shrink-0 pl-2.5 pr-7 py-1.5 text-xs border border-gray-300 rounded-lg bg-white focus:outline-none focus:border-blue-600 text-gray-600">
-                    <option value="">All project types</option>
-                </select>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-xs">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-200 text-left text-[10px] uppercase tracking-wide text-gray-500">
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Control No.</th>
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Client Name</th>
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Contact No.</th>
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Project Type</th>
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Filed By</th>
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Status</th>
-                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Date Assigned</th>
-                            </tr>
-                        </thead>
-                        <tbody id="crmDesignerTbodyProgress" class="divide-y divide-gray-100">
-                            <tr>
-                                <td colspan="7" class="px-4 py-8 text-center text-gray-400 text-xs">
-                                    Loading assigned inquiries…
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-xs">
+                <thead>
+                    <tr
+                        class="bg-gray-50 border-b border-gray-200 text-left text-[10px] uppercase tracking-wide text-gray-500">
+                        <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Control No.</th>
+                        <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Client Name</th>
+                        <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Contact No.</th>
+                        <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Project Type</th>
+                        <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Filed By</th>
+                        <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Status</th>
+                        <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Date Assigned</th>
+                    </tr>
+                </thead>
+                <tbody id="crmDesignerTbody" class="divide-y divide-gray-100">
+                    <tr>
+                        <td colspan="7" class="px-4 py-8 text-center text-gray-400 text-xs">
+                            Loading assigned inquiries…
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-
     </div>
 
     <p id="crmDesignerCount" class="text-[11px] text-gray-400 mt-2.5"></p>
 </div>
 
-<!-- Detail Modal -->
-<div id="crmDetailModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 px-4">
-    <div class="bg-white rounded-xl shadow-lg w-full max-w-lg overflow-hidden max-h-[85vh] flex flex-col">
-        <div class="px-5 py-3.5 border-b border-gray-100 flex items-start justify-between">
-            <div>
-                <p class="text-[10px] text-amber-700 font-semibold tracking-[0.15em] uppercase mb-0.5">Inquiry Detail</p>
-                <h3 id="crmDetailControlNo" class="text-gray-900 font-mono font-semibold text-sm">—</h3>
-            </div>
-            <button type="button" onclick="crmCloseDetailModal()"
-                class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+<!-- ═══════════════════════════════════════════════════════════
+     RIGHT-SIDE DETAIL PANEL (slides in from the right, replaces the old modal)
+═══════════════════════════════════════════════════════════ -->
+<div id="crmDetailOverlay" class="fixed inset-0 bg-black/30 hidden z-40" onclick="crmCloseDetailPanel()"></div>
+
+<div id="crmDetailPanel" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col
+           translate-x-full transition-transform duration-300 ease-out">
+
+    <div class="px-5 py-4 border-b border-gray-100 flex items-start justify-between shrink-0">
+        <div>
+            <p class="text-[10px] text-amber-700 font-semibold tracking-[0.15em] uppercase mb-0.5">Inquiry Detail</p>
+            <h3 id="crmDetailControlNo" class="text-gray-900 font-mono font-semibold text-sm">—</h3>
         </div>
-        <div id="crmDetailBody" class="px-5 py-3.5 overflow-y-auto space-y-0.5">
-            <!-- Populated via JS -->
-        </div>
-        <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
-            <span id="crmDetailStatusBadge"></span>
-            <div class="flex items-center gap-2">
-                <button type="button" id="crmDetailSiteVisitBtn" onclick="crmProceedFromModal()"
-                    class="px-3.5 py-1.5 text-xs font-medium text-white bg-amber-700 rounded-lg hover:bg-amber-800 whitespace-nowrap">
-                    Proceed
-                </button>
-                <button type="button" id="crmDetail2dBtn" onclick="crm2dQuotationFromModal()" disabled
-                    class="px-3.5 py-1.5 text-xs font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed whitespace-nowrap">
-                    2D &amp; Quotation
-                </button>
-                <button type="button" onclick="crmCloseDetailModal()"
-                    class="px-3.5 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                    Close
-                </button>
-            </div>
+        <button type="button" onclick="crmCloseDetailPanel()"
+            class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+    </div>
+
+    <div id="crmDetailBody" class="px-5 py-4 overflow-y-auto space-y-0.5 flex-1">
+        <!-- Populated via JS -->
+    </div>
+
+    <div class="px-5 py-4 bg-gray-50 border-t border-gray-100 shrink-0">
+        <div class="mb-3" id="crmDetailStatusBadge"></div>
+        <div class="flex flex-col gap-2">
+            <button type="button" id="crmDetailSiteVisitBtn" onclick="crmProceedFromPanel()"
+                class="w-full px-3.5 py-2 text-xs font-medium text-white bg-amber-700 rounded-lg hover:bg-amber-800 whitespace-nowrap">
+                Proceed
+            </button>
+            <button type="button" id="crmDetail2dBtn" onclick="crm2dQuotationFromPanel()" disabled
+                class="w-full px-3.5 py-2 text-xs font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed whitespace-nowrap">
+                2D &amp; Quotation
+            </button>
         </div>
     </div>
 </div>
@@ -198,9 +153,6 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
         if (duration > 0) setTimeout(remove, duration);
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // REALTIME LIST (polling)
-    // ═══════════════════════════════════════════════════════════
     const CRM_DESIGNER_AJAX_URL = <?= json_encode($crmDesignerAjaxUrl) ?>;
     const CRM_SITEVISIT_URL = <?= json_encode($crmSiteVisitUrl) ?>;
     const CRM_2D_QUOTATION_URL = <?= json_encode($crm2dQuotationUrl) ?>;
@@ -211,13 +163,33 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
     let crmDesignerPollTimer = null;
     let crmDetailCurrentId = null;
 
-    // Per-table (independent) search + filter state
-    let crmPendingSearchTerm = '';
-    let crmPendingProjectType = '';
-    let crmProgressSearchTerm = '';
-    let crmProgressProjectType = '';
-    let crmPendingSearchDebounce = null;
-    let crmProgressSearchDebounce = null;
+    // Single search + status + project-type filter state (one table now)
+    let crmSearchTerm = '';
+    let crmStatusFilterValue = '';
+    let crmTypeFilterValue = '';
+    let crmSearchDebounce = null;
+
+    const CRM_VIEWED_KEY = 'crmDesignerViewedIds';
+
+    function crmGetViewedIds() {
+        try {
+            const raw = localStorage.getItem(CRM_VIEWED_KEY);
+            return raw ? new Set(JSON.parse(raw)) : new Set();
+        } catch (e) {
+            return new Set();
+        }
+    }
+
+    function crmMarkViewed(id) {
+        const viewed = crmGetViewedIds();
+        if (viewed.has(id)) return; // already marked, nothing to do
+        viewed.add(id);
+        try {
+            localStorage.setItem(CRM_VIEWED_KEY, JSON.stringify([...viewed]));
+        } catch (e) {
+            console.error('crmMarkViewed:', e);
+        }
+    }
 
     function crmEscapeHtml(str) {
         const div = document.createElement('div');
@@ -235,7 +207,9 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
         if (!value) return '—';
         const dt = new Date(value.replace(' ', 'T'));
         if (isNaN(dt.getTime())) return value;
-        return dt.toLocaleString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
+        return dt.toLocaleDateString('en-PH', {
+            year: 'numeric', month: 'long', day: 'numeric'
+        });
     }
 
     function crmFormatDateTimeLong(value) {
@@ -256,64 +230,37 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
         return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border whitespace-nowrap ${cls}">${crmEscapeHtml(status)}</span>`;
     }
 
-    // Action buttons now render UNDER the Control No. (its own dedicated
-    // "Action" column was removed to save horizontal space).
-    //
-    // "mode" from the row (site_visit | ready_for_quotation) determines
-    // whether the Site Visit step is shown at all:
-    //   - site_visit           -> normal Proceed / View Site Visit button
-    //   - ready_for_quotation  -> no site visit step; client already has 2D,
-    //                             so only the 2D & Quotation button matters
-    //                             (and it's unlocked immediately since these
-    //                             rows are inserted straight into "In Progress").
-    function crmActionCell(row) {
-        const isDone = row.status === 'In Progress';
-        const isReadyForQuotation = row.mode === 'ready_for_quotation';
+    function crmRowHtml(row, viewedIds) {
+        const isViewed = viewedIds.has(row.id);
+        const isActive = crmDetailCurrentId === row.id;
 
-        const siteVisitBtn = isReadyForQuotation
-            ? `
-                <span class="px-2 py-1 text-[10px] font-medium text-gray-400 bg-gray-50 border border-gray-200 rounded-md whitespace-nowrap"
-                    title="Client already provided a 2D — no site visit needed">
-                    No Site Visit
-                </span>
-            `
-            : `
-                <button type="button" onclick="crmProceed(${row.id})"
-                    class="px-2 py-1 text-[10px] font-medium rounded-md transition-colors whitespace-nowrap ${
-                        isDone
-                            ? 'text-amber-700 bg-white border border-amber-200 hover:bg-amber-50'
-                            : 'text-white bg-amber-700 hover:bg-amber-800'
-                    }">
-                    ${isDone ? 'View Site Visit' : 'Proceed'}
-                </button>
-            `;
 
-        // 2D & Quotation button: locked until the site visit has been completed
-        // (or unlocked immediately for "ready_for_quotation" rows, since those
-        // are already inserted with status = 'In Progress').
-        const quotationBtn = isDone
-            ? `<button type="button" onclick="crm2dQuotation(${row.id})"
-                    class="px-2 py-1 text-[10px] font-medium text-white bg-blue-700 rounded-md hover:bg-blue-800 transition-colors whitespace-nowrap">
-                    2D &amp; Quotation
-               </button>`
-            : `<button type="button" disabled title="Complete the site visit first"
-                    class="px-2 py-1 text-[10px] font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-md cursor-not-allowed whitespace-nowrap">
-                    2D &amp; Quotation
-               </button>`;
+        let rowBgCls = '';
+        if (isActive) rowBgCls = 'bg-amber-100';
+        else if (!isViewed) rowBgCls = 'bg-amber-50/30';
 
-        return `<div class="flex flex-wrap items-center gap-1.5 mt-1.5">${siteVisitBtn}${quotationBtn}</div>`;
-    }
+        const firstCellAccent = isActive
+            ? 'border-l-4 border-l-amber-600 pl-3'
+            : 'border-l-4 border-l-transparent pl-3';
 
-    function crmRowHtml(row) {
+        const unreadDot = isViewed
+            ? ''
+            : `<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Not yet viewed"></span>`;
+        const viewedLabel = isViewed
+            ? `<span class="text-[10px] text-gray-400 whitespace-nowrap">Viewed</span>`
+            : '';
+
         return `
-            <tr class="hover:bg-amber-50/40 transition-colors" data-row-id="${row.id}">
-                <td class="px-4 py-2.5 align-top">
-                    <button type="button"
-                        onclick="crmOpenDetailModal(${row.id})"
-                        class="font-mono text-[11px] font-semibold text-amber-700 hover:text-amber-900 hover:underline underline-offset-2 whitespace-nowrap block">
-                        ${crmEscapeHtml(row.control_no)}
-                    </button>
-                    <div data-action-cell>${crmActionCell(row)}</div>
+            <tr class="hover:bg-amber-50/40 transition-colors cursor-pointer ${rowBgCls}" data-row-id="${row.id}"
+                onclick="crmOpenDetailPanel(${row.id})">
+                <td class="pr-4 py-2.5 align-top ${firstCellAccent}">
+                    <div class="flex items-center gap-1.5">
+                        ${unreadDot}
+                        <span class="font-mono text-[11px] font-semibold text-amber-700 whitespace-nowrap">
+                            ${crmEscapeHtml(row.control_no)}
+                        </span>
+                    </div>
+                    ${viewedLabel}
                 </td>
                 <td class="px-4 py-2.5 text-gray-800 align-top">${crmEscapeHtml(row.client_name)}</td>
                 <td class="px-4 py-2.5 text-gray-600 whitespace-nowrap align-top">${crmEscapeHtml(row.contact_number)}</td>
@@ -335,9 +282,12 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
         `;
     }
 
-    // Applies a bucket's own search term + project-type filter to its rows.
-    function crmFilterRows(rows, searchTerm, projectType) {
+    // Applies search term + status filter + project-type filter to the full row set.
+    function crmFilterRows(rows, searchTerm, statusValue, projectType) {
         let out = rows;
+        if (statusValue) {
+            out = out.filter(r => r.status === statusValue);
+        }
         if (projectType) {
             out = out.filter(r => (r.project_type || '') === projectType);
         }
@@ -352,8 +302,8 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
         return out;
     }
 
-    // Rebuilds a "project type" <select> from the bucket's full (unfiltered
-    // by search) row set, keeping the current selection if still valid.
+    // Rebuilds the "project type" <select> from the full row set, keeping
+    // the current selection if still valid.
     function crmPopulateProjectFilter(selectEl, rows) {
         const current = selectEl.value;
         const types = [...new Set(rows.map(r => r.project_type).filter(Boolean))].sort();
@@ -364,32 +314,19 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
     }
 
     function crmRenderRows() {
-        const pendingAll = crmAllRows.filter(r => r.status !== 'In Progress');
-        const progressAll = crmAllRows.filter(r => r.status === 'In Progress');
+        const typeFilterSelect = document.getElementById('crmTypeFilter');
+        crmPopulateProjectFilter(typeFilterSelect, crmAllRows);
 
-        const pendingFilterSelect = document.getElementById('crmPendingFilter');
-        const progressFilterSelect = document.getElementById('crmProgressFilter');
-        crmPopulateProjectFilter(pendingFilterSelect, pendingAll);
-        crmPopulateProjectFilter(progressFilterSelect, progressAll);
+        const filteredRows = crmFilterRows(crmAllRows, crmSearchTerm, crmStatusFilterValue, crmTypeFilterValue);
+        const viewedIds = crmGetViewedIds();
 
-        const pendingRows = crmFilterRows(pendingAll, crmPendingSearchTerm, crmPendingProjectType);
-        const progressRows = crmFilterRows(progressAll, crmProgressSearchTerm, crmProgressProjectType);
+        const tbody = document.getElementById('crmDesignerTbody');
+        tbody.innerHTML = filteredRows.length
+            ? filteredRows.map(row => crmRowHtml(row, viewedIds)).join('')
+            : crmRenderEmptyRow(crmAllRows.length ? 'No matching inquiries.' : 'No inquiries assigned yet.');
 
-        const pendingTbody = document.getElementById('crmDesignerTbodyPending');
-        const progressTbody = document.getElementById('crmDesignerTbodyProgress');
-
-        pendingTbody.innerHTML = pendingRows.length
-            ? pendingRows.map(crmRowHtml).join('')
-            : crmRenderEmptyRow(pendingAll.length ? 'No matching inquiries.' : 'No pending inquiries.');
-
-        progressTbody.innerHTML = progressRows.length
-            ? progressRows.map(crmRowHtml).join('')
-            : crmRenderEmptyRow(progressAll.length ? 'No matching inquiries.' : 'No inquiries in progress yet.');
-
-        document.getElementById('crmPendingCount').textContent =
-            `${pendingRows.length} of ${pendingAll.length} inquir${pendingAll.length === 1 ? 'y' : 'ies'}`;
-        document.getElementById('crmProgressCount').textContent =
-            `${progressRows.length} of ${progressAll.length} inquir${progressAll.length === 1 ? 'y' : 'ies'}`;
+        document.getElementById('crmAllCount').textContent =
+            `${filteredRows.length} of ${crmAllRows.length} inquir${crmAllRows.length === 1 ? 'y' : 'ies'}`;
 
         document.getElementById('crmDesignerCount').textContent =
             `${crmAllRows.length} inquir${crmAllRows.length === 1 ? 'y' : 'ies'} assigned`;
@@ -406,9 +343,6 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
                 return;
             }
 
-            // NOTE: crmdesignerajax.php's `action=list` response must include
-            // "mode" (site_visit | ready_for_quotation) per row for the
-            // signature + action-cell rendering below to reflect it correctly.
             const signature = JSON.stringify(data.rows.map(r => r.id + ':' + r.status + ':' + r.mode));
             crmAllRows = data.rows;
             if (signature !== crmDesignerLastSignature) {
@@ -436,31 +370,21 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
         }
     });
 
-    // Pending table: own search + own filter, independent of In Progress.
-    document.getElementById('crmPendingSearch').addEventListener('input', function () {
-        clearTimeout(crmPendingSearchDebounce);
+    // Single search box + status filter + project-type filter for the merged table.
+    document.getElementById('crmSearch').addEventListener('input', function () {
+        clearTimeout(crmSearchDebounce);
         const value = this.value;
-        crmPendingSearchDebounce = setTimeout(() => {
-            crmPendingSearchTerm = value.trim();
+        crmSearchDebounce = setTimeout(() => {
+            crmSearchTerm = value.trim();
             crmRenderRows();
         }, 250);
     });
-    document.getElementById('crmPendingFilter').addEventListener('change', function () {
-        crmPendingProjectType = this.value;
+    document.getElementById('crmStatusFilter').addEventListener('change', function () {
+        crmStatusFilterValue = this.value;
         crmRenderRows();
     });
-
-    // In Progress table: own search + own filter, independent of Pending.
-    document.getElementById('crmProgressSearch').addEventListener('input', function () {
-        clearTimeout(crmProgressSearchDebounce);
-        const value = this.value;
-        crmProgressSearchDebounce = setTimeout(() => {
-            crmProgressSearchTerm = value.trim();
-            crmRenderRows();
-        }, 250);
-    });
-    document.getElementById('crmProgressFilter').addEventListener('change', function () {
-        crmProgressProjectType = this.value;
+    document.getElementById('crmTypeFilter').addEventListener('change', function () {
+        crmTypeFilterValue = this.value;
         crmRenderRows();
     });
 
@@ -473,7 +397,7 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
         window.location.href = `${CRM_SITEVISIT_URL}?id=${id}`;
     }
 
-    function crmProceedFromModal() {
+    function crmProceedFromPanel() {
         if (crmDetailCurrentId) crmProceed(crmDetailCurrentId);
     }
 
@@ -485,12 +409,25 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
         window.location.href = `${CRM_2D_QUOTATION_URL}?id=${id}`;
     }
 
-    function crm2dQuotationFromModal() {
+    function crm2dQuotationFromPanel() {
         if (crmDetailCurrentId) crm2dQuotation(crmDetailCurrentId);
     }
 
+    function crmDetailRowHighlight(label, value) {
+        return `
+        <div class="flex justify-between items-center gap-3 py-1 px-3 my-1 rounded-md
+                    bg-slate-50 border border-slate-300 text-[13px]">
+            <span class="text-slate-600 font-medium flex items-center gap-1.5">
+                <i class="fa-regular fa-calendar"></i>
+                ${label}
+            </span>
+            <span class="text-slate-900 font-semibold text-right">${value}</span>
+        </div>
+    `;
+    }
+
     // ═══════════════════════════════════════════════════════════
-    // DETAIL MODAL
+    // RIGHT-SIDE DETAIL PANEL (replaces the old center modal)
     // ═══════════════════════════════════════════════════════════
     function crmDetailRow(label, value) {
         return `
@@ -501,12 +438,19 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
         `;
     }
 
-    async function crmOpenDetailModal(id) {
-        const modal = document.getElementById('crmDetailModal');
+    async function crmOpenDetailPanel(id) {
+        const overlay = document.getElementById('crmDetailOverlay');
+        const panel = document.getElementById('crmDetailPanel');
         const body = document.getElementById('crmDetailBody');
         const siteVisitBtn = document.getElementById('crmDetailSiteVisitBtn');
         const quotationBtn = document.getElementById('crmDetail2dBtn');
         crmDetailCurrentId = id;
+
+        // Mark viewed immediately and re-render the table right away so the
+        // unread dot disappears and the active-row highlight shows up the
+        // moment the panel opens.
+        crmMarkViewed(id);
+        crmRenderRows();
 
         document.getElementById('crmDetailControlNo').textContent = 'Loading…';
         document.getElementById('crmDetailStatusBadge').innerHTML = '';
@@ -514,8 +458,9 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
         siteVisitBtn.style.display = '';
         quotationBtn.disabled = true;
         body.innerHTML = `<p class="text-sm text-gray-400 py-6 text-center">Fetching details…</p>`;
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+
+        overlay.classList.remove('hidden');
+        requestAnimationFrame(() => panel.classList.remove('translate-x-full'));
 
         try {
             // NOTE: crmdesignerajax.php's `action=detail` response must also
@@ -560,6 +505,7 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
                 crmDetailRow('Scope of Project', crmEscapeHtml(r.project_scope) || '—'),
                 crmDetailRow('Measuring Space', crmEscapeHtml(r.measuring_space) || '—'),
                 crmDetailRow('Measurement Date &amp; Time', crmFormatDateTimeLong(r.measurement_datetime)),
+                crmDetailRowHighlight('Target Completion Date', crmFormatDate(r.target_completion_date)),
                 crmDetailRow('Contract Amount', crmFormatCurrency(r.contract_amount)),
                 crmDetailRow('Branch', crmEscapeHtml(r.branch) || '—'),
                 crmDetailRow('Filed By', crmEscapeHtml(r.sales_name)),
@@ -567,19 +513,17 @@ $crm2dQuotationUrl = BASE_URL . '/crm2dquotation';
             ].join('');
 
         } catch (e) {
-            console.error('crmOpenDetailModal:', e);
+            console.error('crmOpenDetailPanel:', e);
             body.innerHTML = `<p class="text-sm text-red-500 py-6 text-center">Connection error. Please try again.</p>`;
         }
     }
 
-    function crmCloseDetailModal() {
-        const modal = document.getElementById('crmDetailModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+    function crmCloseDetailPanel() {
+        const overlay = document.getElementById('crmDetailOverlay');
+        const panel = document.getElementById('crmDetailPanel');
+        panel.classList.add('translate-x-full');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
         crmDetailCurrentId = null;
+        crmRenderRows();
     }
-
-    document.getElementById('crmDetailModal').addEventListener('click', function (e) {
-        if (e.target === this) crmCloseDetailModal();
-    });
 </script>

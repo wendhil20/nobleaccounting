@@ -2,7 +2,14 @@
 // index-custodian-submit-voucher.php
 
 include ROOT_PATH . '/network/connect.php';
+include ROOT_PATH . '/admin/authentication/index-roles.php';
+
+$allowedRoles = [ROLE_ACCOUNTING];
+$allowedPositions = [POSITION_STAFF];
+
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
+include ROOT_PATH . '/admin/authentication/index-roleguard.php';
+
 include ROOT_PATH . '/network/cache-helper.php';
 
 header('Content-Type: application/json');
@@ -22,22 +29,35 @@ if (!$request_id || !$payee || !$user_id) {
     exit;
 }
 
-$req = $conn->query("SELECT control_no FROM noblebudgetrequest WHERE id = $request_id LIMIT 1");
-$row = $req->fetch_assoc();
+$stmtReq = $conn->prepare("SELECT control_no FROM noblebudgetrequest WHERE id = ? LIMIT 1");
+$stmtReq->bind_param('i', $request_id);
+$stmtReq->execute();
+$row = $stmtReq->get_result()->fetch_assoc();
+$stmtReq->close();
+
 if (!$row) {
     echo json_encode(['success' => false, 'error' => 'Not found']);
     exit;
 }
 
-$check = $conn->query("SELECT id FROM noblevoucher WHERE request_id = $request_id LIMIT 1");
-if ($check->num_rows > 0) {
+$stmtCheck = $conn->prepare("SELECT id FROM noblevoucher WHERE request_id = ? LIMIT 1");
+$stmtCheck->bind_param('i', $request_id);
+$stmtCheck->execute();
+$checkResult = $stmtCheck->get_result();
+if ($checkResult->num_rows > 0) {
+    $stmtCheck->close();
     echo json_encode(['success' => false, 'error' => 'Already submitted']);
     exit;
 }
+$stmtCheck->close();
 
 // Before the INSERT, fetch the custodian's active signature
-$sigRow = $conn->query("SELECT path FROM noblesignature WHERE user_id = $user_id AND is_active = 1 LIMIT 1");
-$sigPath = ($sigRow && $sigRow->num_rows) ? $sigRow->fetch_assoc()['path'] : null;
+$stmtSig = $conn->prepare("SELECT path FROM noblesignature WHERE user_id = ? AND is_active = 1 LIMIT 1");
+$stmtSig->bind_param('i', $user_id);
+$stmtSig->execute();
+$sigResult = $stmtSig->get_result();
+$sigPath = $sigResult->num_rows ? $sigResult->fetch_assoc()['path'] : null;
+$stmtSig->close();
 
 // Then add certified_signature to your INSERT:
 $stmt = $conn->prepare("INSERT INTO noblevoucher 
@@ -58,6 +78,7 @@ $stmt->bind_param(
     $sigPath
 );
 $success = $stmt->execute();
+$stmt->close();
 
 // Notify custoassistant
 if ($success) {
@@ -72,7 +93,7 @@ if ($success) {
     $assistants = $conn->query("
         SELECT id FROM noblerole 
         WHERE role = 'ACCOUNTING AND FINANCE DEPARTMENT' 
-        AND position = 'custoassistant'
+        AND position = 'head'
     ");
 
     while ($a = $assistants->fetch_assoc()) {
@@ -86,14 +107,17 @@ if ($success) {
     ");
         $stmt2->bind_param("iisis", $aid, $request_id, $message, $user_id, $link);
         $stmt2->execute();
+        $stmt2->close();
     }
 }
 
 // Save to Sheet Two (noblepettycashcustodiantwo) if department is provided
 if ($success && $second_no) {
-    $reqDetails = $conn->query("
-        SELECT date_requested, items FROM noblebudgetrequest WHERE id = $request_id LIMIT 1
-    ")->fetch_assoc();
+    $stmtDetails = $conn->prepare("SELECT date_requested, items FROM noblebudgetrequest WHERE id = ? LIMIT 1");
+    $stmtDetails->bind_param('i', $request_id);
+    $stmtDetails->execute();
+    $reqDetails = $stmtDetails->get_result()->fetch_assoc();
+    $stmtDetails->close();
 
     $items = json_decode($reqDetails['items'] ?? '[]', true);
 
@@ -113,7 +137,11 @@ if ($success && $second_no) {
     $voucherControlNo = $row['control_no'];
 
     // Get custodian name for inserted_by
-    $userRow = $conn->query("SELECT name FROM nobleaccount WHERE id = $user_id LIMIT 1")->fetch_assoc();
+    $stmtUser = $conn->prepare("SELECT name FROM nobleaccount WHERE id = ? LIMIT 1");
+    $stmtUser->bind_param('i', $user_id);
+    $stmtUser->execute();
+    $userRow = $stmtUser->get_result()->fetch_assoc();
+    $stmtUser->close();
     $insertedBy = $userRow['name'] ?? '';
 
     $stmt3 = $conn->prepare("
@@ -132,6 +160,7 @@ if ($success && $second_no) {
         $insertedBy
     );
     $stmt3->execute();
+    $stmt3->close();
 }
 
 echo json_encode(['success' => $success]);

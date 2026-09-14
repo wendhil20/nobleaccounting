@@ -45,10 +45,6 @@ function fetchCrmOptions($conn, $table)
 $measuringSpaceOptions = fetchCrmOptions($conn, 'noblecrm_measuring_space');
 $projectScopeOptions = fetchCrmOptions($conn, 'noblecrm_project_scope');
 
-/**
- * Kunin ang branch id mula sa noblebranch table gamit ang branch name
- * (yung naka-store sa $_SESSION['branch']).
- */
 function getBranchId($conn, $branchName)
 {
     $id = null;
@@ -61,11 +57,7 @@ function getBranchId($conn, $branchName)
     return $branchId;
 }
 
-/**
- * Gumawa ng susunod na control number sa format: {BranchID}{YEAR}-{00001}
- * Hal: Branch ID 1 (balintawak) + 2026 => 12026-00001
- * Naghahanap ng pinakahuling number sa parehong prefix (branch id+year), tapos +1.
- */
+
 function generateCrmControlNo($conn, $branchId)
 {
     $year = date('Y');
@@ -73,13 +65,15 @@ function generateCrmControlNo($conn, $branchId)
     $month = date('m');
     $prefix = "{$branchId}{$year}{$day}{$month}";
 
+    // Hanapin ang PINAKA-HULING inquiry ng branch na ito — WALANG date filter,
+    // kaya kahit ibang araw/buwan na, makikita pa rin ang huling counter
     $stmt = $conn->prepare("
         SELECT control_no FROM noblecrminquiry
         WHERE control_no LIKE CONCAT(?, '%')
         ORDER BY id DESC LIMIT 1
     ");
-    $likePrefix = $prefix;
-    $stmt->bind_param("s", $likePrefix);
+    $branchPrefix = (string) $branchId;
+    $stmt->bind_param("s", $branchPrefix);
     $stmt->execute();
 
     $result = $stmt->get_result();
@@ -88,14 +82,14 @@ function generateCrmControlNo($conn, $branchId)
 
     $nextNumber = 1;
     if ($lastControlNo) {
-        $lastNumberPart = (int) substr($lastControlNo, strlen($prefix));
+        // laging kunin yung HULING 5 digits — yun lang ang counter, kahit anong petsa nasa gitna
+        $lastNumberPart = (int) substr($lastControlNo, -5);
         $nextNumber = $lastNumberPart + 1;
     }
     $stmt->close();
 
     return $prefix . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
 }
-
 
 // --- Handle submit ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_inquiry'])) {
@@ -104,23 +98,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_inquiry'])) {
     $projectType = trim($_POST['project_type'] ?? '');
     $designerId = intval($_POST['designer_id'] ?? 0);
     $measurementDatetime = trim($_POST['measurement_datetime'] ?? '');
-
-    // NOTE: contract_amount is intentionally NOT collected here anymore.
-    // It's left NULL on creation and gets set later by Sales, on the 2D &
-    // Quotation page, once the Quotation file is marked "Done"
-    // (see crm2dquotationajax.php -> action=save_contract_amount).
-
-    // Mode: "site_visit" (default) o "ready_for_quotation" — piliin ang huli
-    // kung may 2D na ang client mismo, kaya diretso na sa 2D & Quotation
-    // ang designer, hindi na dadaan sa Site Visit form.
+    $targetCompletionDate = trim($_POST['target_completion_date'] ?? '');
+   
     $inquiryMode = trim($_POST['inquiry_mode'] ?? 'site_visit');
     if (!in_array($inquiryMode, ['site_visit', 'ready_for_quotation'], true)) {
         $inquiryMode = 'site_visit';
     }
 
-    // Kapag "ready_for_quotation", i-treat na parang tapos na ang site visit
-    // step para deretso na ma-access ang 2D & Quotation (walang Proceed button
-    // na kakailanganin pang i-click sa Site Visit).
     $initialStatus = ($inquiryMode === 'ready_for_quotation') ? 'In Progress' : 'Pending';
 
     // Address parts mula sa PSGC-driven region/province/city/barangay + house/street
@@ -159,18 +143,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_inquiry'])) {
         $branchId = getBranchId($conn, $branch);
         $controlNo = generateCrmControlNo($conn, $branchId);
 
-        // meron itong DATETIME/VARCHAR column sa noblecrminquiry table.
-        // contract_amount ay hindi na kasama dito — NULL ito by default sa
-        // insert, at pupunan na lang mamaya via crm2dquotationajax.php.
-        $stmt = $conn->prepare("
+ 
+                $stmt = $conn->prepare("
             INSERT INTO noblecrminquiry
                 (control_no, client_name, address, project_type, project_scope, measuring_space,
-                 measurement_datetime, contact_number, sales_staff_id, designer_id,
+                 measurement_datetime, target_completion_date, contact_number, sales_staff_id, designer_id,
                  branch, mode, status, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
         $stmt->bind_param(
-            "ssssssssiisss",
+            "sssssssssiisss",
             $controlNo,
             $clientName,
             $address,
@@ -178,6 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_inquiry'])) {
             $projectScope,
             $measuringSpace,
             $measurementDatetime,
+            $targetCompletionDate,
             $contactNumber,
             $currentSalesId,
             $designerId,
@@ -672,6 +655,17 @@ $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
         });
     }
 
+        function crmFormatDate(value) {
+        if (!value) return '—';
+        const dt = new Date(value + 'T00:00:00');
+        if (isNaN(dt.getTime())) return value;
+        return dt.toLocaleDateString('en-PH', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
     function crmSelectedModeLabel() {
         const checked = document.querySelector('input[name="inquiry_mode"]:checked');
         return (checked && checked.value === 'ready_for_quotation')
@@ -697,7 +691,7 @@ $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
         // NOTE: Contract Amount row removed from review — it's no longer
         // collected in this form. It's set later by Sales on the 2D &
         // Quotation page, once the Quotation file is marked "Done".
-        const rows = [
+                const rows = [
             ['Client Name', document.getElementById('crm_client_name').value || '—'],
             ['Address', addressParts.join(', ') || '—'],
             ['Contact Number', document.getElementById('crm_contact_number').value || '—'],
@@ -706,6 +700,7 @@ $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
             ['Scope of Project', crmCheckedValues('project_scope_checkboxes')],
             ['Measuring Space', crmCheckedValues('measuring_space_checkboxes')],
             ['Measurement Date & Time', crmFormatDateTime(document.getElementById('crm_measurement_datetime').value)],
+            ['Target Completion Date', crmFormatDate(document.getElementById('crm_target_completion_date').value)],
             ['Designer Assign', designerText.startsWith('Select') ? '—' : designerText],
         ];
 
@@ -728,9 +723,9 @@ $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
 
         // NOTE: crm_contract_amount / crm_contract_amount_display removed —
         // no longer part of this form.
-        const simpleIds = [
+                const simpleIds = [
             'crm_client_name', 'crm_house_street', 'crm_contact_number',
-            'crm_project_type', 'crm_measurement_datetime', 'crm_designer_id',
+            'crm_project_type', 'crm_measurement_datetime', 'crm_target_completion_date', 'crm_designer_id',
             'crm_region', 'crm_province', 'crm_city', 'crm_barangay'
         ];
         simpleIds.forEach(id => {
@@ -755,8 +750,8 @@ $crmStepsPath = ROOT_PATH . '/admin/crm-management/page-1';
 
         // NOTE: crm_contract_amount / crm_contract_amount_display removed
         // from restore too.
-        const simpleIds = ['crm_client_name', 'crm_house_street', 'crm_contact_number',
-            'crm_project_type', 'crm_measurement_datetime'];
+                const simpleIds = ['crm_client_name', 'crm_house_street', 'crm_contact_number',
+            'crm_project_type', 'crm_measurement_datetime', 'crm_target_completion_date'];
         simpleIds.forEach(id => {
             const el = document.getElementById(id);
             if (el && data[id] !== undefined) el.value = data[id];

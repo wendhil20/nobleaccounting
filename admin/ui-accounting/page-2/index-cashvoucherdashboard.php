@@ -6,7 +6,7 @@ include ROOT_PATH . '/admin/authentication/index-authguard.php';
 include ROOT_PATH . '/admin/authentication/index-roles.php';
 
 $allowedRoles = [ROLE_ACCOUNTING];
-$allowedPositions = [POSITION_CUSTOASSISTANT, POSITION_CUSTODIAN, POSITION_HEAD];
+$allowedPositions = [POSITION_CUSTODIAN, POSITION_HEAD,POSITION_STAFF];
 
 include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
@@ -668,7 +668,7 @@ $position = $_SESSION['position'] ?? '';
         }
 
         function buildActionBtn(row) {
-            if (POSITION === '<?= POSITION_CUSTOASSISTANT ?>') {
+            if (POSITION === '<?= POSITION_STAFF ?>') {
                 if (!row.prepared_by) {
                     return `<button onclick="markPrepared(${row.voucher_id})"
                         class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
@@ -707,7 +707,7 @@ $position = $_SESSION['position'] ?? '';
         }
 
         function buildActionBtnMobile(row) {
-            if (POSITION === '<?= POSITION_CUSTOASSISTANT ?>') {
+            if (POSITION === '<?= POSITION_STAFF ?>') {
                 if (!row.prepared_by) {
                     return `<button onclick="markPrepared(${row.voucher_id})"
                         class="w-full flex items-center justify-center gap-2 bg-orange-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-all">

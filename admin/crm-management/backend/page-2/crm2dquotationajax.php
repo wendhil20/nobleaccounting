@@ -29,6 +29,30 @@ function q2dRespond(bool $success, string $message = '', array $extra = []): voi
     exit;
 }
 
+
+function q2dRequireDesigner(bool $isSales): void
+{
+    if ($isSales) {
+        q2dRespond(false, 'Only the assigned designer can perform this action.');
+    }
+}
+
+// NEW: per-slot na check — 2D at 3D ay designer-only, Quotation ay sales-only.
+function q2dRequireSlotOwner(string $slot, bool $isSales): void
+{
+    if ($slot === 'quotation') {
+        if (!$isSales) {
+            q2dRespond(false, 'Only the assigned sales staff can perform this action.');
+        }
+        return;
+    }
+    // '2d' at '3d'
+    if ($isSales) {
+        q2dRespond(false, 'Only the assigned designer can perform this action.');
+    }
+}
+
+
 if ($inquiryId <= 0) {
     q2dRespond(false, 'Missing or invalid inquiry reference.');
 }
@@ -38,13 +62,8 @@ if (in_array($action, ['save_slot', 'unlock_slot'], true) && !in_array($slot, ['
     q2dRespond(false, 'Invalid slot.');
 }
 
-// Verify the inquiry belongs to the current user (sales or designer, depending on role)
-// NEW-STEP1: also pull design_progress / design_confirmed(_at/_by) so the
-// state action and the two new actions below don't need a second query.
-// NEW-CONTRACT: also pull contract_amount so it can be shown on the page
-// and validated against on save_contract_amount.
 $stmt = $conn->prepare("
-    SELECT id, control_no, client_name, status, mode,
+    SELECT id, control_no, client_name, status, mode, deadline,
            design_progress, design_confirmed, design_confirmed_at, design_confirmed_by, clientstatus,
            contract_amount
     FROM noblecrminquiry
@@ -61,6 +80,25 @@ if (!$inquiry) {
 }
 if (!in_array($inquiry['status'], ['In Progress', 'Approved', 'For Revision'], true)) {
     q2dRespond(false, 'The site visit must be completed first.');
+}
+
+// NEW-LATE: shared helper — true kapag lagpas na sa deadline ng inquiry ngayong araw.
+function q2dIsPastDeadline(array $inquiry): bool
+{
+    if (empty($inquiry['deadline'])) {
+        return false;
+    }
+    return strtotime($inquiry['deadline']) < strtotime('today');
+}
+
+function q2dHasUnresolvedFeedback(mysqli $conn, int $quotationId): bool
+{
+    $stmt = $conn->prepare("SELECT id FROM noblecrm_2d_feedback WHERE quotation_id = ? AND is_resolved = 0 LIMIT 1");
+    $stmt->bind_param("i", $quotationId);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    return (bool) $row;
 }
 
 function q2dGetLatestEntry(mysqli $conn, int $inquiryId): ?array
@@ -94,7 +132,8 @@ function q2dGetHistory(mysqli $conn, int $inquiryId): array
 
 function q2dAccountName(mysqli $conn, ?int $accountId): string
 {
-    if (!$accountId) return '—';
+    if (!$accountId)
+        return '—';
     $stmt = $conn->prepare("SELECT name FROM noblerole WHERE id = ? LIMIT 1");
     $stmt->bind_param("i", $accountId);
     $stmt->execute();
@@ -105,8 +144,10 @@ function q2dAccountName(mysqli $conn, ?int $accountId): string
 
 function q2dRoleLabel(?string $role): string
 {
-    if ($role === 'sales') return 'Sales';
-    if ($role === 'designer') return 'Designer';
+    if ($role === 'sales')
+        return 'Sales';
+    if ($role === 'designer')
+        return 'Designer';
     return '—';
 }
 
@@ -129,13 +170,7 @@ function q2dUrl(?string $path): ?string
     return !empty($path) ? BASE_URL . '/' . $path : null;
 }
 
-// ═══════════════════════════════════════════════════════════
-// NOTIFICATIONS
-// ═══════════════════════════════════════════════════════════
 
-// NEW-3D: added $is3dOnly so the sequential "3D submitted after 2D &
-// Quotation were already approved" case gets its own, clearer message
-// instead of re-announcing "New 2D and Quotation submission".
 function q2dNotifySuperAdmins(mysqli $conn, int $inquiryId, array $inquiry, int $senderId, bool $is3dOnly = false): void
 {
     $stmt = $conn->prepare("SELECT id FROM noblerole WHERE role = ?");
@@ -177,45 +212,50 @@ function q2dGetOrCreateDraft(mysqli $conn, int $inquiryId): array
         return $latest;
     }
 
-    $carry2dDone   = 0; $carry2dPath   = null; $carry2dRole   = null; $carry2dBy   = null; $carry2dReview   = 'Pending';
-    $carryQuotDone = 0; $carryQuotPath = null; $carryQuotRole = null; $carryQuotBy = null; $carryQuotReview = 'Pending';
+    $carry2dDone = 0;
+    $carry2dPath = null;
+    $carry2dRole = null;
+    $carry2dBy = null;
+    $carry2dReview = 'Pending';
+    $carryQuotDone = 0;
+    $carryQuotPath = null;
+    $carryQuotRole = null;
+    $carryQuotBy = null;
+    $carryQuotReview = 'Pending';
     // NEW-3D: 3D carries the same way 2D/Quotation already do.
-    $carry3dDone   = 0; $carry3dPath   = null; $carry3dRole   = null; $carry3dBy   = null; $carry3dReview   = 'Pending';
+    $carry3dDone = 0;
+    $carry3dPath = null;
+    $carry3dRole = null;
+    $carry3dBy = null;
+    $carry3dReview = 'Pending';
     $carryInclude3d = 0;
-    $carry3dStage   = 'Locked';
+    $carry3dStage = 'Locked';
 
     if ($latest && $latest['status'] === 'For Revision') {
-        // Keep bundling 3D in the new cycle if the prior cycle bundled it
-        // (this also covers the case where check2dquotationajax.php opened
-        // this row specifically because 3D needed the 2D file redone).
+
         $carryInclude3d = (int) ($latest['include_3d'] ?? 0);
 
         if (($latest['design_2d_review_status'] ?? null) === 'Approved') {
-            $carry2dDone   = 1;
-            $carry2dPath   = $latest['design_2d_path'];
-            $carry2dRole   = $latest['design_2d_uploaded_role'];
-            $carry2dBy     = $latest['design_2d_uploaded_by'];
-            // I-carry rin ang review_status mismo — kung hindi, babalik itong
-            // 'Pending' sa bagong row kahit Approved na talaga ito, kaya
-            // lalabas itong 'Pending' ulit sa approval queue ng super admin.
+            $carry2dDone = 1;
+            $carry2dPath = $latest['design_2d_path'];
+            $carry2dRole = $latest['design_2d_uploaded_role'];
+            $carry2dBy = $latest['design_2d_uploaded_by'];
+
             $carry2dReview = 'Approved';
         }
         if (($latest['quotation_review_status'] ?? null) === 'Approved') {
-            $carryQuotDone   = 1;
-            $carryQuotPath   = $latest['quotation_path'];
-            $carryQuotRole   = $latest['quotation_uploaded_role'];
-            $carryQuotBy     = $latest['quotation_uploaded_by'];
+            $carryQuotDone = 1;
+            $carryQuotPath = $latest['quotation_path'];
+            $carryQuotRole = $latest['quotation_uploaded_role'];
+            $carryQuotBy = $latest['quotation_uploaded_by'];
             $carryQuotReview = 'Approved';
         }
-        // NEW-3D: only carried as "done/Approved" if it was actually
-        // Approved in the prior cycle. If 'For Revision' is what triggered
-        // this new cycle in the first place, it stays un-done here on
-        // purpose — it needs to be re-uploaded.
+
         if (($latest['design_3d_review_status'] ?? null) === 'Approved') {
-            $carry3dDone   = 1;
-            $carry3dPath   = $latest['design_3d_path'];
-            $carry3dRole   = $latest['design_3d_uploaded_role'];
-            $carry3dBy     = $latest['design_3d_uploaded_by'];
+            $carry3dDone = 1;
+            $carry3dPath = $latest['design_3d_path'];
+            $carry3dRole = $latest['design_3d_uploaded_role'];
+            $carry3dBy = $latest['design_3d_uploaded_by'];
             $carry3dReview = 'Approved';
         }
         if ($carryInclude3d) {
@@ -235,15 +275,30 @@ function q2dGetOrCreateDraft(mysqli $conn, int $inquiryId): array
              ?, ?, ?, ?, IF(? = 1, NOW(), NULL), ?,
              ?, ?, ?, ?, IF(? = 1, NOW(), NULL), ?, ?)
     ");
-    // Built with str_repeat instead of hand-typed so the type string can't
-    // drift out of sync with the parameter list above.
+
     $types = 'ii' . str_repeat('issiis', 3) . 's';
     $stmt->bind_param(
         $types,
-        $inquiryId, $carryInclude3d,
-        $carry2dDone, $carry2dPath, $carry2dRole, $carry2dBy, $carry2dDone, $carry2dReview,
-        $carryQuotDone, $carryQuotPath, $carryQuotRole, $carryQuotBy, $carryQuotDone, $carryQuotReview,
-        $carry3dDone, $carry3dPath, $carry3dRole, $carry3dBy, $carry3dDone, $carry3dReview,
+        $inquiryId,
+        $carryInclude3d,
+        $carry2dDone,
+        $carry2dPath,
+        $carry2dRole,
+        $carry2dBy,
+        $carry2dDone,
+        $carry2dReview,
+        $carryQuotDone,
+        $carryQuotPath,
+        $carryQuotRole,
+        $carryQuotBy,
+        $carryQuotDone,
+        $carryQuotReview,
+        $carry3dDone,
+        $carry3dPath,
+        $carry3dRole,
+        $carry3dBy,
+        $carry3dDone,
+        $carry3dReview,
         $carry3dStage
     );
     $stmt->execute();
@@ -252,10 +307,7 @@ function q2dGetOrCreateDraft(mysqli $conn, int $inquiryId): array
     return q2dGetLatestEntry($conn, $inquiryId);
 }
 
-// Ang row na sinundan ng kasalukuyang draft — ibig sabihin, ang row na
-// nag-trigger ng bagong draft (hal. yung 'For Revision' na row). Ginagamit
-// para malaman kung may dating file pa rin sa lumang cycle na kailangang
-// tunay na mapalitan (deleted) sa halip na iwanan bilang duplicate.
+
 function q2dGetPreviousEntry(mysqli $conn, int $inquiryId, int $excludeId): ?array
 {
     $stmt = $conn->prepare("
@@ -271,11 +323,7 @@ function q2dGetPreviousEntry(mysqli $conn, int $inquiryId, int $excludeId): ?arr
     return $row ?: null;
 }
 
-// Tunay na pagpapalit ng file para sa isang slot: binubura ang lumang
-// physical file (kahit pa galing 'yon sa nakaraang submission cycle), at
-// inaalis din ang reference dito sa ANUMANG ibang row na may parehong path
-// (hal. ang na-supersede nang Prior Submission entry) — para hindi na
-// lumabas doon ang patay na 'View' link; magiging '—' na lang ito.
+
 function q2dReplaceSlotFile(mysqli $conn, int $inquiryId, int $draftId, string $pathField, ?string $oldPath): void
 {
     if (empty($oldPath)) {
@@ -326,9 +374,7 @@ function q2dSaveUploadedPdf(array $file, string $prefix, int $inquiryId, int $ma
     return ['path' => 'uploads/crm-2dquotation/' . $safeName, 'error' => null];
 }
 
-// NEW-3D: 3D accepts either a PDF (stored as-is, same as 2D/Quotation) or
-// an image (jpg/png/webp), which gets normalized to .webp on save so
-// every 3D asset in storage is a consistent format.
+
 function q2dSaveUploaded3dFile(array $file, int $inquiryId, int $maxBytes, string $uploadDir): array
 {
     if ($file['error'] === UPLOAD_ERR_INI_SIZE || $file['error'] === UPLOAD_ERR_FORM_SIZE) {
@@ -361,9 +407,12 @@ function q2dSaveUploaded3dFile(array $file, int $inquiryId, int $maxBytes, strin
     }
 
     $srcImage = null;
-    if ($mime === 'image/jpeg') $srcImage = @imagecreatefromjpeg($file['tmp_name']);
-    if ($mime === 'image/png')  $srcImage = @imagecreatefrompng($file['tmp_name']);
-    if ($mime === 'image/webp') $srcImage = @imagecreatefromwebp($file['tmp_name']);
+    if ($mime === 'image/jpeg')
+        $srcImage = @imagecreatefromjpeg($file['tmp_name']);
+    if ($mime === 'image/png')
+        $srcImage = @imagecreatefrompng($file['tmp_name']);
+    if ($mime === 'image/webp')
+        $srcImage = @imagecreatefromwebp($file['tmp_name']);
 
     if (!$srcImage) {
         return ['path' => null, 'error' => 'Could not read the uploaded image.'];
@@ -384,23 +433,13 @@ function q2dSaveUploaded3dFile(array $file, int $inquiryId, int $maxBytes, strin
     return ['path' => 'uploads/crm-2dquotation/' . $safeBase . '.webp', 'error' => null];
 }
 
-// ═══════════════════════════════════════════════════════════
-// state — full JSON snapshot of the page, used for the initial
-// render AND every poll / post-action refresh. Nothing about the
-// page's content is rendered server-side (in PHP markup) anymore —
-// this is the single source of truth the frontend renders from.
-// ═══════════════════════════════════════════════════════════
+
 if ($action === 'state') {
 
     $qHistory = q2dGetHistory($conn, $inquiryId);
     $latest = $qHistory[0] ?? null;
 
-    // SELF-HEAL: rows approved before the fix that resolves design_3d_stage
-    // on every review (not just bundled ones) can be stuck showing
-    // design_3d_stage = 'Locked' forever even though 2D & Quotation are
-    // already Approved and the sequential 3D upload should be open. Catch
-    // and correct that here so old data heals itself on next read, instead
-    // of needing a manual SQL fix per row.
+
     if (
         $latest
         && $latest['status'] === 'Approved'
@@ -425,11 +464,7 @@ if ($action === 'state') {
     $isLocked = $activeDraftRow && $activeDraftRow['status'] === 'Waiting for Approval';
     $pastEntries = $activeDraftRow ? array_slice($qHistory, 1) : $qHistory;
 
-    // Kung ang pinakabagong row ay Approved na (parehong file na-approve),
-    // wala nang dapat gawin — ipakita ito bilang locked/completed summary
-    // (View PDF + Approved badge), HINDI 'No Active Submission' upload
-    // prompts. Dati, walang branch para dito kaya nabagsak ito sa fresh-
-    // upload fallback kahit approved na pala talaga ang buong submission.
+
     $completedRow = null;
     if (!$activeDraftRow && $latest && $latest['status'] === 'Approved') {
         $completedRow = $latest;
@@ -449,43 +484,56 @@ if ($action === 'state') {
     if ($activeDraftRow) {
         [$statusClass, $statusLabel] = q2dStatusStyle($activeDraftRow['status']);
         $activeDraftJson = [
-            'id'           => (int) $activeDraftRow['id'],
-            'status'       => $activeDraftRow['status'],
+            'id' => (int) $activeDraftRow['id'],
+            'status' => $activeDraftRow['status'],
             'status_label' => $statusLabel,
             'status_class' => $statusClass,
-            'is_locked'    => $isLocked,
-            'both_done'    => (bool) $activeDraftRow['design_2d_done'] && (bool) $activeDraftRow['quotation_done'],
-            'design_2d'    => [
-                'done'                => (bool) $activeDraftRow['design_2d_done'],
-                'path'                => $activeDraftRow['design_2d_path'],
-                'url'                 => q2dUrl($activeDraftRow['design_2d_path']),
-                'filename'            => !empty($activeDraftRow['design_2d_path']) ? basename($activeDraftRow['design_2d_path']) : null,
-                'uploaded_by_name'    => q2dAccountName($conn, $activeDraftRow['design_2d_uploaded_by'] ? (int) $activeDraftRow['design_2d_uploaded_by'] : null),
+            'is_locked' => $isLocked,
+            // NEW-LATE: naka-save na (mula submit_final) kapag naka-lock na ito;
+            // habang Draft pa, live-compute batay sa kasalukuyang oras.
+            'is_late' => $isLocked
+                ? (bool) ($activeDraftRow['is_late'] ?? 0)
+                : q2dIsPastDeadline($inquiry),
+            'both_done' => (bool) $activeDraftRow['design_2d_done'] && (bool) $activeDraftRow['quotation_done'],
+            'design_2d' => [
+                'done' => (bool) $activeDraftRow['design_2d_done'],
+                'path' => $activeDraftRow['design_2d_path'],
+                'url' => q2dUrl($activeDraftRow['design_2d_path']),
+                'filename' => !empty($activeDraftRow['design_2d_path']) ? basename($activeDraftRow['design_2d_path']) : null,
+                'uploaded_by_name' => q2dAccountName($conn, $activeDraftRow['design_2d_uploaded_by'] ? (int) $activeDraftRow['design_2d_uploaded_by'] : null),
                 'uploaded_role_label' => q2dRoleLabel($activeDraftRow['design_2d_uploaded_role']),
             ],
-            'quotation'    => [
-                'done'                => (bool) $activeDraftRow['quotation_done'],
-                'path'                => $activeDraftRow['quotation_path'],
-                'url'                 => q2dUrl($activeDraftRow['quotation_path']),
-                'filename'            => !empty($activeDraftRow['quotation_path']) ? basename($activeDraftRow['quotation_path']) : null,
-                'uploaded_by_name'    => q2dAccountName($conn, $activeDraftRow['quotation_uploaded_by'] ? (int) $activeDraftRow['quotation_uploaded_by'] : null),
+            'quotation' => [
+                'done' => (bool) $activeDraftRow['quotation_done'],
+                'path' => $activeDraftRow['quotation_path'],
+                'url' => q2dUrl($activeDraftRow['quotation_path']),
+                'filename' => !empty($activeDraftRow['quotation_path']) ? basename($activeDraftRow['quotation_path']) : null,
+                'uploaded_by_name' => q2dAccountName($conn, $activeDraftRow['quotation_uploaded_by'] ? (int) $activeDraftRow['quotation_uploaded_by'] : null),
                 'uploaded_role_label' => q2dRoleLabel($activeDraftRow['quotation_uploaded_role']),
             ],
         ];
     }
 
+    // NEW-FEEDBACK: unresolved feedback flag drives whether the 2D slot
+    // can be unlocked/re-uploaded on an Approved submission.
+    $hasUnresolvedFeedback = $latest ? q2dHasUnresolvedFeedback($conn, (int) $latest['id']) : false;
+
     $completedEntryJson = null;
     if ($completedRow) {
         $completedEntryJson = [
             'reviewed_at' => $completedRow['reviewed_at'] ? date('F d, Y g:i A', strtotime($completedRow['reviewed_at'])) : null,
-            'design_2d'   => [
-                'url'                 => q2dUrl($completedRow['design_2d_path']),
-                'uploaded_by_name'    => q2dAccountName($conn, $completedRow['design_2d_uploaded_by'] ? (int) $completedRow['design_2d_uploaded_by'] : null),
+            'design_2d_revisable' => $hasUnresolvedFeedback,
+            'design_2d' => [
+                'done' => (bool) $completedRow['design_2d_done'],
+                'path' => $completedRow['design_2d_path'],
+                'url' => q2dUrl($completedRow['design_2d_path']),
+                'filename' => !empty($completedRow['design_2d_path']) ? basename($completedRow['design_2d_path']) : null,
+                'uploaded_by_name' => q2dAccountName($conn, $completedRow['design_2d_uploaded_by'] ? (int) $completedRow['design_2d_uploaded_by'] : null),
                 'uploaded_role_label' => q2dRoleLabel($completedRow['design_2d_uploaded_role']),
             ],
-            'quotation'   => [
-                'url'                 => q2dUrl($completedRow['quotation_path']),
-                'uploaded_by_name'    => q2dAccountName($conn, $completedRow['quotation_uploaded_by'] ? (int) $completedRow['quotation_uploaded_by'] : null),
+            'quotation' => [
+                'url' => q2dUrl($completedRow['quotation_path']),
+                'uploaded_by_name' => q2dAccountName($conn, $completedRow['quotation_uploaded_by'] ? (int) $completedRow['quotation_uploaded_by'] : null),
                 'uploaded_role_label' => q2dRoleLabel($completedRow['quotation_uploaded_role']),
             ],
         ];
@@ -497,13 +545,13 @@ if ($action === 'state') {
             'design_2d_needs_revision' => $design2dNeedsRevision,
             'quotation_needs_revision' => $quotationNeedsRevision,
             'design_2d' => [
-                'path'    => $revisionEntryRow['design_2d_path'],
-                'url'     => q2dUrl($revisionEntryRow['design_2d_path']),
+                'path' => $revisionEntryRow['design_2d_path'],
+                'url' => q2dUrl($revisionEntryRow['design_2d_path']),
                 'remarks' => $revisionEntryRow['design_2d_remarks'],
             ],
             'quotation' => [
-                'path'    => $revisionEntryRow['quotation_path'],
-                'url'     => q2dUrl($revisionEntryRow['quotation_path']),
+                'path' => $revisionEntryRow['quotation_path'],
+                'url' => q2dUrl($revisionEntryRow['quotation_path']),
                 'remarks' => $revisionEntryRow['quotation_remarks'],
             ],
         ];
@@ -521,101 +569,126 @@ if ($action === 'state') {
 
         return [
             'design_2d' => [
-                'path'          => $entry['design_2d_path'],
-                'url'           => q2dUrl($entry['design_2d_path']),
+                'path' => $entry['design_2d_path'],
+                'url' => q2dUrl($entry['design_2d_path']),
                 'review_status' => $d2dReviewStatus,
-                'review_class'  => $d2dReviewStatus ? q2dStatusStyle($d2dReviewStatus)[0] : null,
+                'review_class' => $d2dReviewStatus ? q2dStatusStyle($d2dReviewStatus)[0] : null,
             ],
             'quotation' => [
-                'path'          => $entry['quotation_path'],
-                'url'           => q2dUrl($entry['quotation_path']),
+                'path' => $entry['quotation_path'],
+                'url' => q2dUrl($entry['quotation_path']),
                 'review_status' => $qtReviewStatus,
-                'review_class'  => $qtReviewStatus ? q2dStatusStyle($qtReviewStatus)[0] : null,
+                'review_class' => $qtReviewStatus ? q2dStatusStyle($qtReviewStatus)[0] : null,
             ],
             // NEW-3D: only meaningful when this past cycle actually bundled 3D.
             'design_3d' => [
-                'included'      => (bool) ($entry['include_3d'] ?? 0),
-                'path'          => $entry['design_3d_path'],
-                'url'           => q2dUrl($entry['design_3d_path']),
+                'included' => (bool) ($entry['include_3d'] ?? 0),
+                'path' => $entry['design_3d_path'],
+                'url' => q2dUrl($entry['design_3d_path']),
                 'review_status' => $d3dReviewStatus,
-                'review_class'  => $d3dReviewStatus ? q2dStatusStyle($d3dReviewStatus)[0] : null,
+                'review_class' => $d3dReviewStatus ? q2dStatusStyle($d3dReviewStatus)[0] : null,
             ],
-            'submitted_at'       => $entry['submitted_at'] ? date('M d, Y g:i A', strtotime($entry['submitted_at'])) : null,
-            'status'             => $entry['status'],
-            'status_label'       => $statusLabel,
-            'status_class'       => $statusClass,
-            'design_2d_remarks'  => $entry['design_2d_remarks'] ?? null,
-            'quotation_remarks'  => $entry['quotation_remarks'] ?? null,
-            'remarks'            => $entry['remarks'] ?? null,
+            'submitted_at' => $entry['submitted_at'] ? date('M d, Y g:i A', strtotime($entry['submitted_at'])) : null,
+            'status' => $entry['status'],
+            'status_label' => $statusLabel,
+            'status_class' => $statusClass,
+            // NEW-LATE: naka-save na sa oras ng submit_final / submit_3d.
+            'is_late' => (bool) ($entry['is_late'] ?? 0),
+            'design_2d_remarks' => $entry['design_2d_remarks'] ?? null,
+            'quotation_remarks' => $entry['quotation_remarks'] ?? null,
+            'remarks' => $entry['remarks'] ?? null,
         ];
     }, $pastEntries);
 
-    // NEW-3D: 3D fields live on whichever row is "latest", regardless of
-    // which branch above fired (active draft / completed / revision) —
-    // exposed once at the top level so the frontend doesn't need to dig
-    // into each branch separately.
+
     $include3d = (int) ($latest['include_3d'] ?? 0);
     $design3dJson = $latest ? [
-        'include_3d'          => (bool) $include3d,
-        'stage'                => $latest['design_3d_stage'] ?? 'Locked',
-        'done'                 => (bool) ($latest['design_3d_done'] ?? false),
-        'path'                 => $latest['design_3d_path'] ?? null,
-        'url'                  => q2dUrl($latest['design_3d_path'] ?? null),
-        'filename'             => !empty($latest['design_3d_path']) ? basename($latest['design_3d_path']) : null,
-        'uploaded_by_name'     => q2dAccountName($conn, !empty($latest['design_3d_uploaded_by']) ? (int) $latest['design_3d_uploaded_by'] : null),
-        'uploaded_role_label'  => q2dRoleLabel($latest['design_3d_uploaded_role'] ?? null),
-        'review_status'        => $latest['design_3d_review_status'] ?? 'Pending',
-        'remarks'              => $latest['design_3d_remarks'] ?? null,
-        // The toggle is only editable while there's an unlocked Draft cycle.
-        'toggle_editable'      => (bool) ($activeDraftRow && $activeDraftRow['status'] === 'Draft'),
+        'include_3d' => (bool) $include3d,
+        'stage' => $latest['design_3d_stage'] ?? 'Locked',
+        'done' => (bool) ($latest['design_3d_done'] ?? false),
+        'path' => $latest['design_3d_path'] ?? null,
+        'url' => q2dUrl($latest['design_3d_path'] ?? null),
+        'filename' => !empty($latest['design_3d_path']) ? basename($latest['design_3d_path']) : null,
+        'uploaded_by_name' => q2dAccountName($conn, !empty($latest['design_3d_uploaded_by']) ? (int) $latest['design_3d_uploaded_by'] : null),
+        'uploaded_role_label' => q2dRoleLabel($latest['design_3d_uploaded_role'] ?? null),
+        'review_status' => $latest['design_3d_review_status'] ?? 'Pending',
+        'remarks' => $latest['design_3d_remarks'] ?? null,
+        // NOTE: 3D standalone submissions are no longer flagged as Late Submission — 2D & Quotation only.
+        'toggle_editable' => (bool) ($activeDraftRow && $activeDraftRow['status'] === 'Draft'),
     ] : null;
+    $isReadyForQuotation = ($inquiry['mode'] ?? 'site_visit') === 'ready_for_quotation';
 
-    // NEW-STEP1: 0%/50%/100% progress + staff-marked customer confirmation.
-    // Habang hindi pa naka-confirm, ito lang ang ipapakita sa frontend —
-    // gate bago ma-unlock yung Step 2 (2D & Quotation) content.
- $isReadyForQuotation = ($inquiry['mode'] ?? 'site_visit') === 'ready_for_quotation';
+    $step1Json = [
+        'progress' => $isReadyForQuotation ? '100' : ($inquiry['design_progress'] ?? '0'),
+        'confirmed' => $isReadyForQuotation ? true : (bool) ($inquiry['design_confirmed'] ?? 0),
+        'confirmed_at' => (!$isReadyForQuotation && !empty($inquiry['design_confirmed_at']))
+            ? date('F d, Y g:i A', strtotime($inquiry['design_confirmed_at'])) : null,
+        'confirmed_by_name' => $isReadyForQuotation ? null : q2dAccountName($conn, $inquiry['design_confirmed_by'] ? (int) $inquiry['design_confirmed_by'] : null),
+        'client_status' => $inquiry['clientstatus'] ?? null,
+        'auto_confirmed' => $isReadyForQuotation, // para hindi ipakita ng frontend yung "confirmed by X at Y" badge line
+    ];
 
-$step1Json = [
-    'progress'          => $isReadyForQuotation ? '100' : ($inquiry['design_progress'] ?? '0'),
-    'confirmed'         => $isReadyForQuotation ? true : (bool) ($inquiry['design_confirmed'] ?? 0),
-    'confirmed_at'      => (!$isReadyForQuotation && !empty($inquiry['design_confirmed_at']))
-        ? date('F d, Y g:i A', strtotime($inquiry['design_confirmed_at'])) : null,
-    'confirmed_by_name' => $isReadyForQuotation ? null : q2dAccountName($conn, $inquiry['design_confirmed_by'] ? (int) $inquiry['design_confirmed_by'] : null),
-    'client_status'     => $inquiry['clientstatus'] ?? null,
-    'auto_confirmed'    => $isReadyForQuotation, // para hindi ipakita ng frontend yung "confirmed by X at Y" badge line
-];
-    // NEW-CONTRACT: quotation_done is exposed at the top level (not just
-    // buried inside active_draft/completed_entry/revision_entry) because
-    // the Contract Amount box needs to know "is the Quotation file marked
-    // Done" regardless of which of those three branches is currently
-    // rendering — it can be true even while status is still 'Draft'
-    // (quotation done, 2D not yet done) or 'For Revision' (quotation was
-    // approved in a prior cycle and carried over as done).
     $quotationDone = (bool) ($latest['quotation_done'] ?? false);
+
+    // NEW-FEEDBACK: full feedback log for the current 2D submission,
+    // shown to the designer regardless of draft/approved/revision state.
+    $cuttingFeedback = [];
+    if ($latest) {
+        $stmt = $conn->prepare("
+            SELECT f.id, f.message, f.created_at, f.is_resolved, r.name AS created_by_name
+            FROM noblecrm_2d_feedback f
+            LEFT JOIN noblerole r ON r.id = f.created_by
+            WHERE f.quotation_id = ?
+            ORDER BY f.id DESC
+        ");
+        $stmt->bind_param("i", $latest['id']);
+        $stmt->execute();
+        $fbResult = $stmt->get_result();
+        while ($fb = $fbResult->fetch_assoc()) {
+            $cuttingFeedback[] = [
+                'id' => (int) $fb['id'],
+                'message' => $fb['message'],
+                'created_by_name' => $fb['created_by_name'] ?? '—',
+                'created_at' => date('M d, Y g:i A', strtotime($fb['created_at'])),
+                'is_resolved' => (bool) $fb['is_resolved'],
+            ];
+        }
+        $stmt->close();
+    }
+
+    $qDeadlineOverdue = false;
+    if (!empty($inquiry['deadline'])) {
+        if ($latest && in_array($latest['status'], ['Approved', 'Waiting for Approval'], true)) {
+            $qDeadlineOverdue = (bool) ($latest['is_late'] ?? 0);
+        } else {
+            $qDeadlineOverdue = q2dIsPastDeadline($inquiry);
+        }
+    }
 
     q2dRespond(true, '', [
         'inquiry' => [
-            'control_no'      => $inquiry['control_no'],
-            'client_name'     => $inquiry['client_name'],
+            'control_no' => $inquiry['control_no'],
+            'client_name' => $inquiry['client_name'],
             'contract_amount' => $inquiry['contract_amount'],
+            // NEW-LATE: para magamit din sa frontend (e.g. deadline row sa summary table).
+            'deadline' => !empty($inquiry['deadline']) ? date('F d, Y', strtotime($inquiry['deadline'])) : null,
+            'deadline_overdue' => $qDeadlineOverdue,
         ],
-        'is_sales'        => $isSales,
-        'quotation_done'  => $quotationDone,
-        'step1'           => $step1Json, // NEW-STEP1
-        'active_draft'    => $activeDraftJson,
+        'is_sales' => $isSales,
+        'quotation_done' => $quotationDone,
+        'step1' => $step1Json, // NEW-STEP1
+        'active_draft' => $activeDraftJson,
         'completed_entry' => $completedEntryJson,
-        'revision_entry'  => $revisionEntryJson,
-        'past_entries'    => $pastEntriesJson,
-        'design_3d'       => $design3dJson,
-        'server_time'    => date('c'),
+        'revision_entry' => $revisionEntryJson,
+        'past_entries' => $pastEntriesJson,
+        'design_3d' => $design3dJson,
+        'cutting_feedback' => $cuttingFeedback, // NEW-FEEDBACK
+        'server_time' => date('c'),
     ]);
 }
 
-// ═══════════════════════════════════════════════════════════
-// save_progress — manual update ng 0/50/100% (NEW-STEP1).
-// Sales o Designer lang, at hindi na pwede kapag na-confirm na.
-// ═══════════════════════════════════════════════════════════
 if ($action === 'save_progress') {
+    q2dRequireDesigner($isSales);
 
     if ((int) ($inquiry['design_confirmed'] ?? 0) === 1) {
         q2dRespond(false, 'This has already been confirmed by the customer.');
@@ -634,12 +707,9 @@ if ($action === 'save_progress') {
     q2dRespond(true, 'Progress updated.');
 }
 
-// ═══════════════════════════════════════════════════════════
-// confirm_customer — i-mamark na naaprubahan na ng customer
-// (NEW-STEP1). Staff lang ang pumipindot nito, walang customer
-// login. Kailangan muna 100% bago pwede i-confirm.
-// ═══════════════════════════════════════════════════════════
+
 if ($action === 'confirm_customer') {
+    q2dRequireDesigner($isSales);
 
     if ((int) ($inquiry['design_confirmed'] ?? 0) === 1) {
         q2dRespond(false, 'This has already been confirmed.');
@@ -662,11 +732,9 @@ if ($action === 'confirm_customer') {
     q2dRespond(true, 'Confirmed by customer.');
 }
 
-// ═══════════════════════════════════════════════════════════
-// save_toggle — turn "submit 3D together" on/off for the current
-// editable Draft. NEW-3D.
-// ═══════════════════════════════════════════════════════════
+
 if ($action === 'save_toggle') {
+    q2dRequireDesigner($isSales);
 
     $include3d = (intval($_POST['include_3d'] ?? 0) === 1) ? 1 : 0;
 
@@ -691,16 +759,10 @@ if ($action === 'save_toggle') {
     q2dRespond(true, 'Updated.');
 }
 
-// ═══════════════════════════════════════════════════════════
-// save_slot — upload (kung may bagong file) + mark that slot as Done
-// ═══════════════════════════════════════════════════════════
-if ($action === 'save_slot') {
 
-    // NEW-3D: the 3D slot's editability is governed by design_3d_stage
-    // (which can be 'Draft' whether the overall row status is 'Draft'
-    // (bundled) or 'Approved' (sequential/after-approval upload)) — not
-    // by the overall row status the way 2D/Quotation are. Handle it as
-    // its own branch and exit early.
+if ($action === 'save_slot') {
+    q2dRequireSlotOwner($slot, $isSales);
+
     if ($slot === '3d') {
         $latest = q2dGetLatestEntry($conn, $inquiryId);
 
@@ -754,6 +816,65 @@ if ($action === 'save_slot') {
         q2dRespond(true, 'Saved.');
     }
 
+
+    if ($slot === '2d') {
+        $latestCheck = q2dGetLatestEntry($conn, $inquiryId);
+        if ($latestCheck && $latestCheck['status'] === 'Approved' && (int) $latestCheck['design_2d_done'] === 0) {
+
+            if (!q2dHasUnresolvedFeedback($conn, (int) $latestCheck['id'])) {
+                q2dRespond(false, 'No open feedback on this file.');
+            }
+
+            $existingPath = $latestCheck['design_2d_path'] ?? null;
+            $newPath = null;
+
+            if (!empty($_FILES['design_2d_pdf']) && $_FILES['design_2d_pdf']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $maxBytes = 15 * 1024 * 1024;
+                $uploadDir = ROOT_PATH . '/uploads/crm-2dquotation/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+
+                $result = q2dSaveUploadedPdf($_FILES['design_2d_pdf'], 'design2d', $inquiryId, $maxBytes, $uploadDir);
+                if (!$result['path']) {
+                    q2dRespond(false, $result['error']);
+                }
+
+                q2dReplaceSlotFile($conn, $inquiryId, (int) $latestCheck['id'], 'design_2d_path', $existingPath);
+                $newPath = $result['path'];
+
+            } elseif (empty($existingPath)) {
+                q2dRespond(false, 'Please attach a PDF before marking this as done.');
+            }
+
+            if ($newPath) {
+                $stmt = $conn->prepare("
+                    UPDATE noblecrm_2dquotation
+                    SET design_2d_path = ?, design_2d_done = 1, design_2d_uploaded_role = ?, design_2d_uploaded_by = ?, design_2d_uploaded_at = NOW()
+                    WHERE id = ?
+                ");
+                $stmt->bind_param("ssii", $newPath, $roleLabel, $currentUserId, $latestCheck['id']);
+            } else {
+                $stmt = $conn->prepare("
+                    UPDATE noblecrm_2dquotation
+                    SET design_2d_done = 1, design_2d_uploaded_role = ?, design_2d_uploaded_by = ?, design_2d_uploaded_at = NOW()
+                    WHERE id = ?
+                ");
+                $stmt->bind_param("sii", $roleLabel, $currentUserId, $latestCheck['id']);
+            }
+            $stmt->execute();
+            $stmt->close();
+
+            // Resolve all outstanding feedback now that the designer re-uploaded.
+            $stmt = $conn->prepare("UPDATE noblecrm_2d_feedback SET is_resolved = 1 WHERE quotation_id = ? AND is_resolved = 0");
+            $stmt->bind_param("i", $latestCheck['id']);
+            $stmt->execute();
+            $stmt->close();
+
+            q2dRespond(true, 'Revised 2D file saved.');
+        }
+    }
+
     $draft = q2dGetOrCreateDraft($conn, $inquiryId);
 
     if ($draft['status'] !== 'Draft') {
@@ -763,8 +884,8 @@ if ($action === 'save_slot') {
     $doneField = $slot === '2d' ? 'design_2d_done' : 'quotation_done';
     $pathField = $slot === '2d' ? 'design_2d_path' : 'quotation_path';
     $roleField = $slot === '2d' ? 'design_2d_uploaded_role' : 'quotation_uploaded_role';
-    $byField   = $slot === '2d' ? 'design_2d_uploaded_by' : 'quotation_uploaded_by';
-    $atField   = $slot === '2d' ? 'design_2d_uploaded_at' : 'quotation_uploaded_at';
+    $byField = $slot === '2d' ? 'design_2d_uploaded_by' : 'quotation_uploaded_by';
+    $atField = $slot === '2d' ? 'design_2d_uploaded_at' : 'quotation_uploaded_at';
 
     if ((int) $draft[$doneField] === 1) {
         q2dRespond(false, 'This file is already marked done. Click Edit first.');
@@ -774,7 +895,6 @@ if ($action === 'save_slot') {
     $newPath = null;
 
     // Kunin ang "kasalukuyang" file ng slot na ito bago pa man mapalitan —
-  
     $existingPath = $draft[$pathField] ?? null;
     if (empty($existingPath)) {
         $prevEntry = q2dGetPreviousEntry($conn, $inquiryId, (int) $draft['id']);
@@ -797,9 +917,7 @@ if ($action === 'save_slot') {
             q2dRespond(false, $result['error']);
         }
 
-        // I-replace nang tunay ang PDF — burahin ang dating file (kahit pa
-        // galing sa nakaraang submission cycle) at alisin ang reference
-        // dito sa Prior Submissions, para hindi na mag-iwan ng dead link.
+
         q2dReplaceSlotFile($conn, $inquiryId, (int) $draft['id'], $pathField, $existingPath);
 
         $newPath = $result['path'];
@@ -830,10 +948,23 @@ if ($action === 'save_slot') {
     q2dRespond(true, 'Saved.');
 }
 
-// ═══════════════════════════════════════════════════════════
-// unlock_slot — i-undo ang Done, para maka-edit ulit
-// ═══════════════════════════════════════════════════════════
+
 if ($action === 'unlock_slot') {
+    q2dRequireSlotOwner($slot, $isSales);
+
+    if ($slot === '2d') {
+        $latestApproved = q2dGetLatestEntry($conn, $inquiryId);
+        if ($latestApproved && $latestApproved['status'] === 'Approved') {
+            if (!q2dHasUnresolvedFeedback($conn, (int) $latestApproved['id'])) {
+                q2dRespond(false, 'No open feedback on this file.');
+            }
+            $stmt = $conn->prepare("UPDATE noblecrm_2dquotation SET design_2d_done = 0 WHERE id = ?");
+            $stmt->bind_param("i", $latestApproved['id']);
+            $stmt->execute();
+            $stmt->close();
+            q2dRespond(true, 'Unlocked for revision.');
+        }
+    }
 
     // NEW-3D
     if ($slot === '3d') {
@@ -864,15 +995,7 @@ if ($action === 'unlock_slot') {
     q2dRespond(true, 'Unlocked.');
 }
 
-// ═══════════════════════════════════════════════════════════
-// save_contract_amount — NEW-CONTRACT. Sales-only. Pwede lang
-// i-set/i-update ang Contract Amount kapag naka-mark na "Done" na
-// ang Quotation file sa pinaka-huling 2D & Quotation entry (hindi
-// pa kailangan Approved — pagka-Done na ng quotation, unlocked na).
-// Nakatira ang value sa noblecrminquiry.contract_amount (parehong
-// column na dati'y pinupunan sa initial CRM inquiry form — ngayon
-// dito na lang ito pinupunan, hindi na sa una).
-// ═══════════════════════════════════════════════════════════
+
 if ($action === 'save_contract_amount') {
 
     if (!$isSales) {
@@ -902,11 +1025,7 @@ if ($action === 'save_contract_amount') {
     q2dRespond(true, 'Contract amount saved.');
 }
 
-// ═══════════════════════════════════════════════════════════
-// submit_final — i-lock ang buong submission para sa review,
-// at i-notify ang super admin. Kung include_3d = 1, kasama na
-// rin ang 3D sa parehong submission cycle. NEW-3D: extended.
-// ═══════════════════════════════════════════════════════════
+
 if ($action === 'submit_final') {
 
     $draft = q2dGetLatestEntry($conn, $inquiryId);
@@ -914,6 +1033,12 @@ if ($action === 'submit_final') {
     if (!$draft || $draft['status'] !== 'Draft') {
         q2dRespond(false, 'Nothing to submit right now.');
     }
+
+    // Contract Amount must be set by Sales before submitting.
+    if (empty($inquiry['contract_amount']) || (float) $inquiry['contract_amount'] <= 0) {
+        q2dRespond(false, 'The Contract Amount must be set by Sales before this can be submitted.');
+    }
+
     if (!$draft['design_2d_done'] || !$draft['quotation_done']) {
         q2dRespond(false, 'Both the 2D File and Quotation File must be marked done before submitting.');
     }
@@ -923,31 +1048,29 @@ if ($action === 'submit_final') {
         q2dRespond(false, 'The 3D File must be marked done before submitting, or turn off "Submit 3D together" to submit 2D and Quotation only.');
     }
 
+    // NEW-LATE: naka-lock na ang "late" status sa oras mismo ng pag-submit.
+    $isLate = q2dIsPastDeadline($inquiry) ? 1 : 0;
+
     $newStatus = 'Waiting for Approval';
     $new3dStage = $include3d ? 'Waiting for Approval' : 'Locked';
 
     $stmt = $conn->prepare("
         UPDATE noblecrm_2dquotation
-        SET status = ?, submitted_at = NOW(), design_3d_stage = ?
+        SET status = ?, submitted_at = NOW(), design_3d_stage = ?, is_late = ?
         WHERE id = ?
     ");
-    $stmt->bind_param("ssi", $newStatus, $new3dStage, $draft['id']);
+    $stmt->bind_param("ssii", $newStatus, $new3dStage, $isLate, $draft['id']);
     $stmt->execute();
     $stmt->close();
 
-    // 🔔 Notify super admin that a submission is ready for review.
     q2dNotifySuperAdmins($conn, $inquiryId, $inquiry, $currentUserId);
 
-    q2dRespond(true, 'Submitted for approval.');
+    q2dRespond(true, $isLate ? 'Submitted for approval (Late Submission).' : 'Submitted for approval.');
 }
 
-// ═══════════════════════════════════════════════════════════
-// submit_3d — sequential flow only: 2D & Quotation are already
-// Approved (include_3d was 0 for that cycle), and the 3D slot has
-// since unlocked (design_3d_stage = 'Draft'). This submits JUST
-// the 3D file for its own review. NEW-3D.
-// ═══════════════════════════════════════════════════════════
+
 if ($action === 'submit_3d') {
+    q2dRequireDesigner($isSales);
 
     $latest = q2dGetLatestEntry($conn, $inquiryId);
 

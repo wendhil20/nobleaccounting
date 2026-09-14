@@ -6,7 +6,7 @@ include ROOT_PATH . '/admin/authentication/index-authguard.php';
 include ROOT_PATH . '/admin/authentication/index-roles.php';
 
 $allowedRoles = [ROLE_ACCOUNTING];
-$allowedPositions = [POSITION_CUSTODIAN, POSITION_HEAD];
+$allowedPositions = [POSITION_CUSTODIAN, POSITION_HEAD, POSITION_STAFF];
 include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
 ?>
@@ -149,12 +149,14 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
                 <p class="text-xs text-gray-400 mt-0.5">Accounting Report</p>
             </div>
             <div class="flex items-center gap-2 flex-shrink-0">
-                <button onclick="openEntryModal()"
-                    class="flex items-center gap-1.5 bg-slate-700 hover:bg-slate-800 text-white text-[10px] font-semibold px-3 py-1.5 rounded-lg transition-all">
-                    <i class="fa-solid fa-file-invoice-dollar text-[10px]"></i>
-                    <span class="hidden sm:inline">Add Entry</span>
-                    <span class="sm:hidden">Entry</span>
-                </button>
+                <?php if ($_SESSION['position'] !== POSITION_STAFF): ?>
+                    <button onclick="openEntryModal()"
+                        class="flex items-center gap-1.5 bg-slate-700 hover:bg-slate-800 text-white text-[10px] font-semibold px-3 py-1.5 rounded-lg transition-all">
+                        <i class="fa-solid fa-file-invoice-dollar text-[10px]"></i>
+                        <span class="hidden sm:inline">Add Entry</span>
+                        <span class="sm:hidden">Entry</span>
+                    </button>
+                <?php endif; ?>
                 <button onclick="openAddModal()"
                     class="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-semibold px-3 py-1.5 rounded-lg transition-all">
                     <i class="fa-solid fa-plus text-[10px]"></i>

@@ -236,11 +236,7 @@ $crmDesignerListUrl = BASE_URL . '/crmdesigner';
     <title>Site Visit Record</title>
     <?php include ROOT_PATH . '/link/top.php'; ?>
     <?php include ROOT_PATH . '/admin/navigation/sidebar.php'; ?>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .sv-scope { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
         .sv-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; box-shadow: 0 1px 2px rgba(16,24,40,0.04); }
         .sv-field { width: 100%; border: 1px solid #D1D5DB; border-radius: 8px; padding: 0.55rem 0.75rem; font-size: 14px; color: #111827; background: #fff; }
         .sv-field:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }

@@ -109,7 +109,7 @@ $postedMode = $_POST['inquiry_mode'] ?? 'site_visit';
             </div>
         </div>
 
-        <!-- Desired Measurement Date & Time -->
+                <!-- Desired Measurement Date & Time -->
         <div>
             <label class="block text-xs font-semibold tracking-wide uppercase text-gray-500 mb-1.5">
                 Desired Measurement Date &amp; Time
@@ -117,6 +117,17 @@ $postedMode = $_POST['inquiry_mode'] ?? 'site_visit';
             <input type="datetime-local" name="measurement_datetime" id="crm_measurement_datetime"
                 value="<?= htmlspecialchars($_POST['measurement_datetime'] ?? '') ?>"
                 class="w-full px-3 py-2.5 text-sm text-gray-800 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-600 focus:border-amber-600 transition">
+        </div>
+
+        <!-- Target Completion Date -->
+        <div>
+            <label class="block text-xs font-semibold tracking-wide uppercase text-gray-500 mb-1.5">
+                Target Completion Date
+            </label>
+            <input type="date" name="target_completion_date" id="crm_target_completion_date"
+                value="<?= htmlspecialchars($_POST['target_completion_date'] ?? '') ?>"
+                class="w-full px-3 py-2.5 text-sm text-gray-800 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-600 focus:border-amber-600 transition">
+            <p class="text-[11px] text-gray-400 mt-1.5">Kailan target matapos ang project na ito.</p>
         </div>
     </div>
 

@@ -29,60 +29,68 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
 
             <!-- Header -->
             <div class="mb-4">
-                <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                    <div class="min-w-0">
-                        <p class="text-amber-700 text-[10px] font-semibold tracking-[0.15em] uppercase mb-0.5">CRM Management</p>
-                        <h1 class="text-gray-900 text-xl font-semibold">2D &amp; Quotation Approval</h1>
+                <div class="mb-3">
+                    <p class="text-amber-700 text-[10px] font-semibold tracking-[0.15em] uppercase mb-0.5">CRM
+                        Management</p>
+                    <h1 class="text-gray-900 text-xl font-semibold">2D &amp; Quotation Approval</h1>
+                </div>
+
+                <!-- Search + Tabs, pantay sa iisang row -->
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="relative w-full sm:w-64 min-w-0">
+                        <input id="chk2dSearch" type="text" placeholder="Search control no. / client / contact"
+                            class="w-full pl-8 pr-5 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-100 focus:border-amber-600 bg-white transition-colors">
+                        <i
+                            class="fa-brands fa-sistrix absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <button type="button" id="chk2dSearchClear"
+                            class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-base leading-none w-4 h-4">&times;</button>
+                    </div>
+
+                    <!-- Status filter tabs -->
+                    <div id="chk2dTabs" class="flex items-center gap-1.5">
+                        <button type="button" data-status=""
+                            class="chk2d-tab px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors flex items-center gap-1.5">
+                            All
+                            <span
+                                class="chk2d-tab-count inline-flex items-center justify-center min-w-[1.15rem] h-[1.15rem] px-1 rounded-full text-[10px] font-bold bg-black/10">0</span>
+                        </button>
+                        <button type="button" data-status="Waiting for Approval"
+                            class="chk2d-tab px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors flex items-center gap-1.5">
+                            Queuing
+                            <span
+                                class="chk2d-tab-count inline-flex items-center justify-center min-w-[1.15rem] h-[1.15rem] px-1 rounded-full text-[10px] font-bold bg-black/10">0</span>
+                        </button>
+                        <button type="button" data-status="Approved"
+                            class="chk2d-tab px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors flex items-center gap-1.5">
+                            Approved
+                            <span
+                                class="chk2d-tab-count inline-flex items-center justify-center min-w-[1.15rem] h-[1.15rem] px-1 rounded-full text-[10px] font-bold bg-black/10">0</span>
+                        </button>
+                        <button type="button" data-status="For Revision"
+                            class="chk2d-tab px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors flex items-center gap-1.5">
+                            For Revision
+                            <span
+                                class="chk2d-tab-count inline-flex items-center justify-center min-w-[1.15rem] h-[1.15rem] px-1 rounded-full text-[10px] font-bold bg-black/10">0</span>
+                        </button>
                     </div>
                 </div>
-
-                <!-- Search -->
-                <div class="relative w-full sm:w-64 min-w-0">
-                    <input id="chk2dSearch" type="text" placeholder="Search control no. / client / contact"
-                        class="w-full pl-8 pr-7 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-100 focus:border-amber-600 bg-white transition-colors">
-                    <svg class="absolute left-2 top-1.5 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
-                    </svg>
-                    <button type="button" id="chk2dSearchClear"
-                        class="hidden absolute right-2 top-1.5 text-gray-300 hover:text-gray-500 text-base leading-none w-4 h-4">&times;</button>
-                </div>
             </div>
 
-            <!-- Status filter tabs -->
-            <div id="chk2dTabs" class="flex items-center gap-1.5 mb-4">
-                <button type="button" data-status=""
-                    class="chk2d-tab px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors flex items-center gap-1.5">
-                    All
-                    <span class="chk2d-tab-count inline-flex items-center justify-center min-w-[1.15rem] h-[1.15rem] px-1 rounded-full text-[10px] font-bold bg-black/10">0</span>
-                </button>
-                <button type="button" data-status="Waiting for Approval"
-                    class="chk2d-tab px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors flex items-center gap-1.5">
-                    Queuing
-                    <span class="chk2d-tab-count inline-flex items-center justify-center min-w-[1.15rem] h-[1.15rem] px-1 rounded-full text-[10px] font-bold bg-black/10">0</span>
-                </button>
-                <button type="button" data-status="Approved"
-                    class="chk2d-tab px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors flex items-center gap-1.5">
-                    Approved
-                    <span class="chk2d-tab-count inline-flex items-center justify-center min-w-[1.15rem] h-[1.15rem] px-1 rounded-full text-[10px] font-bold bg-black/10">0</span>
-                </button>
-                <button type="button" data-status="For Revision"
-                    class="chk2d-tab px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors flex items-center gap-1.5">
-                    For Revision
-                    <span class="chk2d-tab-count inline-flex items-center justify-center min-w-[1.15rem] h-[1.15rem] px-1 rounded-full text-[10px] font-bold bg-black/10">0</span>
-                </button>
-            </div>
+
 
             <!-- Table Card -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-xs">
                         <thead>
-                            <tr class="bg-gray-50 border-b border-gray-200 text-left text-[10px] uppercase tracking-wide text-gray-500">
+                            <tr
+                                class="bg-gray-50 border-b border-gray-200 text-left text-[10px] uppercase tracking-wide text-gray-500">
                                 <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Control No.</th>
                                 <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Client</th>
                                 <th class="px-4 py-2.5 font-semibold whitespace-nowrap">2D File</th>
                                 <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Quotation File</th>
                                 <th class="px-4 py-2.5 font-semibold whitespace-nowrap">3D File</th>
+                                <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Contract Amount</th>
                                 <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Submitted</th>
                                 <th class="px-4 py-2.5 font-semibold whitespace-nowrap">Status</th>
                                 <th class="px-4 py-2.5 font-semibold text-right whitespace-nowrap">Action</th>
@@ -96,25 +104,31 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
             <p id="chk2dCount" class="text-[11px] text-gray-400 mt-2.5"></p>
         </div>
 
-        <!-- Review Modal -->
-        <div id="chk2dModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 px-4">
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-xl overflow-hidden max-h-[88vh] flex flex-col">
-                <div class="px-5 py-3.5 border-b border-gray-100 flex items-start justify-between">
-                    <div>
-                        <p class="text-[10px] text-amber-700 font-semibold tracking-[0.15em] uppercase mb-0.5">Submission Review</p>
-                        <h3 id="chk2dModalControlNo" class="text-gray-900 font-mono font-semibold text-sm">—</h3>
-                    </div>
-                    <button type="button" onclick="chk2dCloseModal()"
-                        class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
-                </div>
+        <!-- ═══════════════════════════════════════════════════════════
+             RIGHT-SIDE REVIEW PANEL (slides in from the right, replaces
+             the old center modal)
+        ═══════════════════════════════════════════════════════════ -->
+        <div id="chk2dOverlay" class="fixed inset-0 bg-black/30 hidden z-40" onclick="chk2dClosePanel()"></div>
 
-                <div id="chk2dModalBody" class="px-5 py-3.5 overflow-y-auto space-y-0.5">
-                    <!-- Populated via JS -->
-                </div>
+        <div id="chk2dPanel" class="fixed top-0 right-0 h-full w-full max-w-xl bg-white shadow-2xl z-50 flex flex-col
+                   translate-x-full transition-transform duration-300 ease-out">
 
-                <div id="chk2dModalFooter" class="px-5 py-3 bg-gray-50 border-t border-gray-100">
-                    <!-- Populated via JS: per-file decisions + Submit Review, or read-only status -->
+            <div class="px-5 py-4 border-b border-gray-100 flex items-start justify-between shrink-0">
+                <div>
+                    <p class="text-[10px] text-amber-700 font-semibold tracking-[0.15em] uppercase mb-0.5">
+                        Submission Review</p>
+                    <h3 id="chk2dModalControlNo" class="text-gray-900 font-mono font-semibold text-sm">—</h3>
                 </div>
+                <button type="button" onclick="chk2dClosePanel()"
+                    class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+            </div>
+
+            <div id="chk2dModalBody" class="px-5 py-4 overflow-y-auto space-y-0.5 flex-1">
+                <!-- Populated via JS -->
+            </div>
+
+            <div id="chk2dModalFooter" class="px-5 py-4 bg-gray-50 border-t border-gray-100 shrink-0">
+                <!-- Populated via JS: per-file decisions + Submit Review, or read-only status -->
             </div>
         </div>
 
@@ -161,13 +175,30 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
         let chk2dPollTimer = null;
         let chk2dSearchDebounce = null;
         let chk2dCurrentId = null;
+        let chk2dLastRows = []; // most recently rendered row set, kept around so
 
-        // Tracks the in-progress per-file decisions while the review modal
-        // is open. Reset every time the modal is (re)opened for a record.
-        // If a file was already approved in a prior partial-review pass,
-        // its slot is pre-filled with 'Approved' and locked (no buttons) —
-        // see chk2dRenderFooter(). NEW-3D: 'design_3d' key is added only
-        // when relevant (bundled review, or the 3D-only sequential review).
+        const CHK2D_VIEWED_KEY = 'chk2dViewedIds';
+
+        function chk2dGetViewedIds() {
+            try {
+                const raw = localStorage.getItem(CHK2D_VIEWED_KEY);
+                return raw ? new Set(JSON.parse(raw)) : new Set();
+            } catch (e) {
+                return new Set();
+            }
+        }
+
+        function chk2dMarkViewed(id) {
+            const viewed = chk2dGetViewedIds();
+            if (viewed.has(id)) return; // already marked, nothing to do
+            viewed.add(id);
+            try {
+                localStorage.setItem(CHK2D_VIEWED_KEY, JSON.stringify([...viewed]));
+            } catch (e) {
+                console.error('chk2dMarkViewed:', e);
+            }
+        }
+
         let chk2dDecisions = {
             design_2d: { decision: null, remarks: '' },
             quotation: { decision: null, remarks: '' },
@@ -274,10 +305,6 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
             });
         }
 
-        // Pulls an unfiltered (status='') snapshot of the list just to tally
-        // how many records fall into each status, then stamps those counts
-        // onto the little pill in each tab. Runs independently of whichever
-        // tab is currently active/rendered so all counts stay visible at once.
         async function chk2dFetchCounts() {
             try {
                 const url = `${CHK2D_AJAX_URL}?action=list&q=&status=`;
@@ -338,43 +365,75 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
         // decide on (main / main_with_3d / 3d_only); View otherwise.
         function chk2dActionButton(row) {
             if (row.review_target && row.review_target !== 'none') {
-                return `<button type="button" onclick="chk2dOpenModal(${row.id})"
+                return `<button type="button" onclick="chk2dOpenPanel(${row.id})"
                             class="px-3 py-1.5 text-xs font-medium text-white bg-amber-700 rounded-lg hover:bg-amber-800 transition-colors whitespace-nowrap">
                             Review
                         </button>`;
             }
-            return `<button type="button" onclick="chk2dOpenModal(${row.id})"
+            return `<button type="button" onclick="chk2dOpenPanel(${row.id})"
                         class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap">
                         View
                     </button>`;
         }
 
+        function chk2dFormatCurrency(value) {
+            const num = Number(value);
+            if (!value || isNaN(num)) return '<span class="text-gray-300">—</span>';
+            return '₱' + num.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         function chk2dRenderRows(rows) {
             const tbody = document.getElementById('chk2dTbody');
+            chk2dLastRows = rows;
 
             if (rows.length === 0) {
                 tbody.innerHTML = chk2dEmptyState();
                 return;
             }
 
-            tbody.innerHTML = rows.map(row => `
-                <tr class="hover:bg-amber-50/40 transition-colors cursor-pointer" onclick="chk2dOpenModal(${row.id})">
-                    <td class="px-4 py-2.5">
-                        <span class="font-mono text-[11px] font-semibold text-amber-700 whitespace-nowrap">${chk2dEscapeHtml(row.control_no)}</span>
+            const viewedIds = chk2dGetViewedIds();
+
+            tbody.innerHTML = rows.map(row => {
+                const isViewed = viewedIds.has(row.id);
+                const isActive = chk2dCurrentId === row.id;
+
+                let rowBgCls = '';
+                if (isActive) rowBgCls = 'bg-amber-100';
+                else if (!isViewed) rowBgCls = 'bg-amber-50/30';
+
+
+                const firstCellAccent = isActive
+                    ? 'border-l-4 border-l-amber-600 pl-3'
+                    : 'border-l-4 border-l-transparent pl-3';
+                const unreadDot = isViewed
+                    ? ''
+                    : `<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Not yet viewed"></span>`;
+                const viewedLabel = isViewed
+                    ? `<span class="text-[10px] text-gray-400 whitespace-nowrap">Viewed</span>`
+                    : '';
+                return `
+                <tr class="hover:bg-amber-50/40 transition-colors cursor-pointer ${rowBgCls}" data-row-id="${row.id}" onclick="chk2dOpenPanel(${row.id})">
+                    <td class="pr-4 py-2.5 ${firstCellAccent}">
+                        <div class="flex items-center gap-1.5">
+                            ${unreadDot}
+                            <span class="font-mono text-[11px] font-semibold text-amber-700 whitespace-nowrap">${chk2dEscapeHtml(row.control_no)}</span>
+                        </div>
+                        ${viewedLabel}
                     </td>
                     <td class="px-4 py-2.5 text-gray-800">${chk2dEscapeHtml(row.client_name)}</td>
                     <td class="px-4 py-2.5 whitespace-nowrap" onclick="event.stopPropagation()">${chk2dFileLink(row.design_2d_path, row.design_2d_uploader_name, row.design_2d_uploaded_role)}</td>
                     <td class="px-4 py-2.5 whitespace-nowrap" onclick="event.stopPropagation()">${chk2dFileLink(row.quotation_path, row.quotation_uploader_name, row.quotation_uploaded_role)}</td>
-                    <td class="px-4 py-2.5 whitespace-nowrap" onclick="event.stopPropagation()">${
-                        (row.include_3d || row.design_3d_stage !== 'Locked')
-                            ? chk2dFileLink(row.design_3d_path, row.design_3d_uploader_name, row.design_3d_uploaded_role)
-                            : '<span class="text-gray-300 text-xs">Not yet</span>'
+                    <td class="px-4 py-2.5 whitespace-nowrap" onclick="event.stopPropagation()">${(row.include_3d || row.design_3d_stage !== 'Locked')
+                        ? chk2dFileLink(row.design_3d_path, row.design_3d_uploader_name, row.design_3d_uploaded_role)
+                        : '<span class="text-gray-300 text-xs">Not yet</span>'
                     }</td>
-                    <td class="px-4 py-2.5 text-gray-500 whitespace-nowrap">${chk2dFormatDate(row.submitted_at)}</td>
+<td class="px-4 py-2.5 text-gray-800 font-medium whitespace-nowrap">${chk2dFormatCurrency(row.contract_amount)}</td>
+<td class="px-4 py-2.5 text-gray-500 whitespace-nowrap">${chk2dFormatDate(row.submitted_at)}</td>
                     <td class="px-4 py-2.5">${chk2dStatusBadgeWithRow(row)}</td>
                     <td class="px-4 py-2.5 text-right" onclick="event.stopPropagation()">${chk2dActionButton(row)}</td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
         }
 
         async function chk2dFetchList({ silent = false } = {}) {
@@ -447,7 +506,7 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
         chk2dFetchList().then(chk2dStartPolling);
 
         // ═══════════════════════════════════════════════════════════
-        // REVIEW MODAL
+        // REVIEW PANEL (right-side slide-in — replaces the old center modal)
         // ═══════════════════════════════════════════════════════════
         function chk2dDetailRow(label, value) {
             return `
@@ -458,8 +517,24 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
             `;
         }
 
+        function chk2dDetailRowHighlight(label, value) {
+            return `
+        <div class="flex justify-between items-center gap-3 py-2.5 px-3 my-1 rounded-lg
+                    bg-slate-50 border border-slate-300 text-[13px]">
+            <span class="text-slate-600 font-medium flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                ${label}
+            </span>
+            <span class="text-slate-900 font-semibold text-right">${value}</span>
+        </div>
+    `;
+        }
+
         // Shows the current review status (+ remarks, if any) for one file.
-        // Used in the modal body so it's visible whether the modal is in
+        // Used in the panel body so it's visible whether the panel is in
         // "still deciding" mode or "already reviewed" (read-only) mode.
         function chk2dFileReviewSummary(label, reviewStatus, remarks) {
             const remarksHtml = remarks
@@ -613,7 +688,7 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
                 footer.innerHTML = `
                     <div class="flex items-center justify-between gap-3">
                         <div>${chk2dStatusBadgeWithRow(record)}${reviewedLine}</div>
-                        <button type="button" onclick="chk2dCloseModal()"
+                        <button type="button" onclick="chk2dClosePanel()"
                             class="px-3.5 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
                             Close
                         </button>
@@ -663,11 +738,18 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
             chk2dUpdateSubmitState();
         }
 
-        async function chk2dOpenModal(id) {
-            const modal = document.getElementById('chk2dModal');
+        async function chk2dOpenPanel(id) {
+            const overlay = document.getElementById('chk2dOverlay');
+            const panel = document.getElementById('chk2dPanel');
             const body = document.getElementById('chk2dModalBody');
             const footer = document.getElementById('chk2dModalFooter');
             chk2dCurrentId = id;
+
+            // Mark viewed immediately (before the fetch even resolves) and
+            // refresh the table right away so the unread dot disappears the
+            // moment the user opens the record.
+            chk2dMarkViewed(id);
+            if (chk2dLastRows.length) chk2dRenderRows(chk2dLastRows);
 
             document.getElementById('chk2dModalControlNo').textContent = 'Loading…';
             body.innerHTML = `
@@ -676,8 +758,9 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
                 </div>
             `;
             footer.innerHTML = '';
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => panel.classList.remove('translate-x-full'));
 
             try {
                 const res = await fetch(`${CHK2D_AJAX_URL}?action=detail&id=${id}`);
@@ -697,6 +780,8 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
                     chk2dDetailRow('Client', chk2dEscapeHtml(r.client_name)),
                     chk2dDetailRow('Contact Number', chk2dEscapeHtml(r.contact_number)),
                     chk2dDetailRow('Project Type', chk2dEscapeHtml(r.project_type) || '—'),
+                    chk2dDetailRow('Contract Amount', chk2dFormatCurrency(r.contract_amount)),
+                    chk2dDetailRowHighlight('Target Completion Date', chk2dFormatDate(r.target_completion_date)),
                     chk2dDetailRow('2D File', r.design_2d_path
                         ? `<a href="${chk2dEscapeHtml(r.design_2d_path)}" target="_blank" rel="noopener" class="text-amber-700 hover:underline">View File</a> <span class="text-gray-400 font-normal">(${chk2dEscapeHtml(r.design_2d_uploader_name)}, ${chk2dEscapeHtml(r.design_2d_uploaded_role)})</span>`
                         : '—'),
@@ -715,24 +800,22 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
                 chk2dRenderFooter(r);
 
             } catch (e) {
-                console.error('chk2dOpenModal:', e);
+                console.error('chk2dOpenPanel:', e);
                 body.innerHTML = `<p class="text-sm text-red-500 py-6 text-center">Connection error. Please try again.</p>`;
             }
         }
 
-        function chk2dCloseModal() {
-            const modal = document.getElementById('chk2dModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+        function chk2dClosePanel() {
+            const overlay = document.getElementById('chk2dOverlay');
+            const panel = document.getElementById('chk2dPanel');
+            panel.classList.add('translate-x-full');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
             chk2dCurrentId = null;
+            if (chk2dLastRows.length) chk2dRenderRows(chk2dLastRows);
         }
 
-        document.getElementById('chk2dModal').addEventListener('click', function (e) {
-            if (e.target === this) chk2dCloseModal();
-        });
-
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') chk2dCloseModal();
+            if (e.key === 'Escape') chk2dClosePanel();
         });
 
         // Sends both/all file decisions together — this is the single
@@ -764,7 +847,7 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
                 }
 
                 crmShowToast(data.message || 'Review saved.');
-                chk2dCloseModal();
+                chk2dClosePanel();
                 chk2dLastSignature = '';
                 chk2dFetchList();
             } catch (e) {
@@ -793,7 +876,7 @@ $chk2dAjaxUrl = BASE_URL . '/check2dquotationajax';
                 }
 
                 crmShowToast(data.message || 'Review saved.');
-                chk2dCloseModal();
+                chk2dClosePanel();
                 chk2dLastSignature = '';
                 chk2dFetchList();
             } catch (e) {

@@ -2,7 +2,14 @@
 //index-cashreleasevoucher.php
 
 include ROOT_PATH . '/network/connect.php';
+include ROOT_PATH . '/admin/authentication/index-roles.php';
+
+$allowedRoles = [ROLE_ACCOUNTING];
+$allowedPositions = [POSITION_CUSTOASSISTANT];
+
 include ROOT_PATH . '/admin/authentication/index-authguard.php';
+include ROOT_PATH . '/admin/authentication/index-roleguard.php';
+
 include ROOT_PATH . '/network/mailer.php';
 include ROOT_PATH . '/network/cache-helper.php';
 
@@ -20,14 +27,18 @@ if (!$voucher_id || !$user_id) {
 }
 
 // Kunin ang voucher + request info + requestor email
-$vRow = $conn->query("
+$stmtV = $conn->prepare("
     SELECT v.*, b.control_no, b.purpose, b.user_id as requestor_id,
            a.email as requestor_email, a.name as requestor_name
     FROM noblevoucher v
     LEFT JOIN noblebudgetrequest b ON v.request_id = b.id
     LEFT JOIN nobleaccount a ON b.user_id = a.id
-    WHERE v.id = $voucher_id LIMIT 1
-")->fetch_assoc();
+    WHERE v.id = ? LIMIT 1
+");
+$stmtV->bind_param('i', $voucher_id);
+$stmtV->execute();
+$vRow = $stmtV->get_result()->fetch_assoc();
+$stmtV->close();
 
 if (!$vRow) {
     echo json_encode(['success' => false, 'error' => 'Not found']);
@@ -50,6 +61,7 @@ if ($manual_name) {
 }
 
 $success = $stmt->execute();
+$stmt->close();
 
 // Send email sa requestor
 if ($success && $vRow['requestor_email']) {

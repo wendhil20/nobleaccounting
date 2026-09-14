@@ -187,6 +187,15 @@ $adminRoutes = [
     
     // cutting list
     'cuttinglist',     
+
+    // crm cuttinglist page 2
+    'crmcuttinglist',
+    'crmcuttinglistdetail',
+    'cuttinglistajax',
+
+    // cuttinglist page 3
+    'crmewood',
+    'crmewoodajax',
     
     // super admin page 1
     'crm-main',
@@ -347,7 +356,6 @@ $routes = [
     'saveprojectname'                  => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-saveprojectname.php',
     'deleteprojectname'                => 'admin/ui-accounting/backend/backend-custodian/index-projectmonitor-deleteprojectname.php',
 
-
     // custiodiansublink
     'projectmonitor'                   => 'admin/ui-accounting/page-3/index-projectmonitor-main.php',
     'projectdetail'                    => 'admin/ui-accounting/page-3/index-projectmonitor-details.php',
@@ -397,7 +405,18 @@ $routes = [
 
 
     // cutting list
-    'cuttinglist'                      => 'admin/ui-cuttinglist/index-cuttinglist-main.php',
+    'cuttinglist'                      => 'admin/ui-cuttinglist/page-1/index-cuttinglist-main.php',
+
+    // crm cutting list page 2
+    'crmcuttinglist'                   => 'admin/ui-cuttinglist/page-2/crm-cuttingmain.php',
+    'crmcuttinglistdetail'             => 'admin/ui-cuttinglist/page-2/index-cuttinglist-detail.php',
+    'cuttinglistajax'                  => 'admin/ui-cuttinglist/backend/page-2/cuttinglistajax.php',
+
+    // cutting list page 3
+    'crmewood'                         => 'admin/ui-cuttinglist/page-3/ewoodfile.php',
+    'crmewoodajax'                     => 'admin/ui-cuttinglist/backend/page-3/cuttinglistprogressionajax.php',
+
+   
 
     // super admin page 1
     'crm-main'                         => 'admin/ui-superad/page-1/check2dquotation.php',

@@ -25,11 +25,6 @@ $onlineRow = $onlineResult->fetch_assoc();
 $isOnline = $onlineRow && $onlineRow['last_active'] &&
     (time() - strtotime($onlineRow['last_active'])) < 60;
 
-/* =========================================================
-   MAIN BRANCH CHECK — used to gate Main-Branch-only menu items
-   (e.g. Budget Request list). Session stores the branch NAME,
-   so we look up noblebranch.is_main for that name.
-   ========================================================= */
 $sessionBranch = $_SESSION['branch'] ?? '';
 $isMainBranch = false;
 if ($sessionBranch !== '') {
@@ -257,7 +252,6 @@ $currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
 
         <?php if ($role === ROLE_ACCOUNTING): ?>
 
-
             <?php if ($isHead): ?>
 
                 <a href="<?= BASE_URL ?>/generalannouncement" data-tooltip="General Announce"
@@ -340,6 +334,24 @@ $currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
                     <i class="fa-solid fa-list w-4 text-center text-sm flex-shrink-0"></i>
                     <span class="sidebar-label">Acknowledge Request</span>
                 </a>
+
+                <a href="<?= BASE_URL ?>/accountingcustodian" data-tooltip="Cash Voucher Request"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingcustodian') ?>">
+                    <i class="fa-solid fa-circle-dollar-to-slot w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Cash Voucher Request</span>
+                </a>
+
+                 <a href="<?= BASE_URL ?>/projectmonitor" data-tooltip="Project Monitor"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/projectmonitor') ?>">
+                    <i class="fa-solid fa-file-circle-check w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Project Monitor</span>
+                </a>
+
+                 <a href="<?= BASE_URL ?>/cashvoucherdashboard" data-tooltip="Approval Cash Voucher"
+                    class="flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-all <?= isActive('/cashvoucherdashboard') ?>">
+                    <i class="fa-solid fa-ticket-simple w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Approval Cash Voucher</span>
+                </a>
             <?php endif; ?>
 
             <?php if ($isCustodian): ?>
@@ -363,14 +375,11 @@ $currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
                     <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">Manage</p>
                 </div>
 
-
-
                 <a href="<?= BASE_URL ?>/projectmonitor" data-tooltip="Project Monitor"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/projectmonitor') ?>">
                     <i class="fa-solid fa-file-circle-check w-4 text-center text-sm flex-shrink-0"></i>
                     <span class="sidebar-label">Project Monitor</span>
                 </a>
-
 
                 <a href="<?= BASE_URL ?>/cashvoucherdashboard" data-tooltip="Approval Cash Voucher"
                     class="flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-all <?= isActive('/cashvoucherdashboard') ?>">
@@ -385,10 +394,10 @@ $currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
                     <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 mb-2">Manage</p>
                 </div>
 
-                <a href="<?= BASE_URL ?>/cashvoucherdashboard" data-tooltip="Approval Cash Voucher"
-                    class="flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-all <?= isActive('/cashvoucherdashboard') ?>">
-                    <i class="fa-solid fa-ticket-simple w-4 text-center text-sm flex-shrink-0"></i>
-                    <span class="sidebar-label">Approval Cash Voucher</span>
+                 <a href="<?= BASE_URL ?>/accountingcustodian" data-tooltip="Cash Voucher Request"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all <?= isActive('/accountingcustodian') ?>">
+                    <i class="fa-solid fa-circle-dollar-to-slot w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Cash Voucher Request</span>
                 </a>
             <?php endif; ?>
 
@@ -463,7 +472,38 @@ $currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
                 <i class="fa-solid fa-chart-simple w-4 text-center text-sm flex-shrink-0"></i>
                 <span class="sidebar-label">Monitoring</span>
             </a>
-            
+
+            <a href="<?= BASE_URL ?>/workbench" data-tooltip="Work Bench"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm group transition-all <?= isActive('/workbench') ?>">
+                <i class="fa-solid fa-business-time w-4 text-center text-sm flex-shrink-0"></i>
+                <span class="sidebar-label">Work Bench</span>
+            </a>
+
+
+        <?php endif; ?>
+
+
+        <?php if ($role === ROLE_CUTTING): ?>
+            <?php if ($isMainBranch): ?>
+                <a href="<?= BASE_URL ?>/crmcuttinglist" data-tooltip="2D & Quotation Approval"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm group transition-all <?= isActive('/crmcuttinglist') ?>">
+                    <i class="fa-solid fa-pen-ruler w-4 text-center text-sm flex-shrink-0"></i>
+                    <span class="sidebar-label">Cutting List</span>
+                </a>
+            <?php endif; ?>
+
+            <a href="<?= BASE_URL ?>/crmewood" data-tooltip="Wood Working"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm group transition-all <?= isActive('/crmewood') ?>">
+                <i class="fa-solid fa-file-circle-question w-4 text-center text-sm flex-shrink-0"></i>
+                <span class="sidebar-label">E-Woodfile</span>
+            </a>
+
+            <a href="<?= BASE_URL ?>/billofmaterial" data-tooltip="Bill of Material"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-sm group transition-all <?= isActive('/billofmaterial') ?>">
+                <i class="fa-solid fa-file-circle-plus w-4 text-center text-sm flex-shrink-0"></i>
+                <span class="sidebar-label">Bill of Material</span>
+            </a>
+
         <?php endif; ?>
 
 
@@ -533,10 +573,12 @@ $currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
     <!-- User Profile Block (Department + User Info, dikit) -->
     <div class="border-t border-gray-100">
         <?php if (!empty($_SESSION['role'])): ?>
-            <div class="px-5 py-1 text-center" style="background-color: <?= $currentRoleColor ?>15;">
-                <span class="text-[10px] font-bold uppercase tracking-wide inline-flex items-center justify-center gap-1"
-                    style="color: <?= $currentRoleColor ?>;">
-                    <?= htmlspecialchars($_SESSION['role']) ?> <i class="fa-solid fa-user-tag text-xs"></i>
+            <div class="px-3 py-1.5 text-center overflow-hidden" style="background-color: <?= $currentRoleColor ?>15;">
+                <span
+                    class="text-[10px] font-bold uppercase tracking-wide inline-flex items-center justify-center gap-1 max-w-full"
+                    style="color: <?= $currentRoleColor ?>;" title="<?= htmlspecialchars($_SESSION['role']) ?>">
+                    <span class="truncate"><?= htmlspecialchars($_SESSION['role']) ?></span>
+                    <i class="fa-solid fa-user-tag text-xs flex-shrink-0"></i>
                 </span>
             </div>
         <?php endif; ?>
@@ -572,7 +614,7 @@ $currentRoleColor = $roleColors[$role] ?? '#6B7280'; // default gray fallback
 </aside>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
-<!--  MOBILE TOP BAR (visible on mobile only)                   -->
+<!--  MOBILE TOP BAR (visible on mobile only)                    -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <header class="md:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
     <div class="flex items-center justify-between px-4 h-14">

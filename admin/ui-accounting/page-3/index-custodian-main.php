@@ -6,7 +6,7 @@ include ROOT_PATH . '/admin/authentication/index-authguard.php';
 include ROOT_PATH . '/admin/authentication/index-roles.php';
 
 $allowedRoles = [ROLE_ACCOUNTING];
-$allowedPositions = [POSITION_CUSTODIAN];
+$allowedPositions = [POSITION_CUSTODIAN, POSITION_STAFF, POSITION_CUSTOASSISTANT];
 include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 ?>
 <!DOCTYPE html>
@@ -728,6 +728,8 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         let calMonth = new Date().getMonth();
         let selectedDate = null;
         let allDatesCache = [];
+        const POSITION = '<?= htmlspecialchars($position) ?>';
+        const isCustoAssistant = POSITION === '<?= POSITION_CUSTOASSISTANT ?>';
 
         const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -1288,35 +1290,55 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
 
         // ─── Voucher Modal ───────────────────────────────────
         function viewVoucher(row) {
-            currentRow = row;
-            const items = row.items ?? [];
-            const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+    currentRow = row;
+    const items = row.items ?? [];
+    const total = items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
 
-            document.getElementById('v-control-no').textContent = row.voucher_control_no ?? row.control_no;
-            document.getElementById('v-date').textContent = row.date_requested;
-            document.getElementById('v-second-no').textContent = row.voucher_payment_method ?? '—';
-            document.getElementById('v-title').textContent = row.voucher_title ?? '';
-            document.getElementById('v-payee').value = row.voucher_payee ?? '';
-            document.getElementById('v-amount-words').value = numberToWords(total);
-            document.getElementById('v-payment-method').value = row.voucher_payment_method ?? '';
-            document.getElementById('v-payment-method-m').value = row.voucher_payment_method ?? '';
+    // ── ADD THIS: lock state ──
+    const isStaff = POSITION === '<?= POSITION_STAFF ?>';
+    const isSubmitted = !!row.voucher_status; // may status na = submitted na, dapat locked
+    const canEditFields = isStaff && !isSubmitted;
 
-            // Populate Payment For dropdown (account titles)
-            fetch('<?= BASE_URL ?>/fetchpettycashaccounttitles')
-                .then(r => r.json())
-                .then(titles => {
-                    const sel = document.getElementById('v-purpose');
-                    const selM = document.getElementById('v-purpose-m');
-                    sel.innerHTML = '<option value="">— Select —</option>';
-                    selM.innerHTML = '<option value="">— Select —</option>';
-                    titles.forEach(d => {
-                        const o = `<option value="${d.title}">${d.title}</option>`;
-                        sel.insertAdjacentHTML('beforeend', o);
-                        selM.insertAdjacentHTML('beforeend', o);
-                    });
-                    sel.value = row.voucher_purpose ?? '';
-                    selM.value = row.voucher_purpose ?? '';
-                });
+    document.getElementById('v-control-no').textContent = row.voucher_control_no ?? row.control_no;
+    document.getElementById('v-date').textContent = row.date_requested;
+    document.getElementById('v-second-no').textContent = row.voucher_payment_method ?? '—';
+    document.getElementById('v-title').textContent = row.voucher_title ?? '';
+    document.getElementById('v-payee').value = row.voucher_payee ?? '';
+    document.getElementById('v-amount-words').value = numberToWords(total);
+    document.getElementById('v-payment-method').value = row.voucher_payment_method ?? '';
+    document.getElementById('v-payment-method-m').value = row.voucher_payment_method ?? '';
+
+    // ── ADD THIS: apply disabled state ──
+    document.getElementById('v-payee').disabled = !canEditFields;
+    document.getElementById('v-payee-m').disabled = !canEditFields;
+    document.getElementById('v-payment-method').disabled = !canEditFields;
+    document.getElementById('v-payment-method-m').disabled = !canEditFields;
+    [document.getElementById('v-payee'), document.getElementById('v-payee-m'),
+     document.getElementById('v-payment-method'), document.getElementById('v-payment-method-m')]
+     .forEach(el => el.classList.toggle('bg-gray-100', !canEditFields));
+
+    // Populate Payment For dropdown (account titles)
+    fetch('<?= BASE_URL ?>/fetchpettycashaccounttitles')
+        .then(r => r.json())
+        .then(titles => {
+            const sel = document.getElementById('v-purpose');
+            const selM = document.getElementById('v-purpose-m');
+            sel.innerHTML = '<option value="">— Select —</option>';
+            selM.innerHTML = '<option value="">— Select —</option>';
+            titles.forEach(d => {
+                const o = `<option value="${d.title}">${d.title}</option>`;
+                sel.insertAdjacentHTML('beforeend', o);
+                selM.insertAdjacentHTML('beforeend', o);
+            });
+            sel.value = row.voucher_purpose ?? '';
+            selM.value = row.voucher_purpose ?? '';
+
+            // ── ADD THIS: lock the dropdown too ──
+            sel.disabled = !canEditFields;
+            selM.disabled = !canEditFields;
+            sel.classList.toggle('bg-gray-100', !canEditFields);
+            selM.classList.toggle('bg-gray-100', !canEditFields);
+        });
 
 
             document.getElementById('v-total').textContent = 'PhP ' + total.toLocaleString('en-PH', { minimumFractionDigits: 2 });
@@ -1393,7 +1415,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             }
             document.getElementById('v-items-tbody').innerHTML = rows;
 
-            // Footer buttons
             const footerBtns = document.getElementById('v-footer-btns');
             const closeBtn = `<button onclick="closeVoucherModal()" class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 rounded transition-all border border-gray-200">Close</button>`;
 
@@ -1404,13 +1425,24 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
     Waiting for staff to mark as received
 </span>`;
             } else if (!row.voucher_status) {
-                footerBtns.innerHTML = closeBtn + `
+                // Submit Voucher — STAFF lang
+                if (isStaff) {
+                    footerBtns.innerHTML = closeBtn + `
 <button onclick="confirmSubmit()"
     class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all">
     <i class="fa-solid fa-paper-plane mr-1"></i>Submit Voucher
 </button>`;
+                } else {
+                    footerBtns.innerHTML = closeBtn + `
+<span class="flex items-center gap-2 text-xs text-gray-400 px-4 py-2 font-medium bg-gray-50 rounded-lg border border-gray-200">
+    <i class="fa-solid fa-lock text-gray-300"></i>
+    Only staff can submit this voucher
+</span>`;
+                }
             } else if (row.voucher_status === 'ready_to_release') {
-                footerBtns.innerHTML = closeBtn + `
+                // Release — CUSTODIAN ASSISTANT lang
+                if (isCustoAssistant) {
+                    footerBtns.innerHTML = closeBtn + `
 <div class="flex items-center gap-2">
     <input type="text" id="manual-receiver-name" placeholder="Receiver name (optional)"
         class="border border-gray-200 rounded px-3 py-1.5 text-xs outline-none focus:border-orange-400 w-44">
@@ -1421,6 +1453,12 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         <i class="fa-solid fa-check mr-1"></i>Release Cash Voucher
     </button>
 </div>`;
+                } else {
+                    footerBtns.innerHTML = closeBtn + `
+<span class="text-xs text-blue-500 px-4 py-2 font-medium flex items-center gap-2 bg-blue-50 rounded-lg border border-blue-200">
+    <i class="fa-solid fa-box"></i>Ready to Release — waiting for custodian assistant
+</span>`;
+                }
             } else {
                 footerBtns.innerHTML = closeBtn + `
 <span class="text-xs text-gray-400 px-4 py-2 font-medium flex items-center gap-2">
@@ -1468,7 +1506,6 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
             if (!mFilled) mobileRows = `<div class="px-3 py-3 text-xs text-gray-400 text-center">No items.</div>`;
             mobileItems.innerHTML = mobileRows;
 
-            // Mobile footer buttons — same logic, different container
             const mFooter = document.getElementById('v-footer-btns-m');
             const mCloseBtn = `<button onclick="closeVoucherModal()" class="w-full text-sm text-gray-500 font-medium py-2.5 rounded-xl border border-gray-200 bg-white">Close</button>`;
 
@@ -1478,13 +1515,21 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
     <i class="fa-solid fa-lock text-gray-300"></i> Waiting for staff to mark as received
 </span>` + mCloseBtn;
             } else if (!row.voucher_status) {
-                mFooter.innerHTML = `
+                if (isStaff) {
+                    mFooter.innerHTML = `
 <button onclick="confirmSubmit()"
     class="w-full flex items-center justify-center gap-2 bg-orange-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-all">
     <i class="fa-solid fa-paper-plane"></i>Submit Voucher
 </button>` + mCloseBtn;
+                } else {
+                    mFooter.innerHTML = `
+<span class="flex items-center justify-center gap-2 text-xs text-gray-400 py-2 font-medium bg-white rounded-xl border border-gray-200">
+    <i class="fa-solid fa-lock text-gray-300"></i> Only staff can submit this voucher
+</span>` + mCloseBtn;
+                }
             } else if (row.voucher_status === 'ready_to_release') {
-                mFooter.innerHTML = `
+                if (isCustoAssistant) {
+                    mFooter.innerHTML = `
 <input type="text" id="manual-receiver-name-m" placeholder="Receiver name (optional)"
     class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-orange-400">
 <input type="date" id="manual-receiver-date-m"
@@ -1493,6 +1538,12 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
     class="w-full flex items-center justify-center gap-2 bg-green-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-all">
     <i class="fa-solid fa-check"></i>Release Cash Voucher
 </button>` + mCloseBtn;
+                } else {
+                    mFooter.innerHTML = `
+<span class="flex items-center justify-center gap-2 text-xs text-blue-600 py-2.5 font-medium bg-blue-50 rounded-xl border border-blue-200">
+    <i class="fa-solid fa-box"></i>Ready to Release
+</span>` + mCloseBtn;
+                }
             } else if (row.voucher_status === 'released') {
                 mFooter.innerHTML = `
 <button onclick="printVoucher(${JSON.stringify(row).replace(/"/g, '&quot;')})"
@@ -2014,29 +2065,33 @@ include ROOT_PATH . '/admin/authentication/index-roleguard.php';
         let _highlightDone = false;
 
         function fetchVouchers() {
-            fetch('<?= BASE_URL ?>/fetchreceived')
-                .then(res => res.json())
-                .then(data => {
-                    allData = data;
-                    if (currentView === 'list') {
-                        applyFilters();
-                    } else {
-                        renderCalendar();
-                        buildDatesDropdown();
-                        if (selectedDate) {
-                            const rows = allData.filter(r => r.date_requested?.startsWith(selectedDate));
-                            openDayPanel(selectedDate, rows);
-                        }
-                    }
-                    document.getElementById('last-updated').textContent =
-                        'Updated ' + new Date().toLocaleTimeString('en-PH');
+    fetch('<?= BASE_URL ?>/fetchreceived')
+        .then(res => res.json())
+        .then(data => {
+            // Custodian assistant lang: ready_to_release lang ang makikita
+            allData = isCustoAssistant
+                ? data.filter(r => r.voucher_status === 'ready_to_release')
+                : data;
 
-                    if (!_highlightDone) {
-                        _highlightDone = true;
-                        checkHighlight();
-                    }
-                });
-        }
+            if (currentView === 'list') {
+                applyFilters();
+            } else {
+                renderCalendar();
+                buildDatesDropdown();
+                if (selectedDate) {
+                    const rows = allData.filter(r => r.date_requested?.startsWith(selectedDate));
+                    openDayPanel(selectedDate, rows);
+                }
+            }
+            document.getElementById('last-updated').textContent =
+                'Updated ' + new Date().toLocaleTimeString('en-PH');
+
+            if (!_highlightDone) {
+                _highlightDone = true;
+                checkHighlight();
+            }
+        });
+}
         // ─── Toast ───────────────────────────────────────────
         function showToast(message, type = 'success') {
             const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500' };

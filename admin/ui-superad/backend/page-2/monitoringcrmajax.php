@@ -20,11 +20,7 @@ function monRoleLabel(?string $role): string
     return '—';
 }
 
-// Turns one 2D/Quotation cycle row into a human stage label + a coarse
-// "stage_group" used for the tab filters / badge color on the list page.
-// This is the single source of truth for "where is this inquiry right
-// now" — as more modules (Accounting, Production, Delivery...) get their
-// own tables, extend this function rather than duplicating the logic.
+
 function monStageInfo(?array $row): array
 {
     if (!$row) {
@@ -67,10 +63,6 @@ if ($action === 'list') {
     $search = trim($_GET['q'] ?? '');
     $stageFilter = trim($_GET['stage'] ?? '');
 
-    // One row per inquiry: latest 2D/Quotation cycle (if any) joined in.
-    // LEFT JOIN so inquiries that haven't reached 2D/Quotation yet still
-    // show up (as "Not Started") — monitoring should track everything,
-    // not just what has an active submission.
     $sql = "
         SELECT
             i.id AS inquiry_id, i.control_no, i.client_name, i.contact_number, i.project_type, i.branch,
@@ -151,18 +143,11 @@ if ($action === 'timeline') {
         exit;
     }
 
-    // Full inquiry document — everything captured on the crm-main.php intake
-    // form, so the tracking page's header can show the whole record, not
-    // just the identity fields. sales/designer are both rows in `noblerole`
-    // (same table the intake form's dropdown and auto-assign pull from).
-    // design_progress / design_confirmed(_at/_by) / clientstatus are the
-    // "Client Review & Approval" gate from 2d-and-quotation.php (step1) —
-    // confirmedby is also a noblerole id, same as sales/designer.
     $stmt = $conn->prepare("
         SELECT
             i.id, i.control_no, i.client_name, i.address, i.contact_number,
             i.project_type, i.project_scope, i.measuring_space, i.measurement_datetime,
-            i.contract_amount, i.branch, i.created_at, i.status AS inquiry_status,
+            i.contract_amount, i.branch, i.created_at, i.status AS inquiry_status, i.mode,
             i.sales_staff_id, i.designer_id,
             i.design_progress, i.design_confirmed, i.design_confirmed_at, i.design_confirmed_by, i.clientstatus,
             sales.name AS sales_staff_name,
@@ -184,9 +169,10 @@ if ($action === 'timeline') {
         exit;
     }
 
-    // Site Visit history — crmsitevisit.php lets a designer log more than
-    // one visit per inquiry, so pull all of them (oldest first, same
-    // ordering convention as the 2D/Quotation cycles below).
+
+    $isReadyForQuotation = ($inquiry['mode'] ?? 'site_visit') === 'ready_for_quotation';
+
+
     $stmt = $conn->prepare("
         SELECT sv.id, sv.address, sv.visit_datetime, sv.visited, sv.photos, sv.created_at,
                d.name AS designer_name
@@ -214,10 +200,6 @@ if ($action === 'timeline') {
     }
     $stmt->close();
 
-    // Every 2D/Quotation cycle for this inquiry, oldest first — this is
-    // what actually makes it a "tracking" view: a revision cycle isn't
-    // hidden here the way it is on the approval queue (check2dquotation.php
-    // only ever surfaces the latest cycle).
     $stmt = $conn->prepare("
         SELECT
             q.id, q.status, q.remarks, q.submitted_at, q.created_at, q.reviewed_at,
@@ -283,6 +265,26 @@ if ($action === 'timeline') {
         ? ['stage_label' => $latest['stage_label'], 'stage_group' => $latest['stage_group']]
         : monStageInfo(null);
 
+    // Build the design_progress block, applying the ready_for_quotation
+    // override on top of the real saved values (see note above the flag).
+    if ($isReadyForQuotation) {
+        $designProgress = [
+            'progress'          => '100',
+            'confirmed'         => true,
+            'confirmed_at'      => $inquiry['design_confirmed_at'] ?? $inquiry['created_at'],
+            'confirmed_by_name' => $inquiry['design_confirmed_by_name'] ?? 'Client-provided 2D (no site visit)',
+            'client_status'     => $inquiry['clientstatus'],
+        ];
+    } else {
+        $designProgress = [
+            'progress'          => $inquiry['design_progress'] ?? '0',
+            'confirmed'         => (bool) ($inquiry['design_confirmed'] ?? 0),
+            'confirmed_at'      => $inquiry['design_confirmed_at'],
+            'confirmed_by_name' => $inquiry['design_confirmed_by_name'] ?? '—',
+            'client_status'     => $inquiry['clientstatus'],
+        ];
+    }
+
     echo json_encode([
         'success' => true,
         'inquiry' => [
@@ -299,6 +301,7 @@ if ($action === 'timeline') {
             'branch'              => $inquiry['branch'],
             'created_at'          => $inquiry['created_at'],
             'inquiry_status'      => $inquiry['inquiry_status'],
+            'mode'                => $inquiry['mode'] ?? 'site_visit',
             'sales_staff_name'    => $inquiry['sales_staff_name'] ?? '—',
             'designer_name'       => $inquiry['designer_name'] ?? '—',
             'stage_label'         => $overall['stage_label'],
@@ -307,17 +310,11 @@ if ($action === 'timeline') {
         // step1 in 2d-and-quotation.php's terms — the design-progress /
         // customer-confirmation gate that has to clear before 2D &
         // Quotation upload slots even unlock.
-        'design_progress' => [
-            'progress'          => $inquiry['design_progress'] ?? '0',
-            'confirmed'         => (bool) ($inquiry['design_confirmed'] ?? 0),
-            'confirmed_at'      => $inquiry['design_confirmed_at'],
-            'confirmed_by_name' => $inquiry['design_confirmed_by_name'] ?? '—',
-            'client_status'     => $inquiry['clientstatus'],
-        ],
+        'design_progress' => $designProgress,
         'site_visits' => $siteVisits,
         'cycles'  => $cycles,
     ]);
     exit;
 }
 
-echo json_encode(['success' => false, 'message' => 'Unknown action.']);
+echo json_encode(['success' => false, 'message' => 'Unknown action.']); 

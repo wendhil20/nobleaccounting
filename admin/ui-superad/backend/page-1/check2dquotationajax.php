@@ -1,7 +1,6 @@
 <?php
 // check2dquotationajax.php
 
-
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-roles.php';
 
@@ -35,16 +34,12 @@ function chk2dBaseQuery(): string
             q.include_3d, q.design_3d_stage, q.design_3d_path, q.design_3d_uploaded_by, q.design_3d_uploaded_role,
             q.design_3d_done, q.design_3d_uploaded_at, q.design_3d_review_status, q.design_3d_remarks,
             q.status, q.remarks, q.submitted_at, q.created_at, q.reviewed_at,
-            i.control_no, i.client_name, i.contact_number, i.project_type, i.branch,
+            i.control_no, i.client_name, i.contact_number, i.project_type, i.branch, i.contract_amount,
+            i.target_completion_date,
             d2u.name AS design_2d_uploader_name,
             qtu.name AS quotation_uploader_name,
             d3u.name AS design_3d_uploader_name
         FROM noblecrm_2dquotation q
-        -- Isa lang ang dapat makita kada inquiry sa approval queue — yung
-        -- pinaka-huling submission cycle. Yung mga naunang cycle (na naging
-        -- For Revision na noon) ay makikita na lang sa 'Prior Submissions'
-        -- history sa 2d-and-quotation.php ng designer/sales, hindi na dapat
-        -- lumabas dito bilang hiwalay/duplicate na row.
         JOIN (
             SELECT inquiry_id, MAX(id) AS max_id
             FROM noblecrm_2dquotation
@@ -64,10 +59,7 @@ function chk2dRoleLabel(?string $role): string
     return '—';
 }
 
-// NEW-3D: a row can need attention for two independent reasons now — the
-// main 2D+Quotation(+bundled 3D) cycle, OR a sequential 3D-only submission
-// sitting on top of an already-Approved main cycle. This tells the
-// frontend which one it's looking at so it can render the right modal.
+
 function chk2dReviewTarget(array $row): string
 {
     if ($row['status'] === 'Waiting for Approval') {
@@ -89,6 +81,8 @@ function chk2dFormatRow(array $row): array
         'contact_number'            => $row['contact_number'],
         'project_type'              => $row['project_type'],
         'branch'                    => $row['branch'],
+        'contract_amount'           => $row['contract_amount'],
+        'target_completion_date'    => $row['target_completion_date'],
         'design_2d_path'            => $row['design_2d_path'],
         'design_2d_uploader_name'   => $row['design_2d_uploader_name'] ?? '—',
         'design_2d_uploaded_role'   => chk2dRoleLabel($row['design_2d_uploaded_role']),
@@ -155,11 +149,7 @@ function chk2dNotifyAccountingHead(mysqli $conn, int $inquiryId, array $record, 
     $stmt->close();
 }
 
-// Notify everyone under a given department role (e.g. ROLE_DESIGNER,
-// ROLE_SALES) that a file was sent back for revision. Role-based — hindi
-// yung specific uploader lang ang tinitingnan, kundi lahat ng miyembro ng
-// department na iyon. Parehong pattern ng chk2dNotifyAccountingHead sa
-// itaas (walang position filter dito — buong department, hindi head lang).
+
 function chk2dNotifyRoleRevision(
     mysqli $conn,
     string $role,
@@ -206,9 +196,7 @@ if ($action === 'list') {
     $statusFilter = trim($_GET['status'] ?? '');
 
     $placeholders = implode(',', array_fill(0, count(CHK2D_VISIBLE_STATUSES), '?'));
-    // NEW-3D: a row also belongs in the queue if it's Approved overall but
-    // still has a 3D file waiting on its own (sequential flow) — that
-    // wouldn't otherwise match q.status IN (...) once status = 'Approved'.
+
     $sql = chk2dBaseQuery() . "
         WHERE (
             q.status IN ({$placeholders})
@@ -274,7 +262,8 @@ if ($action === 'detail') {
             q.include_3d, q.design_3d_stage, q.design_3d_path, q.design_3d_uploaded_by, q.design_3d_uploaded_role,
             q.design_3d_done, q.design_3d_uploaded_at, q.design_3d_review_status, q.design_3d_remarks,
             q.status, q.remarks, q.submitted_at, q.created_at, q.reviewed_at,
-            i.control_no, i.client_name, i.contact_number, i.project_type, i.branch,
+            i.control_no, i.client_name, i.contact_number, i.project_type, i.branch, i.contract_amount,
+            i.target_completion_date,
             d2u.name AS design_2d_uploader_name,
             qtu.name AS quotation_uploader_name,
             d3u.name AS design_3d_uploader_name
@@ -337,9 +326,7 @@ if ($action === 'review') {
         exit;
     }
 
-    // Kailangan ang buong record (hindi lang status) para may client_name /
-    // control_no na tunay na maipapasa sa notifications kapag Approved
-    // (Accounting Head) o For Revision (Designer / Sales department).
+
     $stmt = $conn->prepare("
         SELECT q.status, q.inquiry_id, q.include_3d, i.control_no, i.client_name
         FROM noblecrm_2dquotation q
@@ -375,11 +362,7 @@ if ($action === 'review') {
             exit;
         }
 
-        // 🔁 Cascade rule: kapag "For Revision" ang 3D, ang 2D ay
-        // kasabay na rin dapat i-revise, kahit "Approved" ang napili ng
-        // reviewer dito — dahil karaniwan, ang 3D ay direktang hango sa
-        // 2D file, kaya kung mali ang 3D, malamang kailangan ding ayusin
-        // ang 2D. I-override lang kung hindi pa "For Revision" ang 2D.
+
         if ($design3dDecision === 'For Revision' && $design2dDecision !== 'For Revision') {
             $design2dDecision = 'For Revision';
             $cascadeNote = 'Automatically sent back together with the 3D file revision.';
@@ -398,19 +381,14 @@ if ($action === 'review') {
     $quotationRemarksToSave = $quotationDecision === 'For Revision' ? $quotationRemarks : null;
     $design3dRemarksToSave  = ($include3d && $design3dDecision === 'For Revision') ? $design3dRemarks : null;
 
-    // Legacy `remarks` column: panatilihin itong updated (combined summary)
-    // para sa mga lumang bahagi ng system na umaasa pa dito.
+
     $combinedRemarks = trim(implode("\n\n", array_filter([
         $design2dRemarksToSave ? "2D: {$design2dRemarksToSave}" : '',
         $quotationRemarksToSave ? "Quotation: {$quotationRemarksToSave}" : '',
         $design3dRemarksToSave ? "3D: {$design3dRemarksToSave}" : '',
     ]))) ?: null;
 
-    // NEW-3D / FIX: design_3d_stage must be resolved unconditionally, not
-    // just when include_3d = 1 — this is the switch that actually unlocks
-    // the sequential "3D comes later" flow. Without it, a non-bundled
-    // submission's 3D slot stays stuck on 'Locked' forever after approval,
-    // which is why the 3D section wasn't showing up on the designer page.
+    
     if ($include3d) {
         // Bundled cycle: 3D's stage mirrors whatever the batch outcome was.
         $new3dStage = $overallStatus; // 'Approved' or 'For Revision'
@@ -436,10 +414,7 @@ if ($action === 'review') {
             reviewed_at = NOW()
         WHERE id = ?
     ");
-    // Types, one per placeholder above in order:
-    // status(s), 2d_decision(s), 2d_remarks(s), quot_decision(s), quot_remarks(s),
-    // [IF] include3d(i), 3d_decision(s), [IF] include3d(i), 3d_remarks(s),
-    // 3d_stage(s), [IF] include3d(i), remarks(s), id(i)  =>  13 placeholders total
+
     $types = 's' . 's' . 's' . 's' . 's' . 'i' . 's' . 'i' . 's' . 's' . 'i' . 's' . 'i';
     $stmt->bind_param(
         $types,
@@ -463,7 +438,7 @@ if ($action === 'review') {
         ];
 
         if ($overallStatus === 'Approved') {
-            // 🔔 Fully approved (2D + Quotation, + 3D if bundled) — notify the Accounting Head.
+           
             chk2dNotifyAccountingHead(
                 $conn,
                 (int) $current['inquiry_id'],
@@ -471,10 +446,7 @@ if ($action === 'review') {
                 $currentUserId
             );
         } else {
-            // 🔔 Sent back for revision — notify per department role
-            // (buong Design department pag na-revision yung 2D — kasama na
-            // dito ang cascade mula sa 3D — buong Sales department pag
-            // na-revision yung Quotation).
+         
             if ($design2dDecision === 'For Revision') {
                 chk2dNotifyRoleRevision(
                     $conn,
@@ -506,10 +478,7 @@ if ($action === 'review') {
     exit;
 }
 
-// ── review_3d — sequential flow only: 2D & Quotation were already
-// Approved in a prior review; this decides on the 3D file alone.
-// NEW-3D.
-// ═══════════════════════════════════════════════════════════
+
 if ($action === 'review_3d') {
 
     $id = intval($_POST['id'] ?? 0);
@@ -555,9 +524,7 @@ if ($action === 'review_3d') {
     ];
 
     if ($design3dDecision === 'Approved') {
-        // Simple case: mark the 3D file itself Approved. The overall row
-        // stays 'Approved' — the whole submission (2D, Quotation, 3D) is
-        // now fully settled.
+    
         $stmt = $conn->prepare("
             UPDATE noblecrm_2dquotation
             SET design_3d_stage = 'Approved', design_3d_review_status = 'Approved',
@@ -571,14 +538,7 @@ if ($action === 'review_3d') {
         $message = 'Submission approved.';
 
     } else {
-        // 🔁 Cascade rule applies here too: 3D revision means the 2D file
-        // needs rework. The 2D+Quotation row is already 'Approved' and
-        // locked, so we open a NEW cycle: 2D goes back to 'For Revision'
-        // (re-upload required), Quotation carries forward as Approved
-        // (untouched, no re-upload needed), and 3D carries its existing
-        // file forward with the reviewer's remarks attached, needing
-        // re-upload as well. The new cycle bundles 3D (include_3d = 1)
-        // since they now need to move together.
+       
         $cascadeNote = 'Revision requested on the 3D file — please also review/update the 2D file.';
 
         $newStatus = 'For Revision';
@@ -597,9 +557,7 @@ if ($action === 'review_3d') {
                  1, ?, ?, ?, NOW(), 'Approved',
                  0, ?, ?, ?, 'For Revision', ?, ?)
         ");
-        // Built explicitly (not hand-typed as one string) so the type
-        // list can't silently drift out of sync with the params below:
-        // i, s, i,  s, s, i, s,  s, s, i,  s, s, i, s, s
+      
         $types = 'i' . 's' . 'i' . 's' . 's' . 'i' . 's' . 's' . 's' . 'i' . 's' . 's' . 'i' . 's' . 's';
         $design2dUploadedBy = (int) $current['design_2d_uploaded_by'];
         $quotationUploadedBy = (int) $current['quotation_uploaded_by'];

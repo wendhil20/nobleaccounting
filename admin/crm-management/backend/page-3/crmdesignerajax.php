@@ -1,8 +1,5 @@
 <?php
 // crmdesignerajax.php
-// JSON endpoint na ginagamit ng site.php (Designer List) para sa realtime polling,
-// pag-fetch ng detail, at "Proceed" action.
-
 include ROOT_PATH . '/network/connect.php';
 include ROOT_PATH . '/admin/authentication/index-roles.php';
 
@@ -22,6 +19,7 @@ function crmDesignerBaseQuery()
         SELECT
             i.id, i.control_no, i.client_name, i.address, i.project_type,
             i.project_scope, i.measuring_space, i.measurement_datetime,
+            i.target_completion_date,
             i.contact_number, i.contract_amount, i.branch, i.created_at,
             i.status, i.mode,
             s.name AS sales_name
@@ -33,23 +31,22 @@ function crmDesignerBaseQuery()
 function crmDesignerFormatRow($row)
 {
     return [
-        'id'                   => (int) $row['id'],
-        'control_no'           => $row['control_no'],
-        'client_name'          => $row['client_name'],
-        'address'              => $row['address'],
-        'project_type'         => $row['project_type'],
-        'project_scope'        => $row['project_scope'],
-        'measuring_space'      => $row['measuring_space'],
-        'measurement_datetime' => $row['measurement_datetime'],
-        'contact_number'       => $row['contact_number'],
-        'contract_amount'      => $row['contract_amount'],
-        'branch'               => $row['branch'],
-        'status'               => $row['status'] ?: 'Pending',
-        // "site_visit" (default) o "ready_for_quotation" — ginagamit ng
-        // site.php para itago ang Site Visit button/step kapag ready_for_quotation.
-        'mode'                 => $row['mode'] ?: 'site_visit',
-        'sales_name'           => $row['sales_name'] ?? '—',
-        'created_at'           => $row['created_at'],
+        'id'                       => (int) $row['id'],
+        'control_no'               => $row['control_no'],
+        'client_name'              => $row['client_name'],
+        'address'                  => $row['address'],
+        'project_type'             => $row['project_type'],
+        'project_scope'            => $row['project_scope'],
+        'measuring_space'          => $row['measuring_space'],
+        'measurement_datetime'     => $row['measurement_datetime'],
+        'target_completion_date'   => $row['target_completion_date'],
+        'contact_number'           => $row['contact_number'],
+        'contract_amount'          => $row['contract_amount'],
+        'branch'                   => $row['branch'],
+        'status'                   => $row['status'] ?: 'Pending',
+        'mode'                     => $row['mode'] ?: 'site_visit',
+        'sales_name'               => $row['sales_name'] ?? '—',
+        'created_at'               => $row['created_at'],
     ];
 }
 
